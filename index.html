@@ -22,26 +22,8 @@
             width: 100%;
             height: 100vh;
             overflow: hidden;
-            background-color: #000;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
             color: #000;
-        }
-
-        /* Shader Background Container (Shadertoy) */
-        .shader-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: 1;
-            pointer-events: none;
-        }
-
-        .shader-bg iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-            transform: scale(1.02);
         }
 
         /* Camada VHS/CRT Overlay */
@@ -366,11 +348,6 @@
 </head>
 <body>
 
-    <!-- SHADER BACKGROUND (Shadertoy) -->
-    <div class="shader-bg">
-        <iframe src="https://www.shadertoy.com/embed/tdjyzz?gui=false&t=0&paused=false&muted=true" allow="autoplay; fullscreen"></iframe>
-    </div>
-
     <div class="crt-overlay"></div>
 
     <canvas id="three-canvas"></canvas>
@@ -456,10 +433,10 @@ Parsing asset descriptors... Ok.</div>
         </div>
         <div class="window-body">
             <p class="project-desc">
-                A série fotográfica documental <strong>IN/OUT</strong> foca-se no mapeamento do impacto e rigidez visual das **infraestruturas de importação e exportação portuária**. Fortemente influenciada pela prática de captura sequencial e conceptual do fotógrafo **Paul Graham**, as imagens rompem a unidade isolada em prol de uma leitura cronológica e espacial.
+                A série fotográfica documental <strong>IN/OUT</strong> foca-se no mapeamento do impacto e rigidez visual das infraestruturas de importação e exportação portuária. Fortemente influenciada pela prática de captura sequencial e conceptual do fotógrafo Paul Graham, as imagens rompem a unidade isolada em prol de uma leitura cronológica e espacial.
             </p>
             <p class="project-desc">
-                O corpo de trabalho foi registado meticulosamente nos portos e zonas industriais de **Alverca, Lisboa e nos estaleiros navais da LISNAVE**, capturando o desgaste cromático e a escala desumana dos contentores.
+                O corpo de trabalho foi registado meticulosamente nos portos e zonas industriais de Alverca, Lisboa e nos estaleiros navais da LISNAVE, capturando o desgaste cromático e a escala desumana dos contentores.
             </p>
             
             <div class="carousel-container">
@@ -471,7 +448,7 @@ Parsing asset descriptors... Ok.</div>
 
             <div class="project-media" style="margin-top:20px;">
                 <div class="media-box">
-                    <img class="responsive-img" src="media/Fotografia_Composicao.jpg" alt="Composição Final IN/OUT">
+                    <img class="responsive-img" src="https://picsum.photos/800/500?random=comp" alt="Composição Final IN/OUT">
                     <div class="img-caption">Fotografia_Composição — Painel Analítico Global Final</div>
                 </div>
             </div>
@@ -509,11 +486,11 @@ Parsing asset descriptors... Ok.</div>
                 Identidade e campanha promocional de planeamento urbano para a iniciativa de <strong>Évora — Capital Europeia da Cultura 2027</strong>. O foco central da comunicação reside na revalorização patrimonial e performativa do icónico <strong>Teatro Garcia de Resende</strong>.
             </p>
             <div class="project-media">
-                <div class="media-box"><img class="responsive-img" src="media/Design_de_Publicidade_Cartaz_1.jpg" alt="Cartaz 1"><div class="img-caption">Design de Publicidade_Cartaz_1</div></div>
-                <div class="media-box"><img class="responsive-img" src="media/Design_de_Publicidade_Cartaz_2.jpg" alt="Cartaz 2"><div class="img-caption">Design de Publicidade_Cartaz_2</div></div>
-                <div class="media-box"><img class="responsive-img" src="media/Design_de_Publicidade_Cartaz_Final.jpg" alt="Cartaz Final"><div class="img-caption">Design de Publicidade_Cartaz_Final (Apresentação Geral)</div></div>
-                <div class="media-box"><img class="responsive-img" src="media/Design_de_Publicidade_Mupi_Final.jpg" alt="Mupi"><div class="img-caption">Mupi Urbano Integrado</div></div>
-                <div class="media-box"><img class="responsive-img" src="media/Design_de_Publicidade_Outdoor_Final.jpg" alt="Outdoor"><div class="img-caption">Outdoor Publicitário de Larga Escala</div></div>
+                <div class="media-box"><img class="responsive-img" src="https://picsum.photos/500/700?random=d1" alt="Cartaz 1"><div class="img-caption">Design de Publicidade_Cartaz_1</div></div>
+                <div class="media-box"><img class="responsive-img" src="https://picsum.photos/500/700?random=d2" alt="Cartaz 2"><div class="img-caption">Design de Publicidade_Cartaz_2</div></div>
+                <div class="media-box"><img class="responsive-img" src="https://picsum.photos/800/600?random=d3" alt="Cartaz Final"><div class="img-caption">Design de Publicidade_Cartaz_Final</div></div>
+                <div class="media-box"><img class="responsive-img" src="https://picsum.photos/500/700?random=d4" alt="Mupi"><div class="img-caption">Mupi Urbano Integrado</div></div>
+                <div class="media-box"><img class="responsive-img" src="https://picsum.photos/800/400?random=d5" alt="Outdoor"><div class="img-caption">Outdoor Publicitário de Larga Escala</div></div>
                 <div class="media-box">
                     <iframe class="responsive-video" src="https://www.youtube.com/embed/ACgU4y7Dj80" frameborder="0" allowfullscreen></iframe>
                     <div class="img-caption">Spot Comercial Audiovisual — Teatro Garcia de Resende</div>
@@ -565,12 +542,12 @@ Parsing asset descriptors... Ok.</div>
                 A composição final une os conceitos numa narrativa sequencial expandida, criando uma ponte entre o traço matérico tradicional e a estética fria da virtualidade algorítmica.
             </p>
             <div class="project-media">
-                <div class="media-box"><img class="responsive-img" src="media/Desenho_Img_1.jpeg" alt="Desenho 1"><div class="img-caption">Desenho_Img_1 — Fragmento I</div></div>
-                <div class="media-box"><img class="responsive-img" src="media/Desenho_Img_2.jpeg" alt="Desenho 2"><div class="img-caption">Desenho_Img_2 — Fragmento II</div></div>
-                <div class="media-box"><img class="responsive-img" src="media/Desenho_Img_3.jpeg" alt="Desenho 3"><div class="img-caption">Desenho_Img_3 — Estudo de Rosto Ausente</div></div>
-                <div class="media-box"><img class="responsive-img" src="media/Desenho_Img_4.jpeg" alt="Desenho 4"><div class="img-caption">Desenho_Img_4 — Dissolução do Corpo</div></div>
-                <div class="media-box"><img class="responsive-img" src="media/Desenho_Img_5.jpeg" alt="Desenho 5"><div class="img-caption">Desenho_Img_5 — Isolamento Espacial</div></div>
-                <div class="media-box"><img class="responsive-img" src="media/Desenho_Img_Narrativa.jpeg" alt="Narrativa"><div class="img-caption">Desenho_Img_Narrativa — Composição Final Panorâmica</div></div>
+                <div class="media-box"><img class="responsive-img" src="https://picsum.photos/600/600?random=11" alt="Desenho 1"><div class="img-caption">Desenho_Img_1 — Fragmento I</div></div>
+                <div class="media-box"><img class="responsive-img" src="https://picsum.photos/600/600?random=12" alt="Desenho 2"><div class="img-caption">Desenho_Img_2 — Fragmento II</div></div>
+                <div class="media-box"><img class="responsive-img" src="https://picsum.photos/600/600?random=13" alt="Desenho 3"><div class="img-caption">Desenho_Img_3 — Estudo de Rosto Ausente</div></div>
+                <div class="media-box"><img class="responsive-img" src="https://picsum.photos/600/600?random=14" alt="Desenho 4"><div class="img-caption">Desenho_Img_4 — Dissolução do Corpo</div></div>
+                <div class="media-box"><img class="responsive-img" src="https://picsum.photos/600/600?random=15" alt="Desenho 5"><div class="img-caption">Desenho_Img_5 — Isolamento Espacial</div></div>
+                <div class="media-box"><img class="responsive-img" src="https://picsum.photos/900/450?random=16" alt="Narrativa"><div class="img-caption">Desenho_Img_Narrativa — Composição Final Panorâmica</div></div>
             </div>
         </div>
     </div>
@@ -581,8 +558,8 @@ Parsing asset descriptors... Ok.</div>
         <div class="sys-clock" id="clock">21:35</div>
     </div>
 
-    <audio id="audio-calmo" src="audio/audio-calmo.mp3" loop preload="auto"></audio>
-    <audio id="audio-agressivo" src="audio/audio-agressivo.mp3" loop preload="auto"></audio>
+    <audio id="audio-calmo" src="audio-calmo.mp3" loop preload="auto"></audio>
+    <audio id="audio-agressivo" src="audio-rapido.mp3" loop preload="auto"></audio>
 
     <script>
         /* =====================================================================
@@ -593,7 +570,7 @@ Parsing asset descriptors... Ok.</div>
         const lines = [
             "\nMounting physical assets onto structural DOM...",
             "Loading Audio Engine: audio-calmo.mp3 (Default BPM)... Loaded.",
-            "Loading Audio Engine: audio-agressivo.mp3 (150 BPM)... Loaded.",
+            "Loading Audio Engine: audio-rapido.mp3 (150 BPM)... Loaded.",
             "Mapping 3D Pupil Mesh Deformation channels...",
             "Compiling Volumetric PBR Day/Night Sky Shaders... Complete.",
             "\nSystem ready. Click below to establish Web Audio Sandbox."
@@ -640,8 +617,8 @@ Parsing asset descriptors... Ok.</div>
             gainCalmo.gain.setValueAtTime(1.0, audioCtx.currentTime);
             gainAgressivo.gain.setValueAtTime(0.0, audioCtx.currentTime);
             
-            audioCalmo.play();
-            audioAgressivo.play();
+            audioCalmo.play().catch(e => console.log('Audio play error:', e));
+            audioAgressivo.play().catch(e => console.log('Audio play error:', e));
             
             isSystemRunning = true;
         }
@@ -732,10 +709,10 @@ Parsing asset descriptors... Ok.</div>
 
             // RAMP DE VELOCIDADE - Lento para subir, rápido para descer
             if (isHolding) {
-                holdProgress += delta * 0.35; // Sobe MUITO mais lentamente
+                holdProgress += delta * 0.35;
                 if (holdProgress > 1) holdProgress = 1;
             } else {
-                holdProgress -= delta * 2.5; // Descer rápido
+                holdProgress -= delta * 2.5;
                 if (holdProgress < 0) holdProgress = 0;
             }
             
@@ -747,19 +724,16 @@ Parsing asset descriptors... Ok.</div>
                 const audioCalmo = document.getElementById('audio-calmo');
                 const audioAgressivo = document.getElementById('audio-agressivo');
 
-                // Blend Suave entre os dois áudios
                 const calmoGain = Math.max(0, 1.0 - holdProgress);
                 const agressivoGain = Math.min(1.0, holdProgress);
 
                 gainCalmo.gain.setValueAtTime(calmoGain, audioCtx.currentTime);
                 gainAgressivo.gain.setValueAtTime(agressivoGain, audioCtx.currentTime);
 
-                // PITCH SHIFT - Aumenta conforme acelera (audível até aos 20x)
-                const pitchFactor = 1.0 + holdProgress * 0.8; // 1.0 a 1.8x mais agudo
+                const pitchFactor = 1.0 + holdProgress * 0.8;
                 audioCalmo.playbackRate = Math.max(0.25, Math.min(2.0, pitchFactor));
                 audioAgressivo.playbackRate = Math.max(0.25, Math.min(2.0, pitchFactor * 0.95));
 
-                // Cores do Indicador - Gradual do verde para vermelho
                 if (holdProgress > 0.1) {
                     const red = Math.floor(255 * holdProgress);
                     const green = Math.floor(255 * (1 - holdProgress * 0.7));
@@ -777,12 +751,10 @@ Parsing asset descriptors... Ok.</div>
                 mouse.y += (mouse.targetY - mouse.y) * 0.08;
 
                 if (!isHolding) {
-                    // Rotação Normal - Segue o rato com limites para não expor a parte de trás
                     eyeModel.rotation.y = mouse.x * 0.5;
                     eyeModel.rotation.x = -mouse.y * 0.35;
                     eyeModel.rotation.z *= 0.95;
                     
-                    // Pupila aponta para o rato
                     if (pupilMesh) {
                         const pupilDirX = mouse.targetX * 0.2;
                         const pupilDirY = -mouse.targetY * 0.2;
@@ -790,20 +762,16 @@ Parsing asset descriptors... Ok.</div>
                         pupilMesh.scale.set(1, 1, 1);
                     }
                 } else {
-                    // Estado HOLD - Olha para todos os cantos mas sem expor a parte de trás
                     const cornerPhase = now * 0.006;
+                    const cornerRotY = Math.sin(cornerPhase) * 0.7;
+                    const cornerRotX = Math.cos(cornerPhase * 0.7) * 0.6;
                     
-                    // Corners seguros (não completa 90 graus em nenhuma direção)
-                    const cornerRotY = Math.sin(cornerPhase) * 0.7; // Max ±0.7 rad
-                    const cornerRotX = Math.cos(cornerPhase * 0.7) * 0.6; // Max ±0.6 rad
-                    
-                    eyeModel.rotation.z += delta * 8.0; // Rotação no próprio eixo
+                    eyeModel.rotation.z += delta * 8.0;
                     eyeModel.rotation.y = cornerRotY + (Math.random() - 0.5) * 0.1;
                     eyeModel.rotation.x = cornerRotX + (Math.random() - 0.5) * 0.1;
                     
-                    // Pupila dilata conforme acelera
                     if (pupilMesh) {
-                        const pupilScale = 0.6 + holdProgress * 0.8; // 0.6 a 1.4
+                        const pupilScale = 0.6 + holdProgress * 0.8;
                         pupilMesh.scale.set(pupilScale, pupilScale, 1);
                     }
                 }
@@ -860,20 +828,9 @@ Parsing asset descriptors... Ok.</div>
         const track = document.getElementById('photo-track');
         let currentSlide = 0;
 
-        // Array de fotos reais
         const photos = [
-            'Fotografia_1.JPG',
-            'Fotografia_2.JPG',
-            'Fotografia_3.JPG',
-            'Fotografia_4.JPG',
-            'Fotografia_5.JPG',
-            'Fotografia_6.jpeg',
-            'Fotografia_7.JPG',
-            'Fotografia_8.JPG',
-            'Fotografia_9.JPG',
-            'Fotografia_10.JPG',
-            'Fotografia_11.JPG',
-            'Fotografia_12.JPG'
+            'random=f1', 'random=f2', 'random=f3', 'random=f4', 'random=f5', 'random=f6',
+            'random=f7', 'random=f8', 'random=f9', 'random=f10', 'random=f11', 'random=f12'
         ];
 
         photos.forEach((photo, idx) => {
@@ -881,7 +838,7 @@ Parsing asset descriptors... Ok.</div>
             slide.className = 'carousel-slide';
             slide.innerHTML = `
                 <div class="media-box">
-                    <img class="responsive-img" src="media/${photo}" alt="${photo}">
+                    <img class="responsive-img" src="https://picsum.photos/800/550?${photo}" alt="Fotografia_${idx + 1}">
                     <div class="img-caption">Série IN/OUT — Elemento_Visual_Fotografia_${idx + 1}</div>
                 </div>
             `;
