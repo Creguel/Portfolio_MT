@@ -4,26 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Miguel Taylor — Portfolio OS</title>
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+
     <style>
-        /* Estilos Base Estilo Sistema Operativo Antigo */
+        /* --- ESTILOS RETRO VHS / WINDOWS 95 COM ANIMAÇÕES MODERNAS --- */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             user-select: none;
+            font-family: "MS Sans Serif", -apple-system, BlinkMacSystemFont, Arial, sans-serif;
         }
 
         body, html {
             width: 100%;
             height: 100vh;
             overflow: hidden;
-            font-family: "MS Sans Serif", Geneva, sans-serif;
             background-color: #050505;
+            color: #000;
         }
 
-        /* Canvas de Fundo (Shader de Nuvens Volumétricas) */
+        /* Canvas Background para o Shader */
         #cloud-canvas {
             position: fixed;
             top: 0;
@@ -31,6 +34,7 @@
             width: 100vw;
             height: 100vh;
             z-index: 1;
+            pointer-events: none;
         }
 
         /* Efeito de Monitor de Jogo Antigo CRT / VHS Overlay */
@@ -50,637 +54,558 @@
         #loading-screen {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
-            background: #000;
-            color: #4af626;
-            font-family: monospace;
+            background: #050505;
+            color: #22ff22;
+            font-family: 'Courier New', monospace;
             z-index: 10000;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
-            padding: 40px;
-            cursor: pointer;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            transition: opacity 0.8s ease;
         }
-        .boot-text { white-space: pre-wrap; line-height: 1.5; font-size: 14px; }
-        .blink { animation: blinker 1s linear infinite; font-weight: bold; margin-top: 20px; color: #fff; }
-        @keyframes blinker { 50% { opacity: 0; } }
+        .boot-text {
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+        .enter-btn {
+            background: #22ff22;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: monospace;
+            display: none;
+            transition: transform 0.2s;
+        }
+        .enter-btn:hover { transform: scale(1.05); }
 
         /* Interface do Desktop e Ícones */
         .desktop {
-            width: 100%;
-            height: calc(100vh - 40px);
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: 3;
             padding: 20px;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, 90px);
-            grid-auto-rows: 90px;
+            display: flex;
+            flex-direction: column;
             gap: 20px;
-            position: relative;
-            z-index: 5;
+            align-content: flex-start;
+            flex-wrap: wrap;
+            pointer-events: none;
         }
-
-        .icon {
+        .desktop-icon {
+            width: 85px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
             text-align: center;
             cursor: pointer;
-            color: white;
-            font-size: 12px;
-            text-shadow: 1px 1px 2px black;
+            pointer-events: auto;
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-
-        .icon img {
-            width: 42px;
-            height: 42px;
-            margin-bottom: 6px;
+        .desktop-icon:hover { transform: scale(1.08); }
+        .folder-visual {
+            width: 44px; height: 44px;
+            background: #dfdfdf;
+            border-left: 2px solid #fff; border-top: 2px solid #fff;
+            border-right: 2px solid #5a5a5a; border-bottom: 2px solid #5a5a5a;
+            box-shadow: 1px 1px 0 #000;
+            position: relative;
+            margin-bottom: 5px;
+        }
+        .folder-visual::before {
+            content: ''; position: absolute;
+            top: 6px; left: 8px; width: 28px; height: 24px;
+            background: #fcd116; border: 1px solid #c69c00; border-radius: 2px;
+        }
+        .folder-visual::after {
+            content: ''; position: absolute;
+            top: 2px; left: 8px; width: 12px; height: 6px;
+            background: #fcd116; border: 1px solid #c69c00; border-bottom: none;
+        }
+        .icon-label {
+            color: white; font-size: 11px; text-shadow: 1px 1px 2px #000;
+            padding: 2px 4px; background: rgba(0,0,0,0.2); border-radius: 2px; word-break: break-word;
         }
 
         /* Janelas Clássicas */
         .classic-window {
             position: absolute;
-            top: 10%;
-            left: 25%;
-            width: 650px;
-            background: #d4d0c8;
-            border: 2px solid;
-            border-color: #fff #404040 #404040 #fff;
+            top: 6%; right: 4%;
+            width: 46vw; height: 82vh; min-width: 340px;
+            background: #c0c0c0;
+            border-left: 2px solid #fff; border-top: 2px solid #fff;
+            border-right: 2px solid #808080; border-bottom: 2px solid #808080;
             box-shadow: 2px 2px 10px rgba(0,0,0,0.5);
-            display: none;
-            flex-direction: column;
+            display: flex; flex-direction: column;
             z-index: 10;
-        }
-
-        .classic-window.active {
-            display: flex;
-        }
-
-        .title-bar {
-            background: linear-gradient(90deg, #000080, #1084d0);
-            color: white;
-            padding: 4px 6px;
-            font-weight: bold;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 13px;
-            cursor: move;
-        }
-
-        .title-bar-controls button {
-            width: 16px;
-            height: 14px;
-            background: #d4d0c8;
-            border: 1px solid;
-            border-color: #fff #404040 #404040 #fff;
-            font-size: 9px;
-            font-weight: bold;
-            cursor: pointer;
-            line-height: 10px;
-        }
-
-        .window-body {
-            padding: 12px;
-            color: #000;
-            overflow-y: auto;
-            max-height: 450px;
-            background: #fff;
-            margin: 4px;
-            border: 2px solid;
-            border-color: #404040 #fff #fff #404040;
-        }
-
-        /* Grelhas das Galerias */
-        .gallery-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 12px;
-        }
-
-        .gallery-item {
-            border: 1px solid #808080;
-            padding: 4px;
-            background: #f1f1f1;
-            text-align: center;
-        }
-
-        .gallery-item img {
-            width: 100%;
-            height: 110px;
-            object-fit: cover;
-            border: 1px solid #404040;
-        }
-
-        .gallery-item span {
-            font-size: 11px;
-            display: block;
-            margin-top: 4px;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            overflow: hidden;
-        }
-
-        .pdf-link {
-            display: block;
-            padding: 20px 10px;
-            background: #e4e0d8;
-            border: 1px dashed #000080;
-            color: #000080;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 12px;
-        }
-
-        /* Barra de Tarefas */
-        .taskbar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100vw;
-            height: 40px;
-            background: #d4d0c8;
-            border-top: 2px solid #fff;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 10px;
-            z-index: 1000;
-        }
-
-        .start-button {
-            background: #d4d0c8;
-            border: 2px solid;
-            border-color: #fff #404040 #404040 #fff;
-            font-weight: bold;
-            padding: 2px 6px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            cursor: pointer;
-        }
-
-        /* Elemento de Canvas Central (Olho Tridimensional) */
-        #eye-container {
-            position: fixed;
-            bottom: 60px;
-            right: 20px;
-            width: 220px;
-            height: 220px;
-            z-index: 99;
-            cursor: pointer;
+            opacity: 0;
+            transform: scale(0.95) translate3d(20px, 0, 0);
             pointer-events: none;
+            transition: opacity 0.3s cubic-bezier(0.25, 1, 0.5, 1), transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        .classic-window.active {
+            opacity: 1; transform: scale(1) translate3d(0, 0, 0); pointer-events: auto; z-index: 100;
+        }
+        .window-title {
+            background: linear-gradient(90deg, #000080, #1084d0); color: white;
+            padding: 4px 6px; font-weight: bold; font-size: 13px;
+            display: flex; justify-content: space-between; align-items: center; cursor: move;
+        }
+        .window-close {
+            background: #c0c0c0; color: black;
+            border-left: 1px solid #fff; border-top: 1px solid #fff;
+            border-right: 1px solid #000; border-bottom: 1px solid #000;
+            width: 16px; height: 16px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 9px; cursor: pointer; font-weight: bold;
+        }
+        
+        .window-body {
+            padding: 15px; flex: 1; overflow-y: auto;
+            background: #fff; margin: 4px;
+            border-left: 2px solid #808080; border-top: 2px solid #808080;
+            border-right: 2px solid #fff; border-bottom: 2px solid #fff;
+        }
+        
+        .window-body::-webkit-scrollbar { width: 16px; }
+        .window-body::-webkit-scrollbar-track { background: #dfdfdf; }
+        .window-body::-webkit-scrollbar-thumb {
+            background: #c0c0c0;
+            border-left: 1px solid #fff; border-top: 1px solid #fff;
+            border-right: 1px solid #808080; border-bottom: 1px solid #808080;
         }
 
-        .project-desc {
-            font-size: 13px;
-            margin-bottom: 15px;
-            line-height: 1.5;
-            text-align: justify;
+        .project-desc { font-size: 12px; line-height: 1.6; margin-bottom: 15px; color: #111; text-align: justify; }
+        .project-media { display: flex; flex-direction: column; gap: 15px; margin-top: 15px; }
+        .media-box { width: 100%; background: #000; border: 1px solid #808080; position: relative; overflow: hidden; }
+        .responsive-video { aspect-ratio: 16 / 9; width: 100%; height: auto; display: block; }
+        .responsive-img { width: 100%; height: auto; object-fit: contain; display: block; max-height: 70vh; background: #111; }
+        .img-caption { background: #f0f0f0; color: #333; padding: 5px; font-size: 11px; border-top: 1px solid #808080; font-family: monospace; }
+        .pdf-link { display: block; padding: 20px 10px; background: #e4e0d8; border: 1px dashed #000080; color: #000080; text-decoration: none; font-weight: bold; font-size: 12px; }
+
+        /* Barra de Estado (Engine de Velocidade) */
+        #taskbar {
+            position: fixed; bottom: 0; left: 0; width: 100vw; height: 30px;
+            background: #c0c0c0; border-top: 2px solid #fff; z-index: 500;
+            display: flex; align-items: center; justify-content: space-between; padding: 0 10px; box-shadow: 0 -1px 5px rgba(0,0,0,0.3);
+        }
+        .speed-panel {
+            background: #000; color: #00ff00; font-family: monospace; font-size: 12px;
+            padding: 3px 8px; border-left: 2px solid #808080; border-top: 2px solid #808080;
+            border-right: 2px solid #fff; border-bottom: 2px solid #fff; letter-spacing: 1px;
+        }
+
+        /* Olho 3D */
+        #eye-container {
+            position: fixed; bottom: 60px; right: 20px; width: 220px; height: 220px; z-index: 99; pointer-events: none;
         }
     </style>
 </head>
 <body>
 
-    <audio id="bgMusic" src="media/audio-calmo.mp3" loop preload="auto"></audio>
-    <audio id="aggressMusic" src="media/audio-agressivo.mp3" loop preload="auto"></audio>
-
     <div class="crt-overlay"></div>
 
-    <div id="loading-screen" onclick="bootSystem()">
-        <div class="boot-text">
-Miguel Taylor Portfolio - Loading OS...
-MEMORY CHECK: OK
-LOADING SHADERTOY CLOUD MODULE... OK
-LOADING THREE.JS EYE MODULE... OK
-MOUNTING DIRECTORIES:
-  - Desenho
-  - Design de Publicidade
-  - Fotografia II
-        </div>
-        <div class="blink">[ CLICK ANYWHERE TO INITIALIZE SYSTEM AND AUDIO ]</div>
-    </div>
+    <audio id="bgMusic" src="media/audio-calmo.mp3" loop></audio>
+    <audio id="aggressMusic" src="media/audio-agressivo.mp3" loop></audio>
 
     <canvas id="cloud-canvas"></canvas>
 
+    <div id="eye-container"></div>
+
+    <div id="loading-screen">
+        <div class="boot-text" id="boot-log">MT-OS(R) Volumetric Kernel Loading...
+Initializing WebGL context... Ok.
+Parsing asset descriptors... Ok.</div>
+        <button class="enter-btn" id="btn-enter" onclick="startPortfolio()">MIGUEL TAYLOR PORTFOLIO - ENTER SYSTEM</button>
+    </div>
+
     <div class="desktop">
-        <div class="icon" onclick="openWindow('win-about')">
-            <img src="https://img.icons8.com/color/48/folder-invoices.png" alt="Pasta">
-            <span>About Me</span>
-        </div>
-        <div class="icon" onclick="openWindow('win-desenho')">
-            <img src="https://img.icons8.com/color/48/folder-invoices.png" alt="Pasta">
-            <span>Desenho</span>
-        </div>
-        <div class="icon" onclick="openWindow('win-publicidade')">
-            <img src="https://img.icons8.com/color/48/folder-invoices.png" alt="Pasta">
-            <span>Design de Publicidade</span>
-        </div>
-        <div class="icon" onclick="openWindow('win-fotografia')">
-            <img src="https://img.icons8.com/color/48/folder-invoices.png" alt="Pasta">
-            <span>Fotografia II</span>
-        </div>
+        <div class="desktop-icon" onclick="openWindow('win-about')"><div class="folder-visual"></div><div class="icon-label">About Me</div></div>
+        <div class="desktop-icon" onclick="openWindow('win-animacao')"><div class="folder-visual"></div><div class="icon-label">Animação I</div></div>
+        <div class="desktop-icon" onclick="openWindow('win-fotografia')"><div class="folder-visual"></div><div class="icon-label">Fotografia II</div></div>
+        <div class="desktop-icon" onclick="openWindow('win-artes')"><div class="folder-visual"></div><div class="icon-label">Artes Plásticas II</div></div>
+        <div class="desktop-icon" onclick="openWindow('win-design')"><div class="folder-visual"></div><div class="icon-label">Design Publicidade</div></div>
+        <div class="desktop-icon" onclick="openWindow('win-media')"><div class="folder-visual"></div><div class="icon-label">Novos Média I</div></div>
+        <div class="desktop-icon" onclick="openWindow('win-desenho')"><div class="folder-visual"></div><div class="icon-label">Desenho</div></div>
     </div>
 
     <div class="classic-window" id="win-about">
-        <div class="title-bar">
-            <span>C:\About Me.txt</span>
-            <div class="title-bar-controls">
-                <button onclick="closeWindow('win-about')">X</button>
-            </div>
-        </div>
+        <div class="window-title"><span>About Me - Biography.txt</span><div class="window-close" onclick="closeWindow('win-about')">X</div></div>
         <div class="window-body">
-            <h2 style="margin-bottom: 10px;">Miguel Taylor Lança</h2>
-            <p class="project-desc">Miguel Taylor Lança (Beja, 2005) é um artista multimédia com interesse em práticas digitais, interativas e audiovisuais. Atualmente está a concluir a Licenciatura em Artes Plásticas e Multimédia na Universidade de Évora.</p>
-            <p class="project-desc">O seu percurso académico desenvolve-se no cruzamento entre o 3D, o audiovisual, a fotografia e a criação de experiências interativas.</p>
+            <p class="project-desc"><strong>Miguel Taylor Lança</strong> (Beja, 2005) é um artista multimédia focado em explorações conceituais baseadas em práticas digitais, mecânicas interativas e narrativas audiovisuais.</p>
+            <p class="project-desc">O desenvolvimento do seu percurso expande-se no cruzamento simbiótico entre modelação e animação 3D, produção audiovisual autónoma, fotografia de cariz analógico e digital.</p>
         </div>
     </div>
 
-    <div class="classic-window" id="win-desenho">
-        <div class="title-bar">
-            <span>C:\media\Desenho</span>
-            <div class="title-bar-controls">
-                <button onclick="closeWindow('win-desenho')">X</button>
-            </div>
-        </div>
+    <div class="classic-window" id="win-animacao">
+        <div class="window-title"><span>Animação I — Project Room</span><div class="window-close" onclick="closeWindow('win-animacao')">X</div></div>
         <div class="window-body">
-            <div class="gallery-grid">
-                <div class="gallery-item"><img src="media/Desenho/Desenho_Img_1.jpeg"><span>Desenho_Img_1.jpeg</span></div>
-                <div class="gallery-item"><img src="media/Desenho/Desenho_Img_2.jpeg"><span>Desenho_Img_2.jpeg</span></div>
-                <div class="gallery-item"><img src="media/Desenho/Desenho_Img_3.jpeg"><span>Desenho_Img_3.jpeg</span></div>
-                <div class="gallery-item"><img src="media/Desenho/Desenho_Img_4.jpeg"><span>Desenho_Img_4.jpeg</span></div>
-                <div class="gallery-item"><img src="media/Desenho/Desenho_Img_5.jpeg"><span>Desenho_Img_5.jpeg</span></div>
-                <div class="gallery-item"><img src="media/Desenho/Desenho_Img_Narrativa.jpeg"><span>Desenho_Img_Narrativa.jpeg</span></div>
-            </div>
-        </div>
-    </div>
-
-    <div class="classic-window" id="win-publicidade">
-        <div class="title-bar">
-            <span>C:\media\Design de Publicidade</span>
-            <div class="title-bar-controls">
-                <button onclick="closeWindow('win-publicidade')">X</button>
-            </div>
-        </div>
-        <div class="window-body">
-            <div class="gallery-grid">
-                <div class="gallery-item"><a class="pdf-link" href="media/Design de Publicidade/Design de Publicidade_Cartaz_1.pdf" target="_blank">📄 Cartaz 1.pdf</a></div>
-                <div class="gallery-item"><a class="pdf-link" href="media/Design de Publicidade/Design de Publicidade_Cartaz_2.pdf" target="_blank">📄 Cartaz 2.pdf</a></div>
-                <div class="gallery-item"><img src="media/Design de Publicidade/Design de Publicidade_Cartaz_Final.jpg"><span>Cartaz_Final.jpg</span></div>
-                <div class="gallery-item"><a class="pdf-link" href="media/Design de Publicidade/Design de Publicidade_Mupi.pdf" target="_blank">📄 Mupi.pdf</a></div>
-                <div class="gallery-item"><img src="media/Design de Publicidade/Design de Publicidade_Mupi_Final.jpg"><span>Mupi_Final.jpg</span></div>
-                <div class="gallery-item"><a class="pdf-link" href="media/Design de Publicidade/Design de Publicidade_Outdoor.pdf" target="_blank">📄 Outdoor.pdf</a></div>
-                <div class="gallery-item"><img src="media/Design de Publicidade/Design de Publicidade_Outdoor_Final.jpg"><span>Outdoor_Final.jpg</span></div>
+            <p class="project-desc">O projeto <strong>Among-Us</strong> é uma curta-metragem artística desenvolvida em colaboração com Carolina Martins. Utilizando a metodologia tradicional de stop-motion com recortes 2D.</p>
+            <div class="project-media">
+                <div class="media-box"><iframe class="responsive-video" src="https://www.youtube.com/embed/_zd_921ln-s" frameborder="0" allowfullscreen></iframe><div class="img-caption">Video_Artifact: Among-Us StopMotion Final Cut</div></div>
             </div>
         </div>
     </div>
 
     <div class="classic-window" id="win-fotografia">
-        <div class="title-bar">
-            <span>C:\media\Fotografia II</span>
-            <div class="title-bar-controls">
-                <button onclick="closeWindow('win-fotografia')">X</button>
-            </div>
-        </div>
+        <div class="window-title"><span>Fotografia II — Galeria Sequencial</span><div class="window-close" onclick="closeWindow('win-fotografia')">X</div></div>
         <div class="window-body">
-            <div class="gallery-grid">
-                <div class="gallery-item"><img src="media/Fotografia II/Fotografia_1.JPG"><span>Fotografia_1.JPG</span></div>
-                <div class="gallery-item"><img src="media/Fotografia II/Fotografia_2.JPG"><span>Fotografia_2.JPG</span></div>
-                <div class="gallery-item"><img src="media/Fotografia II/Fotografia_3.JPG"><span>Fotografia_3.JPG</span></div>
-                <div class="gallery-item"><img src="media/Fotografia II/Fotografia_4.JPG"><span>Fotografia_4.JPG</span></div>
-                <div class="gallery-item"><img src="media/Fotografia II/Fotografia_5.JPG"><span>Fotografia_5.JPG</span></div>
-                <div class="gallery-item"><img src="media/Fotografia II/Fotografia_6.jpeg"><span>Fotografia_6.jpeg</span></div>
-                <div class="gallery-item"><img src="media/Fotografia II/Fotografia_7.JPG"><span>Fotografia_7.JPG</span></div>
-                <div class="gallery-item"><img src="media/Fotografia II/Fotografia_8.JPG"><span>Fotografia_8.JPG</span></div>
-                <div class="gallery-item"><img src="media/Fotografia II/Fotografia_9.JPG"><span>Fotografia_9.JPG</span></div>
-                <div class="gallery-item"><img src="media/Fotografia II/Fotografia_10.JPG"><span>Fotografia_10.JPG</span></div>
-                <div class="gallery-item"><img src="media/Fotografia II/Fotografia_11.JPG"><span>Fotografia_11.JPG</span></div>
-                <div class="gallery-item"><img src="media/Fotografia II/Fotografia_12.JPG"><span>Fotografia_12.JPG</span></div>
+            <p class="project-desc">Série documental estruturada de forma sequencial com legendas fotográficas. Centrado no tema das importações e exportações marítimas.</p>
+            <div class="project-media">
+                <div class="media-box"><img class="responsive-img" src="media/Fotografia II/Fotografia_1.JPG"><div class="img-caption">Fotografia_1.JPG</div></div>
+                <div class="media-box"><img class="responsive-img" src="media/Fotografia II/Fotografia_2.JPG"><div class="img-caption">Fotografia_2.JPG</div></div>
+                <div class="media-box"><img class="responsive-img" src="media/Fotografia II/Fotografia_3.JPG"><div class="img-caption">Fotografia_3.JPG</div></div>
+                <div class="media-box"><img class="responsive-img" src="media/Fotografia II/Fotografia_4.JPG"><div class="img-caption">Fotografia_4.JPG</div></div>
+                <div class="media-box"><img class="responsive-img" src="media/Fotografia II/Fotografia_5.JPG"><div class="img-caption">Fotografia_5.JPG</div></div>
+                <div class="media-box"><img class="responsive-img" src="media/Fotografia II/Fotografia_6.jpeg"><div class="img-caption">Fotografia_6.jpeg</div></div>
+                <div class="media-box"><img class="responsive-img" src="media/Fotografia II/Fotografia_7.JPG"><div class="img-caption">Fotografia_7.JPG</div></div>
+                <div class="media-box"><img class="responsive-img" src="media/Fotografia II/Fotografia_8.JPG"><div class="img-caption">Fotografia_8.JPG</div></div>
+                <div class="media-box"><img class="responsive-img" src="media/Fotografia II/Fotografia_9.JPG"><div class="img-caption">Fotografia_9.JPG</div></div>
+                <div class="media-box"><img class="responsive-img" src="media/Fotografia II/Fotografia_10.JPG"><div class="img-caption">Fotografia_10.JPG</div></div>
+                <div class="media-box"><img class="responsive-img" src="media/Fotografia II/Fotografia_11.JPG"><div class="img-caption">Fotografia_11.JPG</div></div>
+                <div class="media-box"><img class="responsive-img" src="media/Fotografia II/Fotografia_12.JPG"><div class="img-caption">Fotografia_12.JPG</div></div>
+                <div class="media-box"><img class="responsive-img" src="media/Fotografia II/Fotografia_Composição.jpg"><div class="img-caption">Fotografia_Composição (Painel Global Final)</div></div>
             </div>
         </div>
     </div>
 
-    <div id="eye-container"></div>
-
-    <div class="taskbar">
-        <div class="start-button">
-            <span>⚡ Start</span>
+    <div class="classic-window" id="win-artes">
+        <div class="window-title"><span>Artes Plásticas II — Ambientes Digitais</span><div class="window-close" onclick="closeWindow('win-artes')">X</div></div>
+        <div class="window-body">
+            <p class="project-desc">Paisagem digital generativa e reativa ao espectro sonoro desenvolvida em TouchDesigner.</p>
+            <div class="project-media">
+                <div class="media-box"><iframe class="responsive-video" src="https://www.youtube.com/embed/QpXMYoRIjRc" frameborder="0" allowfullscreen></iframe><div class="img-caption">Video_Output: TouchDesigner Sound Reactive Mesh</div></div>
+            </div>
         </div>
-        <div style="font-size:12px; color:#000; font-weight: bold;" id="status-indicator">HOLD FOR SPEED | 1.0x</div>
+    </div>
+
+    <div class="classic-window" id="win-design">
+        <div class="window-title"><span>Design de Publicidade — Évora 2027</span><div class="window-close" onclick="closeWindow('win-design')">X</div></div>
+        <div class="window-body">
+            <p class="project-desc">Identidade e campanha promocional de planeamento urbano para Évora — Capital Europeia da Cultura 2027.</p>
+            <div class="project-media">
+                <div class="media-box"><a class="pdf-link" href="media/Design de Publicidade/Design de Publicidade_Cartaz_1.pdf" target="_blank">📄 Ver Documento Original: Cartaz 1.pdf</a><div class="img-caption">Cartaz 1</div></div>
+                <div class="media-box"><a class="pdf-link" href="media/Design de Publicidade/Design de Publicidade_Cartaz_2.pdf" target="_blank">📄 Ver Documento Original: Cartaz 2.pdf</a><div class="img-caption">Cartaz 2</div></div>
+                <div class="media-box"><img class="responsive-img" src="media/Design de Publicidade/Design de Publicidade_Cartaz_Final.jpg"><div class="img-caption">Cartaz Final</div></div>
+                <div class="media-box"><a class="pdf-link" href="media/Design de Publicidade/Design de Publicidade_Mupi.pdf" target="_blank">📄 Ver Documento Original: Mupi.pdf</a><div class="img-caption">Mupi Urbano</div></div>
+                <div class="media-box"><img class="responsive-img" src="media/Design de Publicidade/Design de Publicidade_Mupi_Final.jpg"><div class="img-caption">Mupi Final</div></div>
+                <div class="media-box"><a class="pdf-link" href="media/Design de Publicidade/Design de Publicidade_Outdoor.pdf" target="_blank">📄 Ver Documento Original: Outdoor.pdf</a><div class="img-caption">Outdoor</div></div>
+                <div class="media-box"><img class="responsive-img" src="media/Design de Publicidade/Design de Publicidade_Outdoor_Final.jpg"><div class="img-caption">Outdoor Final</div></div>
+                <div class="media-box"><iframe class="responsive-video" src="https://www.youtube.com/embed/ACgU4y7Dj80" frameborder="0" allowfullscreen></iframe><div class="img-caption">Spot Comercial Audiovisual</div></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="classic-window" id="win-media">
+        <div class="window-title"><span>Novos Média I — Estudos de Audio Design</span><div class="window-close" onclick="closeWindow('win-media')">X</div></div>
+        <div class="window-body">
+            <p class="project-desc">Exercícios focados no Audio Design e sonoplastia experimental.</p>
+            <div class="project-media">
+                <div class="media-box"><iframe class="responsive-video" src="https://www.youtube.com/embed/h__B5hYiax4" frameborder="0" allowfullscreen></iframe><div class="img-caption">Sinestesia: Fermentation</div></div>
+                <div class="media-box"><iframe class="responsive-video" src="https://www.youtube.com/embed/bh_n4oDwJZ4" frameborder="0" allowfullscreen></iframe><div class="img-caption">Video-Exercicio</div></div>
+                <div class="media-box"><iframe class="responsive-video" src="https://www.youtube.com/embed/ACgU4y7Dj80" frameborder="0" allowfullscreen></iframe><div class="img-caption">Corporativo</div></div>
+                <div class="media-box"><iframe class="responsive-video" src="https://player.vimeo.com/video/1147553602" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe><div class="img-caption">2_Video-Final: Viagem de Chihiro</div></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="classic-window" id="win-desenho">
+        <div class="window-title"><span>Desenho — Estudos Críticos</span><div class="window-close" onclick="closeWindow('win-desenho')">X</div></div>
+        <div class="window-body">
+            <p class="project-desc">Série de cinco obras que exploram a fundo as complexidades da despersonalização e fragmentações espaciais.</p>
+            <div class="project-media">
+                <div class="media-box"><img class="responsive-img" src="media/Desenho/Desenho_Img_1.jpeg"><div class="img-caption">Desenho_Img_1</div></div>
+                <div class="media-box"><img class="responsive-img" src="media/Desenho/Desenho_Img_2.jpeg"><div class="img-caption">Desenho_Img_2</div></div>
+                <div class="media-box"><img class="responsive-img" src="media/Desenho/Desenho_Img_3.jpeg"><div class="img-caption">Desenho_Img_3</div></div>
+                <div class="media-box"><img class="responsive-img" src="media/Desenho/Desenho_Img_4.jpeg"><div class="img-caption">Desenho_Img_4</div></div>
+                <div class="media-box"><img class="responsive-img" src="media/Desenho/Desenho_Img_5.jpeg"><div class="img-caption">Desenho_Img_5</div></div>
+                <div class="media-box"><img class="responsive-img" src="media/Desenho/Desenho_Img_Narrativa.jpeg"><div class="img-caption">Desenho_Img_Narrativa (Composição Final)</div></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="taskbar">
+        <div style="font-weight: bold; font-size: 12px; border: 2px solid #fff; padding: 2px 6px; border-right-color: #808080; border-bottom-color: #808080;">MIGUEL TAYLOR OS</div>
+        <div class="speed-panel" id="status-indicator">HOLD FOR SPEED | 1.0x</div>
     </div>
 
     <script>
-        /* =====================================================================
-           0. VOLUMETRIC CLOUD BACKGROUND COM SHADER WEBGL 
-           ===================================================================== */
-        const cloudCanvas = document.getElementById('cloud-canvas');
-        const gl = cloudCanvas.getContext('webgl2', { alpha: true });
-        
-        if (!gl) {
-            console.error('WebGL2 not supported, falling back to WebGL');
+        // --- JANELAS (DRAG & DROP E ABRIR/FECHAR) ---
+        let zIndexCounter = 20;
+        function openWindow(id) {
+            document.querySelectorAll('.classic-window').forEach(win => win.classList.remove('active'));
+            const targetWin = document.getElementById(id);
+            if (targetWin) {
+                targetWin.classList.add('active');
+                targetWin.style.zIndex = zIndexCounter++;
+            }
+        }
+        function closeWindow(id) { document.getElementById(id).classList.remove('active'); }
+
+        document.querySelectorAll('.title-bar').forEach(bar => {
+            bar.addEventListener('mousedown', function(e) {
+                const win = this.parentElement;
+                win.style.zIndex = zIndexCounter++;
+                let shiftX = e.clientX - win.getBoundingClientRect().left;
+                let shiftY = e.clientY - win.getBoundingClientRect().top;
+                function moveAt(pageX, pageY) {
+                    win.style.left = pageX - shiftX + 'px';
+                    win.style.top = pageY - shiftY + 'px';
+                }
+                function onMouseMove(ev) { moveAt(ev.clientX, ev.clientY); }
+                document.addEventListener('mousemove', onMouseMove);
+                document.addEventListener('mouseup', () => { document.removeEventListener('mousemove', onMouseMove); }, { once: true });
+            });
+        });
+
+        // --- SISTEMA DE ÁUDIO E ECRÃ DE LOADING ---
+        const audioCalmo = document.getElementById('bgMusic');
+        const audioAgressivo = document.getElementById('aggressMusic');
+        const statusInd = document.getElementById('status-indicator');
+        let audioStarted = false;
+        let holdingClick = false;
+        let playbackSpeed = 1.0;
+
+        // Ativa o Pitch-up no audio
+        audioCalmo.preservesPitch = false;
+        if (audioCalmo.mozPreservesPitch !== undefined) audioCalmo.mozPreservesPitch = false;
+        if (audioCalmo.webkitPreservesPitch !== undefined) audioCalmo.webkitPreservesPitch = false;
+
+        document.getElementById('btn-enter').style.display = 'block';
+        function startPortfolio() {
+            document.getElementById('loading-screen').style.opacity = 0;
+            setTimeout(() => document.getElementById('loading-screen').style.display = 'none', 500);
+            audioCalmo.play().catch(e => console.log("Erro áudio"));
+            audioStarted = true;
         }
 
-        cloudCanvas.width = window.innerWidth;
-        cloudCanvas.height = window.innerHeight;
+        window.addEventListener('mousedown', (e) => {
+            if(e.target.closest('.classic-window') || e.target.closest('#taskbar') || e.target.closest('.desktop')) return;
+            if(audioStarted) holdingClick = true;
+        });
+        window.addEventListener('mouseup', () => { holdingClick = false; });
 
-        // Vertex Shader
-        const vertexShaderSource = `#version 300 es
+        // --- WEBGL SHADER DE FUNDO VOLUMÉTRICO ---
+        const canvasGL = document.getElementById('cloud-canvas');
+        const gl = canvasGL.getContext('webgl2');
+        canvasGL.width = window.innerWidth; canvasGL.height = window.innerHeight;
+
+        const vsSource = `#version 300 es
+        in vec2 position; void main() { gl_Position = vec4(position, 0.0, 1.0); }`;
+
+        // Shader transcrito exatamente da lógica que enviaste (Dia/Noite e Nuvens Volumétricas)
+        const fsSource = `#version 300 es
         precision highp float;
-        in vec2 position;
-        void main() {
-            gl_Position = vec4(position, 0.0, 1.0);
-        }`;
-
-        // Fragment Shader gerado a partir do Shader.txt fornecido
-        const fragmentShaderSource = `#version 300 es
-        precision highp float;
-
-        uniform vec2 iResolution;
-        uniform float iTime;
-        uniform vec4 iMouse;
-        uniform float iSpeed;
-        uniform sampler2D iChannel0;
-
+        uniform vec2 iResolution; uniform float iTime; uniform float iSpeed; uniform sampler2D iChannel0;
         out vec4 fragColor;
 
-        float fTurbulence = 0.35;
-        float fSunSpeed = 0.35;
-
-        vec3 vNightColor   = vec3(.15, 0.3, 0.6);
-        vec3 vHorizonColor = vec3(0.6, 0.3, 0.4);
-        vec3 vDayColor     = vec3(0.7,0.8,1.0);
-
-        vec3 vSunColor     = vec3(1.0,0.8,0.6);
-        vec3 vSunRimColor  = vec3(1.0,0.66,0.33);
+        float fTurbulence = 0.35; float fSunSpeed = 0.35;
+        vec3 vNightColor = vec3(.15, 0.3, 0.6); vec3 vHorizonColor = vec3(0.6, 0.3, 0.4); vec3 vDayColor = vec3(0.7,0.8,1.0);
+        vec3 vSunColor = vec3(1.0,0.8,0.6); vec3 vSunRimColor = vec3(1.0,0.66,0.33);
 
         vec3 v3sunDir;
         void updateSun() {
-            float fSpeed = fSunSpeed * iTime * (1.0 + iSpeed * 0.1);
+            float fSpeed = fSunSpeed * iTime * iSpeed; 
             v3sunDir = normalize( vec3(cos(fSpeed),sin(fSpeed),0.0) );
         }
 
         float noise( in vec3 x ) {
-            vec3 p = floor(x);
-            vec3 f = fract(x);
-            f = f*f*f*(3.0-2.0*f);
+            vec3 p = floor(x); vec3 f = fract(x); f = f*f*f*(3.0-2.0*f);
             vec2 uv = (p.xy+vec2(37.0,17.0)*p.z) + f.xy;
             vec4 rg = texture( iChannel0, (uv+ 0.5)/256.0, -100.0 );
             return (-1.0+2.0*mix( rg.g, rg.r, f.z ));
         }
 
-        float map5(in vec3 p) {
-            vec3 q = p - vec3(0.0,0.1,1.0)*iTime*iSpeed;
-            float f;
-            f  = 0.50000*noise(q);
-            q = q*2.02 + iTime * fTurbulence * iSpeed * 1.0;
-            f += 0.25000*noise(q);
-            q = q*2.03 + iTime * fTurbulence * iSpeed * 2.0;
-            f += 0.12500*noise(q);
-            q = q*2.01 + iTime * fTurbulence * iSpeed * 4.0;
-            f += 0.06250*noise(q);
-            q = q*2.02 + iTime * fTurbulence * iSpeed * 8.0;
-            f += 0.03125*noise(q);
-            return clamp(1.5 - p.y - 2.0 + 1.75*f, 0.0, 1.0);
-        }
-
-        float map4(in vec3 p) {
-            vec3 q = p - vec3(0.0,0.1,1.0)*iTime*iSpeed;
-            float f;
-            f  = 0.50000*noise(q);
-            q = q*2.02 + iTime * fTurbulence * iSpeed * 1.0;
-            f += 0.25000*noise(q);
-            q = q*2.03 + iTime * fTurbulence * iSpeed * 2.0;
-            f += 0.12500*noise(q);
-            q = q*2.01 + iTime * fTurbulence * iSpeed * 4.0;
-            f += 0.06250*noise(q);
-            return clamp(1.5 - p.y - 2.0 + 1.75*f, 0.0, 1.0);
-        }
-
-        float map3(in vec3 p) {
-            vec3 q = p - vec3(0.0,0.1,1.0)*iTime*iSpeed;
-            float f;
-            f  = 0.50000*noise(q);
-            q = q*2.02 + iTime * fTurbulence * iSpeed * 1.0;
-            f += 0.25000*noise(q);
-            q = q*2.03 + iTime * fTurbulence * iSpeed * 2.0;
-            f += 0.12500*noise(q);
-            return clamp(1.5 - p.y - 2.0 + 1.75*f, 0.0, 1.0);
-        }
-
-        float map2(in vec3 p) {
-            vec3 q = p - vec3(0.0,0.1,1.0)*iTime*iSpeed;
-            float f;
-            f  = 0.50000*noise(q);
-            q = q*2.02 + iTime * fTurbulence * iSpeed * 1.0;
-            f += 0.25000*noise(q);
-            return clamp(1.5 - p.y - 2.0 + 1.75*f, 0.0, 1.0);
-        }
+        float map5(in vec3 p) { vec3 q = p - vec3(0.0,0.1,1.0)*iTime*iSpeed; float f = 0.5*noise(q); q = q*2.02 + iTime*fTurbulence*iSpeed*1.0; f += 0.25*noise(q); q = q*2.03 + iTime*fTurbulence*iSpeed*2.0; f += 0.125*noise(q); q = q*2.01 + iTime*fTurbulence*iSpeed*4.0; f += 0.0625*noise(q); q = q*2.02 + iTime*fTurbulence*iSpeed*8.0; f += 0.03125*noise(q); return clamp(1.5 - p.y - 2.0 + 1.75*f, 0.0, 1.0); }
+        float map4(in vec3 p) { vec3 q = p - vec3(0.0,0.1,1.0)*iTime*iSpeed; float f = 0.5*noise(q); q = q*2.02 + iTime*fTurbulence*iSpeed*1.0; f += 0.25*noise(q); q = q*2.03 + iTime*fTurbulence*iSpeed*2.0; f += 0.125*noise(q); q = q*2.01 + iTime*fTurbulence*iSpeed*4.0; f += 0.0625*noise(q); return clamp(1.5 - p.y - 2.0 + 1.75*f, 0.0, 1.0); }
+        float map3(in vec3 p) { vec3 q = p - vec3(0.0,0.1,1.0)*iTime*iSpeed; float f = 0.5*noise(q); q = q*2.02 + iTime*fTurbulence*iSpeed*1.0; f += 0.25*noise(q); q = q*2.03 + iTime*fTurbulence*iSpeed*2.0; f += 0.125*noise(q); return clamp(1.5 - p.y - 2.0 + 1.75*f, 0.0, 1.0); }
+        float map2(in vec3 p) { vec3 q = p - vec3(0.0,0.1,1.0)*iTime*iSpeed; float f = 0.5*noise(q); q = q*2.02 + iTime*fTurbulence*iSpeed*1.0; f += 0.25*noise(q); return clamp(1.5 - p.y - 2.0 + 1.75*f, 0.0, 1.0); }
 
         vec4 integrate(in vec4 sum, in float dif, in float den, in vec3 bgcol, in float t) {
             vec3 lin = vec3(0.9,0.95,1.0) + 0.5*vec3(0.7, 0.5, 0.3)*dif * smoothstep(-0.3, 0.3, v3sunDir.y);
             vec4 col = vec4(mix(1.15*vec3(1.0,0.95,0.8), vec3(0.65), den), den);
-            col.xyz *= lin;
-            col.a *= 0.4;
-            col.rgb *= col.a;
-            return sum + col*(1.0-sum.a);
+            col.xyz *= lin; col.a *= 0.4; col.rgb *= col.a; return sum + col*(1.0-sum.a);
         }
 
-        #define MARCH(STEPS,MAPLOD) for(int i=0; i<STEPS; i++) { vec3 pos = ro + t*rd; if(pos.y<-3.0 || pos.y>2.0 || sum.a > 0.99) break; float den = MAPLOD(pos); if(den>0.01) { float dif = clamp((den - MAPLOD(pos+0.3*v3sunDir))/0.6, 0.0, 1.0); sum = integrate(sum, dif, den, bgcol, t); } t += max(0.01*float(i),0.02*t); }
-
         vec4 raymarch(in vec3 ro, in vec3 rd, in vec3 bgcol) {
-            vec4 sum = vec4(0.0);
-            float t = 0.0;
-            MARCH(20,map5);
-            MARCH(30,map4);
-            MARCH(40,map3);
-            MARCH(50,map2);
+            vec4 sum = vec4(0.0); float t = 0.0;
+            for(int i=0; i<20; i++) { vec3 pos = ro + t*rd; if(pos.y<-3.0 || pos.y>2.0 || sum.a>0.99) break; float den = map5(pos); if(den>0.01) { float dif = clamp((den - map5(pos+0.3*v3sunDir))/0.6, 0.0, 1.0); sum = integrate(sum, dif, den, bgcol, t); } t += max(0.01*float(i),0.02*t); }
+            for(int i=0; i<30; i++) { vec3 pos = ro + t*rd; if(pos.y<-3.0 || pos.y>2.0 || sum.a>0.99) break; float den = map4(pos); if(den>0.01) { float dif = clamp((den - map4(pos+0.3*v3sunDir))/0.6, 0.0, 1.0); sum = integrate(sum, dif, den, bgcol, t); } t += max(0.01*float(i),0.02*t); }
+            for(int i=0; i<40; i++) { vec3 pos = ro + t*rd; if(pos.y<-3.0 || pos.y>2.0 || sum.a>0.99) break; float den = map3(pos); if(den>0.01) { float dif = clamp((den - map3(pos+0.3*v3sunDir))/0.6, 0.0, 1.0); sum = integrate(sum, dif, den, bgcol, t); } t += max(0.01*float(i),0.02*t); }
+            for(int i=0; i<50; i++) { vec3 pos = ro + t*rd; if(pos.y<-3.0 || pos.y>2.0 || sum.a>0.99) break; float den = map2(pos); if(den>0.01) { float dif = clamp((den - map2(pos+0.3*v3sunDir))/0.6, 0.0, 1.0); sum = integrate(sum, dif, den, bgcol, t); } t += max(0.01*float(i),0.02*t); }
             return clamp(sum, 0.0, 1.0);
         }
 
-        mat3 setCamera(in vec3 ro, in vec3 ta, float cr) {
-            vec3 cw = normalize(ta-ro);
-            vec3 cp = vec3(sin(cr), cos(cr),0.0);
-            vec3 cu = normalize(cross(cw,cp));
-            vec3 cv = normalize(cross(cu,cw));
-            return mat3(cu, cv, cw);
-        }
-
-        vec4 render(in vec3 ro, in vec3 rd) {
-            float sun = clamp(dot(v3sunDir,rd), 0.0, 1.0);
-            float fSunHeight = v3sunDir.y;
-            
-            float fNightHeight = -0.8;
-            float fDayHeight   = 0.3;
-            float fHorizonLength = fDayHeight - fNightHeight;
-            float fInverseHL = 1.0 / fHorizonLength;
-            float fHalfHorizonLength = fHorizonLength / 2.0;
-            float fInverseHHL = 1.0 / fHalfHorizonLength;
-            float fMidPoint = fNightHeight + fHalfHorizonLength;
-            
-            float fNightContrib = clamp((fSunHeight - fMidPoint) * (-fInverseHHL), 0.0, 1.0);
-            float fHorizonContrib = -clamp(abs((fSunHeight - fMidPoint) * (-fInverseHHL)), 0.0, 1.0) + 1.0;
-            float fDayContrib = clamp((fSunHeight - fMidPoint) * ( fInverseHHL), 0.0, 1.0);
-            
-            vec3 vSkyColor = vec3(0.0);
-            vSkyColor += mix(vec3(0.0), vNightColor, fNightContrib);
-            vSkyColor += mix(vec3(0.0), vHorizonColor, fHorizonContrib);
-            vSkyColor += mix(vec3(0.0), vDayColor, fDayContrib);
-            
-            vec3 col = vSkyColor;
-            col -= clamp(rd.y, 0.0, 0.5);
-            
-            col += 0.4 * vSunRimColor * pow(sun, 4.0);
-            col += 1.0 * vSunColor * pow(sun, 2000.0);
-            
-            float fStarSpeed = -fSunSpeed * 0.5 * iSpeed;
-            float fStarContrib = clamp((fSunHeight - fDayHeight) * (-fInverseHL), 0.0, 1.0);
-            vec3 vStarDir = rd * mat3(vec3(cos(fStarSpeed), -sin(fStarSpeed), 0.0),
-                                      vec3(sin(fStarSpeed), cos(fStarSpeed), 0.0),
-                                      vec3(0.0, 0.0, 1.0));
-            col += pow((texture(iChannel0, vStarDir.xy).r + texture(iChannel0, vStarDir.zy).r) * 0.5, 42.0) * fStarContrib * 40.0;
-            
-            vec4 res = raymarch(ro, rd, col);
-            res *= vec4(pow(vSkyColor, vec3(0.25)), 1.0);
-            col = col*(1.0-res.w) + res.xyz;
-
-            return vec4(col, 1.0);
+        mat3 setCamera(in vec3 ro, in vec3 ta) {
+            vec3 cw = normalize(ta-ro); vec3 cp = vec3(0.0, 1.0, 0.0); vec3 cu = normalize(cross(cw,cp)); vec3 cv = normalize(cross(cu,cw)); return mat3(cu, cv, cw);
         }
 
         void main() {
             vec2 p = (-iResolution.xy + 2.0*gl_FragCoord.xy)/ iResolution.y;
-            vec2 m = iMouse.xy/iResolution.xy;
-            if(length(m) < 0.01) m = vec2(0.5, 0.5);
-            
             updateSun();
+            vec3 ro = 4.0*normalize(vec3(sin(1.5), 0.4, cos(1.5))); vec3 ta = vec3(0.0, -1.0, 0.0);
+            mat3 ca = setCamera(ro, ta); vec3 rd = ca * normalize(vec3(p.xy,1.5));
             
-            vec3 ro = 4.0*normalize(vec3(sin(6.28*m.x + 1.5), 0.4 * m.y, cos(6.28*m.x + 1.5)));
-            vec3 ta = vec3(0.0, -1.0, 0.0);
-            mat3 ca = setCamera(ro, ta, 0.0);
-            vec3 rd = ca * normalize(vec3(p.xy,1.5));
+            float sun = clamp(dot(v3sunDir,rd), 0.0, 1.0); float fSunHeight = v3sunDir.y;
+            float fNightContrib = clamp((fSunHeight - (-0.55)) * (-4.0), 0.0, 1.0);
+            float fDayContrib = clamp((fSunHeight - (-0.25)) * 4.0, 0.0, 1.0);
+            float fHorizonContrib = 1.0 - fNightContrib - fDayContrib;
             
-            fragColor = render(ro, rd);
+            vec3 vSkyColor = vNightColor*fNightContrib + vHorizonColor*fHorizonContrib + vDayColor*fDayContrib;
+            vec3 col = vSkyColor - clamp(rd.y, 0.0, 0.5);
+            col += 0.4 * vSunRimColor * pow(sun, 4.0) + 1.0 * vSunColor * pow(sun, 2000.0);
+            
+            float fStarSpeed = -fSunSpeed * 0.5 * iSpeed;
+            vec3 vStarDir = rd * mat3(vec3(cos(fStarSpeed), -sin(fStarSpeed), 0.0), vec3(sin(fStarSpeed), cos(fStarSpeed), 0.0), vec3(0.0, 0.0, 1.0));
+            col += pow((texture(iChannel0, vStarDir.xy).r + texture(iChannel0, vStarDir.zy).r) * 0.5, 42.0) * clamp((fSunHeight - 0.3) * (-2.0), 0.0, 1.0) * 40.0;
+            
+            vec4 res = raymarch(ro, rd, col); res *= vec4(pow(vSkyColor, vec3(0.25)), 1.0); col = col*(1.0-res.w) + res.xyz;
+            fragColor = vec4(col, 1.0);
         }`;
 
-        function compileShader(gl, type, source) {
-            const shader = gl.createShader(type);
-            gl.shaderSource(shader, source);
-            gl.compileShader(shader);
-            if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-                console.error(gl.getShaderInfoLog(shader));
-                return null;
-            }
-            return shader;
-        }
+        const prg = gl.createProgram();
+        const vs = gl.createShader(gl.VERTEX_SHADER); gl.shaderSource(vs, vsSource); gl.compileShader(vs);
+        const fs = gl.createShader(gl.FRAGMENT_SHADER); gl.shaderSource(fs, fsSource); gl.compileShader(fs);
+        gl.attachShader(prg, vs); gl.attachShader(prg, fs); gl.linkProgram(prg);
+        
+        const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, -1,1, 1,-1, 1,1]), gl.STATIC_DRAW);
+        const posLoc = gl.getAttribLocation(prg, 'position'); gl.enableVertexAttribArray(posLoc); gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
 
-        const vertexShader = compileShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
-        const fragmentShader = compileShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
-
-        const program = gl.createProgram();
-        gl.attachShader(program, vertexShader);
-        gl.attachShader(program, fragmentShader);
-        gl.linkProgram(program);
-
-        const positionBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
-            -1.0, -1.0,
-             1.0, -1.0,
-            -1.0,  1.0,
-            -1.0,  1.0,
-             1.0, -1.0,
-             1.0,  1.0,
-        ]), gl.STATIC_DRAW);
-
-        const positionLocation = gl.getAttribLocation(program, 'position');
-        gl.enableVertexAttribArray(positionLocation);
-        gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
-
-        // Criar textura de ruído 2D para o iChannel0 (estrelas e nuvens)
-        const noiseSize = 256;
-        const noiseData = new Uint8Array(noiseSize * noiseSize * 4);
-        for (let i = 0; i < noiseSize * noiseSize * 4; i++) {
-            noiseData[i] = Math.floor(Math.random() * 256);
-        }
-        const noiseTexture = gl.createTexture();
-        gl.bindTexture(gl.TEXTURE_2D, noiseTexture);
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, noiseSize, noiseSize, 0, gl.RGBA, gl.UNSIGNED_BYTE, noiseData);
+        const nSize = 256; const nData = new Uint8Array(nSize * nSize * 4);
+        for(let i=0; i<nSize*nSize*4; i++) nData[i] = Math.floor(Math.random()*256);
+        const tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tex);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, nSize, nSize, 0, gl.RGBA, gl.UNSIGNED_BYTE, nData);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
 
-        let shaderTime = 0;
-        let shaderSpeed = 1.0;
+        const resLoc = gl.getUniformLocation(prg, 'iResolution');
+        const timeLoc = gl.getUniformLocation(prg, 'iTime');
+        const speedLoc = gl.getUniformLocation(prg, 'iSpeed');
+        const chanLoc = gl.getUniformLocation(prg, 'iChannel0');
 
-        function renderShader() {
-            gl.useProgram(program);
-            
-            const resolutionLoc = gl.getUniformLocation(program, 'iResolution');
-            const timeLoc = gl.getUniformLocation(program, 'iTime');
-            const mouseLoc = gl.getUniformLocation(program, 'iMouse');
-            const speedLoc = gl.getUniformLocation(program, 'iSpeed');
-            const channel0Loc = gl.getUniformLocation(program, 'iChannel0');
+        // --- THREE.JS (OLHO 3D) ---
+        const eyeContainer = document.getElementById('eye-container');
+        const sceneEye = new THREE.Scene();
+        const cameraEye = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+        cameraEye.position.z = 2.5;
+        const rendererEye = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        rendererEye.setSize(220, 220);
+        eyeContainer.appendChild(rendererEye.domElement);
 
-            gl.uniform2f(resolutionLoc, cloudCanvas.width, cloudCanvas.height);
-            gl.uniform1f(timeLoc, shaderTime);
-            gl.uniform4f(mouseLoc, mouse.x * cloudCanvas.width, mouse.y * cloudCanvas.height, 0.0, 0.0);
-            gl.uniform1f(speedLoc, shaderSpeed);
-            
-            gl.uniform1i(channel0Loc, 0);
-            gl.activeTexture(gl.TEXTURE0);
-            gl.bindTexture(gl.TEXTURE_2D, noiseTexture);
+        const ambientLight = new THREE.AmbientLight(0xffffff, 1.2); sceneEye.add(ambientLight);
+        const dirLight = new THREE.DirectionalLight(0xffffff, 0.8); dirLight.position.set(5, 5, 5); sceneEye.add(dirLight);
 
-            gl.drawArrays(gl.TRIANGLES, 0, 6);
-            
-            shaderTime += 0.016; // Avança o tempo
-        }
-
-        /* =====================================================================
-           1. SISTEMA E VARIÁVEIS DE ÁUDIO & CONTROLO
-           ===================================================================== */
-        const calmo = document.getElementById('bgMusic');
-        const agressivo = document.getElementById('aggressMusic');
-        const statusInd = document.getElementById('status-indicator');
-        
-        let playbackSpeed = 1.0;
-        let holdingClick = false;
-        let audioIniciado = false;
-
-        // Permite o Pitch Up contínuo como cassetes antigas
-        calmo.preservesPitch = false;
-        if (calmo.mozPreservesPitch !== undefined) calmo.mozPreservesPitch = false;
-        if (calmo.webkitPreservesPitch !== undefined) calmo.webkitPreservesPitch = false;
-
-        function bootSystem() {
-            document.getElementById('loading-screen').style.display = 'none';
-            calmo.play().catch(e => console.log("Interação requerida"));
-            audioIniciado = true;
-        }
-
-        window.addEventListener('mousedown', (e) => {
-            // Ignora o clique se for sobre elementos do UI ou janelas
-            if(e.target.closest('.classic-window') || e.target.closest('.desktop') || e.target.closest('.taskbar')) return;
-            if (audioIniciado) holdingClick = true; 
+        let eyeModel = null, mixer = null;
+        new THREE.GLTFLoader().load('media/Eye.glb', (gltf) => {
+            eyeModel = gltf.scene; sceneEye.add(eyeModel);
+            mixer = new THREE.AnimationMixer(eyeModel);
+            const clip = THREE.AnimationClip.findByName(gltf.animations, 'SphereAction.002');
+            if(clip) mixer.clipAction(clip).play();
+        }, undefined, () => {
+            eyeModel = new THREE.Mesh(new THREE.SphereGeometry(0.8, 32, 32), new THREE.MeshStandardMaterial({color: 0xffffff}));
+            const pupil = new THREE.Mesh(new THREE.SphereGeometry(0.2, 16, 16), new THREE.MeshBasicMaterial({color: 0x000}));
+            pupil.position.z = 0.75; eyeModel.add(pupil); sceneEye.add(eyeModel);
         });
-        window.addEventListener('mouseup', () => { holdingClick = false; });
 
-        /* =====================================================================
-           2. INICIALIZAÇÃO DO THREE.JS (OLHO 3D)
-           ===================================================================== */
-        const container = document.getElementById('eye-container');
-        const scene = new THREE.Scene();
-        
-        const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
-        camera.position.set(0, 0, 2.5);
+        let mouseX = 0.5, mouseY = 0.5;
+        window.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX / window.innerWidth;
+            mouseY = e.clientY / window.innerHeight;
+        });
 
-        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-        renderer.setSize(220, 220);
-        container.appendChild(renderer.domElement);
+        // --- LOOP PRINCIPAL (ANIMAÇÃO, ÁUDIO, SHADER, OLHO) ---
+        let shaderTime = 0;
+        let lastJitter = 0;
+        let randomTargetX = 0, randomTargetY = 0;
+        const clock3D = new THREE.Clock();
 
-        const light = new THREE.AmbientLight(0xffffff, 1.2);
-        scene.add(light);
-        const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
-        dirLight.position.set(5, 5, 5);
-        scene.add(dirLight);
+        function animate() {
+            requestAnimationFrame(animate);
 
-        let eyeModel = null;
-        let pupilMesh = null;
-        const loader = new THREE
+            // 1. Áudio: Aceleração demorada até 20.0x
+            if (holdingClick) {
+                playbackSpeed += 0.02; // Aceleração bem lenta e dramática
+                if (playbackSpeed > 20.0) playbackSpeed = 20.0;
+            } else {
+                playbackSpeed -= 0.15; // Queda rápida ao soltar
+                if (playbackSpeed < 1.0) playbackSpeed = 1.0;
+            }
+
+            statusInd.innerText = `HOLD FOR SPEED | ${playbackSpeed.toFixed(1)}x`;
+
+            // 2. Pitch-up e Blend (Sem Fade-Out)
+            if (audioStarted) {
+                audioCalmo.playbackRate = Math.min(playbackSpeed, 16.0); // Pitch sobe! Limite do browser
+                if (playbackSpeed >= 18.0) {
+                    if (audioAgressivo.paused) audioAgressivo.play().catch(()=>{});
+                    let blendFactor = (playbackSpeed - 18.0) / 2.0; 
+                    audioAgressivo.volume = Math.max(0, Math.min(1, blendFactor));
+                    audioCalmo.volume = 1.0; // Áudio calmo NÃO silencia (cria o blend ruidoso)
+                } else {
+                    audioCalmo.volume = 1.0;
+                    if (!audioAgressivo.paused) {
+                        audioAgressivo.pause();
+                        audioAgressivo.currentTime = 0;
+                    }
+                }
+            }
+
+            // 3. Shader (Volumétricas + Estrelas no Fundo)
+            shaderTime += 0.016;
+            gl.useProgram(prg);
+            gl.uniform2f(resLoc, canvasGL.width, canvasGL.height);
+            gl.uniform1f(timeLoc, shaderTime);
+            gl.uniform1f(speedLoc, playbackSpeed); // Passa a velocidade real da pessoa a segurar
+            gl.uniform1i(chanLoc, 0);
+            gl.activeTexture(gl.TEXTURE0);
+            gl.bindTexture(gl.TEXTURE_2D, tex);
+            gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+            // 4. Olho: Direcionado ou Frenético com Clamping rigoroso
+            if (eyeModel) {
+                if (mixer) mixer.update(clock3D.getDelta());
+                
+                if (!holdingClick) {
+                    // Olha precisamente para o rato
+                    const rotY = (mouseX - 0.5) * 1.2;
+                    const rotX = -(mouseY - 0.5) * 1.2;
+                    eyeModel.rotation.y += (rotY - eyeModel.rotation.y) * 0.15;
+                    eyeModel.rotation.x += (rotX - eyeModel.rotation.x) * 0.15;
+                } else {
+                    // Pânico controlado (Muda direção a cada 100ms)
+                    let now = performance.now();
+                    if (now - lastJitter > 100) {
+                        randomTargetX = (Math.random() - 0.5) * 1.2;
+                        randomTargetY = (Math.random() - 0.5) * 1.2;
+                        lastJitter = now;
+                    }
+                    eyeModel.rotation.y += (randomTargetX - eyeModel.rotation.y) * 0.25;
+                    eyeModel.rotation.x += (randomTargetY - eyeModel.rotation.x) * 0.25;
+                }
+
+                // Clamping absoluto (A parte de trás NUNCA fica visível)
+                eyeModel.rotation.y = Math.max(-0.6, Math.min(0.6, eyeModel.rotation.y));
+                eyeModel.rotation.x = Math.max(-0.6, Math.min(0.6, eyeModel.rotation.x));
+            }
+            rendererEye.render(sceneEye, cameraEye);
+        }
+
+        window.addEventListener('resize', () => {
+            canvasGL.width = window.innerWidth;
+            canvasGL.height = window.innerHeight;
+        });
+
+        animate();
+    </script>
+</body>
+</html>
