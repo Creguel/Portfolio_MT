@@ -22,11 +22,11 @@
             width: 100%;
             height: 100vh;
             overflow: hidden;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            background: #000;
             color: #000;
         }
 
-        /* Canvas Background */
+        /* Canvas Background - Shader Clouds */
         #cloud-canvas {
             position: fixed;
             top: 0;
@@ -572,7 +572,7 @@ Parsing asset descriptors... Ok.</div>
 
     <script>
         /* =====================================================================
-           0. VOLUMETRIC CLOUD BACKGROUND COM SHADER WEBGL
+           0. VOLUMETRIC CLOUD BACKGROUND COM SHADER WEBGL2
            ===================================================================== */
         const cloudCanvas = document.getElementById('cloud-canvas');
         const gl = cloudCanvas.getContext('webgl2', { alpha: true });
@@ -584,297 +584,315 @@ Parsing asset descriptors... Ok.</div>
         cloudCanvas.width = window.innerWidth;
         cloudCanvas.height = window.innerHeight;
         
-        // Vertex Shader
-        const vertexShaderSource = `#version 300 es
-        precision highp float;
-        
-        in vec2 position;
-        void main() {
-            gl_Position = vec4(position, 0.0, 1.0);
-        }`;
-        
-        // Fragment Shader - Volumetric Clouds
-        const fragmentShaderSource = `#version 300 es
-        precision highp float;
-        
-        uniform vec2 iResolution;
-        uniform float iTime;
-        uniform float iSpeed;
-        uniform float iColorShift;
-        uniform sampler2D iChannel0;
-        
-        out vec4 fragColor;
-        
-        float fTurbulence = 0.15;
-        
-        vec3 vNightColor   = vec3(.15, 0.3, 0.6);
-        vec3 vHorizonColor = vec3(0.6, 0.3, 0.4);
-        vec3 vDayColor     = vec3(0.7,0.8,1.0);
-        
-        vec3 vSunColor     = vec3(1.0,0.8,0.6);
-        vec3 vSunRimColor  = vec3(1.0,0.66,0.33);
-        
-        vec3 v3sunDir;
-        
-        void updateSun() {
-            float fSpeed = 0.35 * iTime * iSpeed;
-            v3sunDir = normalize(vec3(cos(fSpeed), sin(fSpeed), 0.0));
-        }
-        
-        float noise(in vec3 x) {
-            vec3 p = floor(x);
-            vec3 f = fract(x);
-            f = f*f*f*(3.0-2.0*f);
-            vec2 uv = (p.xy+vec2(37.0,17.0)*p.z) + f.xy;
-            vec4 rg = texture(iChannel0, (uv + 0.5)/256.0);
-            return (-1.0+2.0*mix(rg.g, rg.r, f.z));
-        }
-        
-        float map5(in vec3 p) {
-            vec3 q = p - vec3(0.0,0.1,1.0)*iTime*iSpeed*0.15;
-            float f;
-            f  = 0.50000*noise(q); q = q*2.02 + iTime * fTurbulence * iSpeed * 1.0;
-            f += 0.25000*noise(q); q = q*2.03 + iTime * fTurbulence * iSpeed * 2.0;
-            f += 0.12500*noise(q); q = q*2.01 + iTime * fTurbulence * iSpeed * 4.0;
-            f += 0.06250*noise(q); q = q*2.02 + iTime * fTurbulence * iSpeed * 8.0;
-            f += 0.03125*noise(q);
-            return clamp(1.5 - p.y - 2.0 + 1.75*f, 0.0, 1.0);
-        }
-        
-        float map4(in vec3 p) {
-            vec3 q = p - vec3(0.0,0.1,1.0)*iTime*iSpeed*0.15;
-            float f;
-            f  = 0.50000*noise(q); q = q*2.02 + iTime * fTurbulence * iSpeed * 1.0;
-            f += 0.25000*noise(q); q = q*2.03 + iTime * fTurbulence * iSpeed * 2.0;
-            f += 0.12500*noise(q); q = q*2.01 + iTime * fTurbulence * iSpeed * 4.0;
-            f += 0.06250*noise(q);
-            return clamp(1.5 - p.y - 2.0 + 1.75*f, 0.0, 1.0);
-        }
-        
-        float map3(in vec3 p) {
-            vec3 q = p - vec3(0.0,0.1,1.0)*iTime*iSpeed*0.15;
-            float f;
-            f  = 0.50000*noise(q); q = q*2.02 + iTime * fTurbulence * iSpeed * 1.0;
-            f += 0.25000*noise(q); q = q*2.03 + iTime * fTurbulence * iSpeed * 2.0;
-            f += 0.12500*noise(q);
-            return clamp(1.5 - p.y - 2.0 + 1.75*f, 0.0, 1.0);
-        }
-        
-        float map2(in vec3 p) {
-            vec3 q = p - vec3(0.0,0.1,1.0)*iTime*iSpeed*0.15;
-            float f;
-            f  = 0.50000*noise(q); q = q*2.02 + iTime * fTurbulence * iSpeed * 1.0;
-            f += 0.25000*noise(q);
-            return clamp(1.5 - p.y - 2.0 + 1.75*f, 0.0, 1.0);
-        }
-        
-        vec4 integrate(in vec4 sum, in float dif, in float den, in vec3 bgcol, in float t) {
-            vec3 lin = vec3(0.9,0.95,1.0) + 0.5*vec3(0.7, 0.5, 0.3)*dif * smoothstep(-0.3, 0.3, v3sunDir.y);
-            vec4 col = vec4(mix(1.15*vec3(1.0,0.95,0.8), vec3(0.65), den), den);
-            col.xyz *= lin;
-            col.a *= 0.4;
-            col.rgb *= col.a;
-            return sum + col*(1.0-sum.a);
-        }
-        
-        vec4 raymarch(in vec3 ro, in vec3 rd, in vec3 bgcol) {
-            vec4 sum = vec4(0.0);
-            float t = 0.0;
-            
-            for(int i=0; i<20; i++) {
-                vec3 pos = ro + t*rd;
-                if(pos.y<-3.0 || pos.y>2.0 || sum.a > 0.99) break;
-                float den = map5(pos);
-                if(den>0.01) {
-                    float dif = clamp((den - map5(pos+0.3*v3sunDir))/0.6, 0.0, 1.0);
-                    sum = integrate(sum, dif, den, bgcol, t);
-                }
-                t += max(0.01*float(i),0.02*t);
+        // ─── Noise texture ─────────────────────────────────────────────────────────
+        function buildNoiseTexture() {
+            const SIZE = 256;
+            const data = new Uint8Array(SIZE * SIZE * 4);
+            function hash(n) {
+                let x = Math.sin(n) * 43758.5453123;
+                return x - Math.floor(x);
             }
-            
-            for(int i=0; i<30; i++) {
-                vec3 pos = ro + t*rd;
-                if(pos.y<-3.0 || pos.y>2.0 || sum.a > 0.99) break;
-                float den = map4(pos);
-                if(den>0.01) {
-                    float dif = clamp((den - map4(pos+0.3*v3sunDir))/0.6, 0.0, 1.0);
-                    sum = integrate(sum, dif, den, bgcol, t);
+            for (let y = 0; y < SIZE; y++) {
+                for (let x = 0; x < SIZE; x++) {
+                    const i = (y * SIZE + x) * 4;
+                    data[i + 0] = Math.floor(hash(x * 127.1 + y * 311.7) * 256);
+                    data[i + 1] = Math.floor(hash(x * 269.5 + y * 183.3) * 256);
+                    data[i + 2] = Math.floor(hash(x * 419.2 + y * 371.9) * 256);
+                    data[i + 3] = Math.floor(hash(x * 541.3 + y * 631.1) * 256);
                 }
-                t += max(0.01*float(i),0.02*t);
             }
-            
-            for(int i=0; i<40; i++) {
-                vec3 pos = ro + t*rd;
-                if(pos.y<-3.0 || pos.y>2.0 || sum.a > 0.99) break;
-                float den = map3(pos);
-                if(den>0.01) {
-                    float dif = clamp((den - map3(pos+0.3*v3sunDir))/0.6, 0.0, 1.0);
-                    sum = integrate(sum, dif, den, bgcol, t);
-                }
-                t += max(0.01*float(i),0.02*t);
-            }
-            
-            for(int i=0; i<50; i++) {
-                vec3 pos = ro + t*rd;
-                if(pos.y<-3.0 || pos.y>2.0 || sum.a > 0.99) break;
-                float den = map2(pos);
-                if(den>0.01) {
-                    float dif = clamp((den - map2(pos+0.3*v3sunDir))/0.6, 0.0, 1.0);
-                    sum = integrate(sum, dif, den, bgcol, t);
-                }
-                t += max(0.01*float(i),0.02*t);
-            }
-            
-            return clamp(sum, 0.0, 1.0);
+            const tex = gl.createTexture();
+            gl.bindTexture(gl.TEXTURE_2D, tex);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, SIZE, SIZE, 0, gl.RGBA, gl.UNSIGNED_BYTE, data);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+            return tex;
         }
-        
-        mat3 setCamera(in vec3 ro, in vec3 ta, float cr) {
-            vec3 cw = normalize(ta-ro);
-            vec3 cp = vec3(sin(cr), cos(cr),0.0);
-            vec3 cu = normalize(cross(cw,cp));
-            vec3 cv = normalize(cross(cu,cw));
-            return mat3(cu, cv, cw);
-        }
-        
-        vec4 render(in vec3 ro, in vec3 rd) {
-            float sun = clamp(dot(v3sunDir,rd), 0.0, 1.0);
-            
-            float fSunHeight = v3sunDir.y;
-            float fNightHeight = -0.8;
-            float fDayHeight = 0.3;
-            
-            float fHorizonLength = fDayHeight - fNightHeight;
-            float fInverseHL = 1.0 / fHorizonLength;
-            float fHalfHorizonLength = fHorizonLength / 2.0;
-            float fInverseHHL = 1.0 / fHalfHorizonLength;
-            float fMidPoint = fNightHeight + fHalfHorizonLength;
-            
-            float fNightContrib = clamp((fSunHeight - fMidPoint) * (-fInverseHHL), 0.0, 1.0);
-            float fHorizonContrib = -clamp(abs((fSunHeight - fMidPoint) * (-fInverseHHL)), 0.0, 1.0) + 1.0;
-            float fDayContrib = clamp((fSunHeight - fMidPoint) * (fInverseHHL), 0.0, 1.0);
-            
-            vec3 vSkyColor = vec3(0.0);
-            vSkyColor += mix(vec3(0.0), vNightColor, fNightContrib);
-            vSkyColor += mix(vec3(0.0), vHorizonColor, fHorizonContrib);
-            vSkyColor += mix(vec3(0.0), vDayColor, fDayContrib);
-            
-            vec3 col = vSkyColor;
-            col -= clamp(rd.y, 0.0, 0.5);
-            
-            col += 0.4 * vSunRimColor * pow(sun, 4.0);
-            col += 1.0 * vSunColor * pow(sun, 2000.0);
-            
-            vec4 res = raymarch(ro, rd, col);
-            res *= vec4(pow(vSkyColor, vec3(0.25)), 1.0);
-            col = col*(1.0-res.w) + res.xyz;
-            
-            // Apply color shift (red when holding)
-            col += vec3(iColorShift, iColorShift * 0.5, 0.0);
-            
-            return vec4(col, 1.0);
-        }
-        
-        void main() {
-            vec2 p = (-iResolution.xy + 2.0*gl_FragCoord.xy) / iResolution.y;
-            vec3 ro = 4.0*normalize(vec3(sin(6.28*0.25 + 1.5), 0.4 * 0.25, cos(6.28*0.25 + 1.5)));
-            vec3 ta = vec3(0.0, -1.0, 0.0);
-            mat3 ca = setCamera(ro, ta, 0.0);
-            vec3 rd = ca * normalize(vec3(p.xy, 1.5));
-            
-            updateSun();
-            fragColor = render(ro, rd);
-        }`;
-        
-        // Compile shaders
-        function compileShader(source, type) {
-            const shader = gl.createShader(type);
-            gl.shaderSource(shader, source);
-            gl.compileShader(shader);
-            if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-                console.error(gl.getShaderInfoLog(shader));
+
+        // ─── Vertex Shader ────────────────────────────────────────────────────────
+        const VS = `#version 300 es
+in vec2 a_pos;
+void main() { gl_Position = vec4(a_pos, 0.0, 1.0); }
+`;
+
+        // ─── Fragment Shader - Volumetric Clouds ──────────────────────────────────
+        const FS = `#version 300 es
+precision highp float;
+
+uniform float     iTime;
+uniform vec2      iResolution;
+uniform vec4      iMouse;
+uniform sampler2D iChannel0;
+
+out vec4 fragColor;
+
+// ── Parameters ──────────────────────────────────────────────────────────────────
+const float fTurbulence = 0.35;
+const float fSunSpeed   = 0.35;
+
+const vec3 vNightColor   = vec3(0.15, 0.30, 0.60);
+const vec3 vHorizonColor = vec3(0.60, 0.30, 0.40);
+const vec3 vDayColor     = vec3(0.70, 0.80, 1.00);
+const vec3 vSunColor     = vec3(1.00, 0.80, 0.60);
+const vec3 vSunRimColor  = vec3(1.00, 0.66, 0.33);
+
+// ── Sun ─────────────────────────────────────────────────────────────────────────
+vec3 v3sunDir;
+void updateSun() {
+    float s = fSunSpeed * iTime;
+    v3sunDir = normalize(vec3(cos(s), sin(s), 0.0));
+}
+
+// ── Value noise from 2-D texture ────────────────────────────────────────────────
+float noise(in vec3 x) {
+    vec3 p = floor(x);
+    vec3 f = fract(x);
+    f = f * f * f * (3.0 - 2.0 * f);
+    vec2 uv = (p.xy + vec2(37.0, 17.0) * p.z) + f.xy;
+    vec4 rg = texture(iChannel0, (uv + 0.5) / 256.0);
+    return -1.0 + 2.0 * mix(rg.g, rg.r, f.z);
+}
+
+// ── LOD cloud maps ───────────────────────────────────────────────────────────────
+float map5(in vec3 p) {
+    vec3 q = p - vec3(0.0, 0.1, 1.0) * iTime;
+    float f;
+    f  = 0.50000 * noise(q); q = q * 2.02 + iTime * fTurbulence * 1.0;
+    f += 0.25000 * noise(q); q = q * 2.03 + iTime * fTurbulence * 2.0;
+    f += 0.12500 * noise(q); q = q * 2.01 + iTime * fTurbulence * 4.0;
+    f += 0.06250 * noise(q); q = q * 2.02 + iTime * fTurbulence * 8.0;
+    f += 0.03125 * noise(q);
+    return clamp(1.5 - p.y - 2.0 + 1.75 * f, 0.0, 1.0);
+}
+float map4(in vec3 p) {
+    vec3 q = p - vec3(0.0, 0.1, 1.0) * iTime;
+    float f;
+    f  = 0.50000 * noise(q); q = q * 2.02 + iTime * fTurbulence * 1.0;
+    f += 0.25000 * noise(q); q = q * 2.03 + iTime * fTurbulence * 2.0;
+    f += 0.12500 * noise(q); q = q * 2.01 + iTime * fTurbulence * 4.0;
+    f += 0.06250 * noise(q);
+    return clamp(1.5 - p.y - 2.0 + 1.75 * f, 0.0, 1.0);
+}
+float map3(in vec3 p) {
+    vec3 q = p - vec3(0.0, 0.1, 1.0) * iTime;
+    float f;
+    f  = 0.50000 * noise(q); q = q * 2.02 + iTime * fTurbulence * 1.0;
+    f += 0.25000 * noise(q); q = q * 2.03 + iTime * fTurbulence * 2.0;
+    f += 0.12500 * noise(q);
+    return clamp(1.5 - p.y - 2.0 + 1.75 * f, 0.0, 1.0);
+}
+float map2(in vec3 p) {
+    vec3 q = p - vec3(0.0, 0.1, 1.0) * iTime;
+    float f;
+    f  = 0.50000 * noise(q); q = q * 2.02 + iTime * fTurbulence * 1.0;
+    f += 0.25000 * noise(q);
+    return clamp(1.5 - p.y - 2.0 + 1.75 * f, 0.0, 1.0);
+}
+
+// ── Cloud lighting accumulator ───────────────────────────────────────────────────
+vec4 integrate(in vec4 sum, in float dif, in float den, in vec3 bgcol, in float t) {
+    vec3 lin = vec3(0.9, 0.95, 1.0)
+             + 0.5 * vec3(0.7, 0.5, 0.3) * dif
+             * smoothstep(-0.3, 0.3, v3sunDir.y);
+    vec4 col = vec4(mix(1.15 * vec3(1.0, 0.95, 0.8), vec3(0.65), den), den);
+    col.xyz *= lin;
+    col.a   *= 0.4;
+    col.rgb *= col.a;
+    return sum + col * (1.0 - sum.a);
+}
+
+// ── Raymarching macro ─────────────────────────────────────────────────────────────
+#define MARCH(STEPS, MAPLOD) \
+    for (int i = 0; i < STEPS; i++) { \
+        vec3  pos = ro + t * rd; \
+        if (pos.y < -3.0 || pos.y > 2.0 || sum.a > 0.99) break; \
+        float den = MAPLOD(pos); \
+        if (den > 0.01) { \
+            float dif = clamp( \
+                (den - MAPLOD(pos + 0.3 * v3sunDir)) / 0.6, \
+                0.0, 1.0); \
+            sum = integrate(sum, dif, den, bgcol, t); \
+        } \
+        t += max(0.01 * float(i), 0.02 * t); \
+    }
+
+vec4 raymarch(in vec3 ro, in vec3 rd, in vec3 bgcol) {
+    vec4  sum = vec4(0.0);
+    float t   = 0.0;
+    MARCH(20, map5);
+    MARCH(30, map4);
+    MARCH(40, map3);
+    MARCH(50, map2);
+    return clamp(sum, 0.0, 1.0);
+}
+
+// ── Camera ───────────────────────────────────────────────────────────────────────
+mat3 setCamera(in vec3 ro, in vec3 ta, float cr) {
+    vec3 cw = normalize(ta - ro);
+    vec3 cp = vec3(sin(cr), cos(cr), 0.0);
+    vec3 cu = normalize(cross(cw, cp));
+    vec3 cv = normalize(cross(cu, cw));
+    return mat3(cu, cv, cw);
+}
+
+// ── Sky + clouds render ───────────────────────────────────────────────────────────
+vec4 render(in vec3 ro, in vec3 rd) {
+    float sun = clamp(dot(v3sunDir, rd), 0.0, 1.0);
+
+    float fSunHeight = v3sunDir.y;
+    const float fNightHeight = -0.8;
+    const float fDayHeight   =  0.3;
+
+    float fHorizonLength    = fDayHeight - fNightHeight;
+    float fInverseHL        = 1.0 / fHorizonLength;
+    float fHalfHL           = fHorizonLength * 0.5;
+    float fInverseHHL       = 1.0 / fHalfHL;
+    float fMidPoint         = fNightHeight + fHalfHL;
+
+    float fNightContrib   = clamp((fSunHeight - fMidPoint) * (-fInverseHHL), 0.0, 1.0);
+    float fHorizonContrib = 1.0 - clamp(abs((fSunHeight - fMidPoint) * (-fInverseHHL)), 0.0, 1.0);
+    float fDayContrib     = clamp((fSunHeight - fMidPoint) * (fInverseHHL),  0.0, 1.0);
+
+    vec3 vSkyColor = vNightColor   * fNightContrib
+                   + vHorizonColor * fHorizonContrib
+                   + vDayColor     * fDayContrib;
+
+    vec3 col = vSkyColor;
+    col -= clamp(rd.y, 0.0, 0.5);
+
+    col += 0.4 * vSunRimColor * pow(sun,    4.0);
+    col += 1.0 * vSunColor    * pow(sun, 2000.0);
+
+    // Stars
+    float fStarSpeed   = -fSunSpeed * 0.5;
+    float fStarContrib = clamp((fSunHeight - fDayHeight) * (-fInverseHL), 0.0, 1.0);
+
+    mat3 mStar = mat3(
+        vec3( cos(fStarSpeed * iTime), -sin(fStarSpeed * iTime), 0.0),
+        vec3( sin(fStarSpeed * iTime),  cos(fStarSpeed * iTime), 0.0),
+        vec3(0.0, 0.0, 1.0)
+    );
+    vec3 vStarDir = rd * mStar;
+
+    col += pow(
+        (texture(iChannel0, vStarDir.xy).r + texture(iChannel0, vStarDir.zy).r) * 0.5,
+        42.0
+    ) * fStarContrib * 40.0;
+
+    // Volumetric clouds
+    vec4 res = raymarch(ro, rd, col);
+    res *= vec4(pow(vSkyColor, vec3(0.25)), 1.0);
+    col  = col * (1.0 - res.w) + res.xyz;
+
+    return vec4(col, 1.0);
+}
+
+// ── Entry point ───────────────────────────────────────────────────────────────────
+void main() {
+    vec2 p = (-iResolution.xy + 2.0 * gl_FragCoord.xy) / iResolution.y;
+    vec2 m = iMouse.xy / iResolution.xy;
+
+    updateSun();
+
+    vec3 ro = 4.0 * normalize(vec3(
+        sin(6.28318 * m.x + 1.5),
+        0.4 * m.y,
+        cos(6.28318 * m.x + 1.5)
+    ));
+    vec3 ta = vec3(0.0, -1.0, 0.0);
+    mat3 ca = setCamera(ro, ta, 0.0);
+    vec3 rd = ca * normalize(vec3(p.xy, 1.5));
+
+    fragColor = render(ro, rd);
+}
+`;
+
+        // ─── Compile ────────────────────────────────────────────────────────────────
+        function compile(type, src) {
+            const s = gl.createShader(type);
+            gl.shaderSource(s, src);
+            gl.compileShader(s);
+            if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+                console.error(gl.getShaderInfoLog(s));
                 return null;
             }
-            return shader;
+            return s;
         }
-        
-        const vertexShader = compileShader(vertexShaderSource, gl.VERTEX_SHADER);
-        const fragmentShader = compileShader(fragmentShaderSource, gl.FRAGMENT_SHADER);
-        
-        const program = gl.createProgram();
-        gl.attachShader(program, vertexShader);
-        gl.attachShader(program, fragmentShader);
-        gl.linkProgram(program);
-        
-        if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-            console.error(gl.getProgramInfoLog(program));
+
+        const prog = gl.createProgram();
+        gl.attachShader(prog, compile(gl.VERTEX_SHADER, VS));
+        gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, FS));
+        gl.linkProgram(prog);
+        if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
+            console.error(gl.getProgramInfoLog(prog));
         }
-        
-        // Setup buffer
-        const positionBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-        const positions = [-1, -1, 1, -1, -1, 1, 1, 1];
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
-        
-        const posLocation = gl.getAttribLocation(program, 'position');
-        gl.enableVertexAttribArray(posLocation);
-        gl.vertexAttribPointer(posLocation, 2, gl.FLOAT, false, 0, 0);
-        
-        // Create noise texture (simple white noise)
-        const noiseTexture = gl.createTexture();
-        gl.bindTexture(gl.TEXTURE_2D, noiseTexture);
-        const noiseData = new Uint8Array(256 * 256 * 4);
-        for (let i = 0; i < noiseData.length; i += 4) {
-            const rand = Math.random() * 255;
-            noiseData[i] = rand;
-            noiseData[i + 1] = rand;
-            noiseData[i + 2] = rand;
-            noiseData[i + 3] = 255;
-        }
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 256, 256, 0, gl.RGBA, gl.UNSIGNED_BYTE, noiseData);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
-        
-        let shaderTime = 0;
-        let shaderSpeed = 1.0;
-        let shaderColorShift = 0.0;
-        
-        function renderShader() {
-            gl.useProgram(program);
-            
-            const resolutionLoc = gl.getUniformLocation(program, 'iResolution');
-            const timeLoc = gl.getUniformLocation(program, 'iTime');
-            const speedLoc = gl.getUniformLocation(program, 'iSpeed');
-            const colorShiftLoc = gl.getUniformLocation(program, 'iColorShift');
-            const channel0Loc = gl.getUniformLocation(program, 'iChannel0');
-            
-            gl.uniform2f(resolutionLoc, cloudCanvas.width, cloudCanvas.height);
-            gl.uniform1f(timeLoc, shaderTime);
-            gl.uniform1f(speedLoc, shaderSpeed);
-            gl.uniform1f(colorShiftLoc, shaderColorShift);
-            gl.uniform1i(channel0Loc, 0);
-            
-            gl.activeTexture(gl.TEXTURE0);
-            gl.bindTexture(gl.TEXTURE_2D, noiseTexture);
-            
-            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-            
-            shaderTime += 0.016;
-        }
-        
-        function animateShader() {
-            renderShader();
-            requestAnimationFrame(animateShader);
-        }
-        
-        animateShader();
-        
-        window.addEventListener('resize', () => {
-            cloudCanvas.width = window.innerWidth;
+        gl.useProgram(prog);
+
+        // ─── Full-screen quad ───────────────────────────────────────────────────────
+        const buf = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+        gl.bufferData(gl.ARRAY_BUFFER,
+            new Float32Array([-1,-1, 1,-1, -1,1, 1,1]),
+            gl.STATIC_DRAW
+        );
+        const loc = gl.getAttribLocation(prog, 'a_pos');
+        gl.enableVertexAttribArray(loc);
+        gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+
+        // ─── Uniforms ───────────────────────────────────────────────────────────────
+        const uTime       = gl.getUniformLocation(prog, 'iTime');
+        const uResolution = gl.getUniformLocation(prog, 'iResolution');
+        const uMouse      = gl.getUniformLocation(prog, 'iMouse');
+        const uChannel0   = gl.getUniformLocation(prog, 'iChannel0');
+
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, buildNoiseTexture());
+        gl.uniform1i(uChannel0, 0);
+
+        // ─── Mouse tracking ─────────────────────────────────────────────────────────
+        let mx = 0.5, my = 0.5;
+        let shaderDragging = false, lastX = 0, lastY = 0;
+
+        cloudCanvas.addEventListener('mousedown', e => { 
+            shaderDragging = true; 
+            lastX = e.clientX; 
+            lastY = e.clientY; 
+        });
+        window.addEventListener('mouseup',   () => { shaderDragging = false; });
+        window.addEventListener('mousemove', e => {
+            if (!shaderDragging) return;
+            mx += (e.clientX - lastX) / cloudCanvas.width  * 0.5;
+            my += (e.clientY - lastY) / cloudCanvas.height * 0.5;
+            mx = ((mx % 1) + 1) % 1;
+            my = Math.max(0.1, Math.min(0.9, my));
+            lastX = e.clientX; 
+            lastY = e.clientY;
+        });
+
+        // ─── Resize ──────────────────────────────────────────────────────────────────
+        function resizeShader() {
+            cloudCanvas.width  = window.innerWidth;
             cloudCanvas.height = window.innerHeight;
             gl.viewport(0, 0, cloudCanvas.width, cloudCanvas.height);
-        });
+        }
+        window.addEventListener('resize', resizeShader);
+        resizeShader();
+
+        // ─── Render loop ─────────────────────────────────────────────────────────────
+        const t0 = performance.now();
+        let shaderTime = 0;
+
+        function frameShader() {
+            shaderTime = (performance.now() - t0) * 0.001;
+            gl.uniform1f(uTime, shaderTime);
+            gl.uniform2f(uResolution, cloudCanvas.width, cloudCanvas.height);
+            gl.uniform4f(uMouse, mx * cloudCanvas.width, my * cloudCanvas.height, 0, 0);
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+            requestAnimationFrame(frameShader);
+        }
+        requestAnimationFrame(frameShader);
 
         /* =====================================================================
            1. SIMULAÇÃO DE BOOT / LOADING SCREEN
@@ -884,7 +902,7 @@ Parsing asset descriptors... Ok.</div>
         const lines = [
             "\nMounting physical assets onto structural DOM...",
             "Loading Audio Engine: audio-calmo.mp3 (Default BPM)... Loaded.",
-            "Loading Audio Engine: audio-rapido.mp3 (Aggressive Mode)... Loaded.",
+            "Loading Audio Engine: audio-rapido.mp3 (150 BPM)... Loaded.",
             "Mapping 3D Pupil Mesh Deformation channels...",
             "Compiling Volumetric PBR Day/Night Sky Shaders... Complete.",
             "\nSystem ready. Click below to establish Web Audio Sandbox."
@@ -903,7 +921,7 @@ Parsing asset descriptors... Ok.</div>
         setTimeout(printLog, 600);
 
         /* =====================================================================
-           2. AUDIO ENGINE COM PITCH SHIFT NO CALMO E PLAY DO AGRESSIVO
+           2. AUDIO ENGINE COM PITCH SHIFT E SPEED UP
            ===================================================================== */
         let isSystemRunning = false;
         let audioCtx, gainCalmo, gainAgressivo;
@@ -990,14 +1008,13 @@ Parsing asset descriptors... Ok.</div>
         });
 
         /* =====================================================================
-           4. SISTEMA HOLD FOR SPEED - RAMP LENTO ATÉ THRESHOLD COM AUDIO PROCESSING
+           4. SISTEMA HOLD FOR SPEED - RAMP LENTO ATÉ 20X COM AUDIO PROCESSING
            ===================================================================== */
         let isHolding = false;
         let holdProgress = 0;
         let speedFactor = 1.0;
         let targetSpeedFactor = 1.0;
-        const MAX_SPEED = 3.0;
-        const AGRESSIVO_THRESHOLD = 0.7;
+        const MAX_SPEED = 20.0;
         const speedIndicator = document.getElementById('speed-indicator');
 
         window.addEventListener('mousedown', (e) => {
@@ -1033,34 +1050,22 @@ Parsing asset descriptors... Ok.</div>
             
             speedFactor = THREE.MathUtils.lerp(1.0, targetSpeedFactor, holdProgress);
             accumulatedTime += delta * speedFactor;
-            
-            // UPDATE SHADER SPEED
-            shaderSpeed = speedFactor;
-            
-            // UPDATE COLOR SHIFT
-            shaderColorShift = holdProgress * 0.3;
 
-            // AUDIO PROCESSING
+            // AUDIO PROCESSING COM PITCH SHIFT E SPEED UP
             if (isSystemRunning && audioCtx) {
                 const audioCalmo = document.getElementById('audio-calmo');
                 const audioAgressivo = document.getElementById('audio-agressivo');
 
-                // Audio-calmo: sempre tocando, acelera com holdProgress
-                const pitchFactor = 1.0 + holdProgress * 0.5;
+                const calmoGain = Math.max(0, 1.0 - holdProgress);
+                const agressivoGain = Math.min(1.0, holdProgress);
+
+                gainCalmo.gain.setValueAtTime(calmoGain, audioCtx.currentTime);
+                gainAgressivo.gain.setValueAtTime(agressivoGain, audioCtx.currentTime);
+
+                const pitchFactor = 1.0 + holdProgress * 0.8;
                 audioCalmo.playbackRate = Math.max(0.25, Math.min(2.0, pitchFactor));
-                gainCalmo.gain.setValueAtTime(1.0, audioCtx.currentTime);
+                audioAgressivo.playbackRate = Math.max(0.25, Math.min(2.0, pitchFactor * 0.95));
 
-                // Audio-agressivo: só toca quando holdProgress > THRESHOLD (0.7)
-                if (holdProgress > AGRESSIVO_THRESHOLD) {
-                    const agressivoGain = (holdProgress - AGRESSIVO_THRESHOLD) / (1.0 - AGRESSIVO_THRESHOLD);
-                    gainAgressivo.gain.setValueAtTime(agressivoGain, audioCtx.currentTime);
-                    // Audio-agressivo NÃO acelera (playbackRate = 1.0)
-                    audioAgressivo.playbackRate = 1.0;
-                } else {
-                    gainAgressivo.gain.setValueAtTime(0.0, audioCtx.currentTime);
-                }
-
-                // Cores dinâmicas da speed bar
                 if (holdProgress > 0.1) {
                     const red = Math.floor(255 * holdProgress);
                     const green = Math.floor(255 * (1 - holdProgress * 0.7));
