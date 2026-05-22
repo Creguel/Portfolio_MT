@@ -349,8 +349,6 @@
             border-left: 2px solid #808080; border-top: 2px solid #808080;
             border-right: 2px solid #fff; border-bottom: 2px solid #fff;
             letter-spacing: 1px;
-            min-width: 200px;
-            text-align: center;
         }
         .sys-clock {
             font-size: 11px;
@@ -595,7 +593,7 @@ Parsing asset descriptors... Ok.</div>
             gl_Position = vec4(position, 0.0, 1.0);
         }`;
         
-        // Fragment Shader - Volumetric Clouds com Color Shift
+        // Fragment Shader - Volumetric Clouds
         const fragmentShaderSource = `#version 300 es
         precision highp float;
         
@@ -619,7 +617,7 @@ Parsing asset descriptors... Ok.</div>
         vec3 v3sunDir;
         
         void updateSun() {
-            float fSpeed = 0.15 * iTime * iSpeed;
+            float fSpeed = 0.35 * iTime * iSpeed;
             v3sunDir = normalize(vec3(cos(fSpeed), sin(fSpeed), 0.0));
         }
         
@@ -633,7 +631,7 @@ Parsing asset descriptors... Ok.</div>
         }
         
         float map5(in vec3 p) {
-            vec3 q = p - vec3(0.0,0.1,1.0)*iTime*iSpeed;
+            vec3 q = p - vec3(0.0,0.1,1.0)*iTime*iSpeed*0.15;
             float f;
             f  = 0.50000*noise(q); q = q*2.02 + iTime * fTurbulence * iSpeed * 1.0;
             f += 0.25000*noise(q); q = q*2.03 + iTime * fTurbulence * iSpeed * 2.0;
@@ -644,7 +642,7 @@ Parsing asset descriptors... Ok.</div>
         }
         
         float map4(in vec3 p) {
-            vec3 q = p - vec3(0.0,0.1,1.0)*iTime*iSpeed;
+            vec3 q = p - vec3(0.0,0.1,1.0)*iTime*iSpeed*0.15;
             float f;
             f  = 0.50000*noise(q); q = q*2.02 + iTime * fTurbulence * iSpeed * 1.0;
             f += 0.25000*noise(q); q = q*2.03 + iTime * fTurbulence * iSpeed * 2.0;
@@ -654,7 +652,7 @@ Parsing asset descriptors... Ok.</div>
         }
         
         float map3(in vec3 p) {
-            vec3 q = p - vec3(0.0,0.1,1.0)*iTime*iSpeed;
+            vec3 q = p - vec3(0.0,0.1,1.0)*iTime*iSpeed*0.15;
             float f;
             f  = 0.50000*noise(q); q = q*2.02 + iTime * fTurbulence * iSpeed * 1.0;
             f += 0.25000*noise(q); q = q*2.03 + iTime * fTurbulence * iSpeed * 2.0;
@@ -663,7 +661,7 @@ Parsing asset descriptors... Ok.</div>
         }
         
         float map2(in vec3 p) {
-            vec3 q = p - vec3(0.0,0.1,1.0)*iTime*iSpeed;
+            vec3 q = p - vec3(0.0,0.1,1.0)*iTime*iSpeed*0.15;
             float f;
             f  = 0.50000*noise(q); q = q*2.02 + iTime * fTurbulence * iSpeed * 1.0;
             f += 0.25000*noise(q);
@@ -770,8 +768,8 @@ Parsing asset descriptors... Ok.</div>
             res *= vec4(pow(vSkyColor, vec3(0.25)), 1.0);
             col = col*(1.0-res.w) + res.xyz;
             
-            // Apply color shift (red tint)
-            col = mix(col, col * vec3(1.2 + iColorShift, 0.8 - iColorShift * 0.5, 0.8 - iColorShift * 0.3), iColorShift * 0.4);
+            // Apply color shift (red when holding)
+            col += vec3(iColorShift, iColorShift * 0.5, 0.0);
             
             return vec4(col, 1.0);
         }
@@ -886,7 +884,7 @@ Parsing asset descriptors... Ok.</div>
         const lines = [
             "\nMounting physical assets onto structural DOM...",
             "Loading Audio Engine: audio-calmo.mp3 (Default BPM)... Loaded.",
-            "Loading Audio Engine: audio-rapido.mp3 (150 BPM)... Loaded.",
+            "Loading Audio Engine: audio-rapido.mp3 (Aggressive Mode)... Loaded.",
             "Mapping 3D Pupil Mesh Deformation channels...",
             "Compiling Volumetric PBR Day/Night Sky Shaders... Complete.",
             "\nSystem ready. Click below to establish Web Audio Sandbox."
@@ -905,7 +903,7 @@ Parsing asset descriptors... Ok.</div>
         setTimeout(printLog, 600);
 
         /* =====================================================================
-           2. AUDIO ENGINE COM PITCH SHIFT E SPEED UP NOVO
+           2. AUDIO ENGINE COM PITCH SHIFT NO CALMO E PLAY DO AGRESSIVO
            ===================================================================== */
         let isSystemRunning = false;
         let audioCtx, gainCalmo, gainAgressivo;
@@ -992,14 +990,14 @@ Parsing asset descriptors... Ok.</div>
         });
 
         /* =====================================================================
-           4. SISTEMA HOLD FOR SPEED - NOVO COM THRESHOLD PARA AUDIO AGRESSIVO
+           4. SISTEMA HOLD FOR SPEED - RAMP LENTO ATÉ THRESHOLD COM AUDIO PROCESSING
            ===================================================================== */
         let isHolding = false;
         let holdProgress = 0;
         let speedFactor = 1.0;
         let targetSpeedFactor = 1.0;
         const MAX_SPEED = 3.0;
-        const AUDIO_AGRESSIVO_THRESHOLD = 0.7; // 70% do hold para tocar audio agressivo
+        const AGRESSIVO_THRESHOLD = 0.7;
         const speedIndicator = document.getElementById('speed-indicator');
 
         window.addEventListener('mousedown', (e) => {
@@ -1036,30 +1034,33 @@ Parsing asset descriptors... Ok.</div>
             speedFactor = THREE.MathUtils.lerp(1.0, targetSpeedFactor, holdProgress);
             accumulatedTime += delta * speedFactor;
             
-            // UPDATE SHADER SPEED e COLOR SHIFT
+            // UPDATE SHADER SPEED
             shaderSpeed = speedFactor;
-            shaderColorShift = holdProgress * 0.8; // Efeito de cores
+            
+            // UPDATE COLOR SHIFT
+            shaderColorShift = holdProgress * 0.3;
 
             // AUDIO PROCESSING
             if (isSystemRunning && audioCtx) {
                 const audioCalmo = document.getElementById('audio-calmo');
                 const audioAgressivo = document.getElementById('audio-agressivo');
 
-                // Audio agressivo só toca quando passa o threshold
-                const agressivoGain = holdProgress > AUDIO_AGRESSIVO_THRESHOLD 
-                    ? Math.min(1.0, (holdProgress - AUDIO_AGRESSIVO_THRESHOLD) / (1.0 - AUDIO_AGRESSIVO_THRESHOLD))
-                    : 0.0;
-                const calmoGain = 1.0 - Math.min(1.0, holdProgress * 1.2);
+                // Audio-calmo: sempre tocando, acelera com holdProgress
+                const pitchFactor = 1.0 + holdProgress * 0.5;
+                audioCalmo.playbackRate = Math.max(0.25, Math.min(2.0, pitchFactor));
+                gainCalmo.gain.setValueAtTime(1.0, audioCtx.currentTime);
 
-                gainCalmo.gain.setValueAtTime(calmoGain, audioCtx.currentTime);
-                gainAgressivo.gain.setValueAtTime(agressivoGain, audioCtx.currentTime);
+                // Audio-agressivo: só toca quando holdProgress > THRESHOLD (0.7)
+                if (holdProgress > AGRESSIVO_THRESHOLD) {
+                    const agressivoGain = (holdProgress - AGRESSIVO_THRESHOLD) / (1.0 - AGRESSIVO_THRESHOLD);
+                    gainAgressivo.gain.setValueAtTime(agressivoGain, audioCtx.currentTime);
+                    // Audio-agressivo NÃO acelera (playbackRate = 1.0)
+                    audioAgressivo.playbackRate = 1.0;
+                } else {
+                    gainAgressivo.gain.setValueAtTime(0.0, audioCtx.currentTime);
+                }
 
-                // Audio calmo acelera, audio agressivo fica a 1.0x
-                const calmoPlaybackRate = 1.0 + holdProgress * 1.5; // Acelera até 2.5x
-                audioCalmo.playbackRate = Math.max(0.5, Math.min(2.5, calmoPlaybackRate));
-                audioAgressivo.playbackRate = 1.0; // Sem aceleração
-
-                // Cores dinâmicas na barra
+                // Cores dinâmicas da speed bar
                 if (holdProgress > 0.1) {
                     const red = Math.floor(255 * holdProgress);
                     const green = Math.floor(255 * (1 - holdProgress * 0.7));
