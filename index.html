@@ -26,6 +26,24 @@
             color: #000;
         }
 
+        /* Shader Background Container (Shadertoy) */
+        .shader-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .shader-bg iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            transform: scale(1.02);
+        }
+
         /* Camada VHS/CRT Overlay */
         .crt-overlay {
             position: fixed;
@@ -55,15 +73,7 @@
             100% { opacity: 0.1; }
         }
 
-        /* Canvas Background & Olho */
-        #cloud-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: 1;
-        }
+        /* Three.js Canvas para o Olho */
         #three-canvas {
             position: fixed;
             top: 0;
@@ -71,7 +81,7 @@
             width: 100vw;
             height: 100vh;
             z-index: 2;
-            pointer-events: none; /* Deixa passar cliques para o fundo */
+            pointer-events: none;
         }
 
         /* Ecrã de Loading Inicial */
@@ -356,9 +366,12 @@
 </head>
 <body>
 
-    <div class="crt-overlay"></div>
+    <!-- SHADER BACKGROUND (Shadertoy) -->
+    <div class="shader-bg">
+        <iframe src="https://www.shadertoy.com/embed/tdjyzz?gui=false&t=0&paused=false&muted=true" allow="autoplay; fullscreen"></iframe>
+    </div>
 
-    <canvas id="cloud-canvas"></canvas>
+    <div class="crt-overlay"></div>
 
     <canvas id="three-canvas"></canvas>
 
@@ -453,12 +466,12 @@ Parsing asset descriptors... Ok.</div>
                 <button class="carousel-btn btn-prev" onclick="moveCarousel(-1)">&#9664;</button>
                 <button class="carousel-btn btn-next" onclick="moveCarousel(1)">&#9654;</button>
                 <div class="carousel-track" id="photo-track">
-                    </div>
+                </div>
             </div>
 
             <div class="project-media" style="margin-top:20px;">
                 <div class="media-box">
-                    <img class="responsive-img" src="Fotografia_Composicao.jpg" alt="Composição Final IN/OUT" onerror="this.src='https://picsum.photos/800/500?blur=2'">
+                    <img class="responsive-img" src="media/Fotografia_Composicao.jpg" alt="Composição Final IN/OUT">
                     <div class="img-caption">Fotografia_Composição — Painel Analítico Global Final</div>
                 </div>
             </div>
@@ -496,11 +509,11 @@ Parsing asset descriptors... Ok.</div>
                 Identidade e campanha promocional de planeamento urbano para a iniciativa de <strong>Évora — Capital Europeia da Cultura 2027</strong>. O foco central da comunicação reside na revalorização patrimonial e performativa do icónico <strong>Teatro Garcia de Resende</strong>.
             </p>
             <div class="project-media">
-                <div class="media-box"><img class="responsive-img" src="Design_de_Publicidade_Cartaz_1.jpg" onerror="this.src='https://picsum.photos/500/700?random=1'"><div class="img-caption">Design de Publicidade_Cartaz_1</div></div>
-                <div class="media-box"><img class="responsive-img" src="Design_de_Publicidade_Cartaz_2.jpg" onerror="this.src='https://picsum.photos/500/700?random=2'"><div class="img-caption">Design de Publicidade_Cartaz_2</div></div>
-                <div class="media-box"><img class="responsive-img" src="Design_de_Publicidade_Cartaz_Final.jpg" onerror="this.src='https://picsum.photos/800/600?random=3'"><div class="img-caption">Design de Publicidade_Cartaz_Final (Apresentação Geral)</div></div>
-                <div class="media-box"><img class="responsive-img" src="Mupi.jpg" onerror="this.src='https://picsum.photos/500/700?random=4'"><div class="img-caption">Mupi Urbano Integrado</div></div>
-                <div class="media-box"><img class="responsive-img" src="Outdoor.jpg" onerror="this.src='https://picsum.photos/800/400?random=5'"><div class="img-caption">Outdoor Publicitário de Larga Escala</div></div>
+                <div class="media-box"><img class="responsive-img" src="media/Design_de_Publicidade_Cartaz_1.jpg" alt="Cartaz 1"><div class="img-caption">Design de Publicidade_Cartaz_1</div></div>
+                <div class="media-box"><img class="responsive-img" src="media/Design_de_Publicidade_Cartaz_2.jpg" alt="Cartaz 2"><div class="img-caption">Design de Publicidade_Cartaz_2</div></div>
+                <div class="media-box"><img class="responsive-img" src="media/Design_de_Publicidade_Cartaz_Final.jpg" alt="Cartaz Final"><div class="img-caption">Design de Publicidade_Cartaz_Final (Apresentação Geral)</div></div>
+                <div class="media-box"><img class="responsive-img" src="media/Design_de_Publicidade_Mupi_Final.jpg" alt="Mupi"><div class="img-caption">Mupi Urbano Integrado</div></div>
+                <div class="media-box"><img class="responsive-img" src="media/Design_de_Publicidade_Outdoor_Final.jpg" alt="Outdoor"><div class="img-caption">Outdoor Publicitário de Larga Escala</div></div>
                 <div class="media-box">
                     <iframe class="responsive-video" src="https://www.youtube.com/embed/ACgU4y7Dj80" frameborder="0" allowfullscreen></iframe>
                     <div class="img-caption">Spot Comercial Audiovisual — Teatro Garcia de Resende</div>
@@ -552,16 +565,15 @@ Parsing asset descriptors... Ok.</div>
                 A composição final une os conceitos numa narrativa sequencial expandida, criando uma ponte entre o traço matérico tradicional e a estética fria da virtualidade algorítmica.
             </p>
             <div class="project-media">
-                <div class="media-box"><img class="responsive-img" src="Desenho_Img_1.jpeg" onerror="this.src='https://picsum.photos/600/600?random=11'"><div class="img-caption">Desenho_Img_1 — Fragmento I</div></div>
-                <div class="media-box"><img class="responsive-img" src="Desenho_Img_2.jpeg" onerror="this.src='https://picsum.photos/600/600?random=12'"><div class="img-caption">Desenho_Img_2 — Fragmento II</div></div>
-                <div class="media-box"><img class="responsive-img" src="Desenho_Img_3.jpeg" onerror="this.src='https://picsum.photos/600/600?random=13'"><div class="img-caption">Desenho_Img_3 — Estudo de Rosto Ausente</div></div>
-                <div class="media-box"><img class="responsive-img" src="Desenho_Img_4.jpeg" onerror="this.src='https://picsum.photos/600/600?random=14'"><div class="img-caption">Desenho_Img_4 — Dissolução do Corpo</div></div>
-                <div class="media-box"><img class="responsive-img" src="Desenho_Img_5.jpeg" onerror="this.src='https://picsum.photos/600/600?random=15'"><div class="img-caption">Desenho_Img_5 — Isolamento Espacial</div></div>
-                <div class="media-box"><img class="responsive-img" src="Desenho_Img_Narrativa.jpeg" onerror="this.src='https://picsum.photos/900/450?random=16'"><div class="img-caption">Desenho_Img_Narrativa — Composição Final Panorâmica</div></div>
+                <div class="media-box"><img class="responsive-img" src="media/Desenho_Img_1.jpeg" alt="Desenho 1"><div class="img-caption">Desenho_Img_1 — Fragmento I</div></div>
+                <div class="media-box"><img class="responsive-img" src="media/Desenho_Img_2.jpeg" alt="Desenho 2"><div class="img-caption">Desenho_Img_2 — Fragmento II</div></div>
+                <div class="media-box"><img class="responsive-img" src="media/Desenho_Img_3.jpeg" alt="Desenho 3"><div class="img-caption">Desenho_Img_3 — Estudo de Rosto Ausente</div></div>
+                <div class="media-box"><img class="responsive-img" src="media/Desenho_Img_4.jpeg" alt="Desenho 4"><div class="img-caption">Desenho_Img_4 — Dissolução do Corpo</div></div>
+                <div class="media-box"><img class="responsive-img" src="media/Desenho_Img_5.jpeg" alt="Desenho 5"><div class="img-caption">Desenho_Img_5 — Isolamento Espacial</div></div>
+                <div class="media-box"><img class="responsive-img" src="media/Desenho_Img_Narrativa.jpeg" alt="Narrativa"><div class="img-caption">Desenho_Img_Narrativa — Composição Final Panorâmica</div></div>
             </div>
         </div>
     </div>
-
 
     <div id="taskbar">
         <div style="font-weight: bold; font-size: 12px; border: 2px solid; padding: 1px 6px; background:#bfbfbf;">MIGUEL TAYLOR OS</div>
@@ -569,9 +581,8 @@ Parsing asset descriptors... Ok.</div>
         <div class="sys-clock" id="clock">21:35</div>
     </div>
 
-    <audio id="audio-calmo" src="audio-calmo.mp3" loop preload="auto"></audio>
-    <audio id="audio-agressivo" src="audio-agressivo.mp3" loop preload="auto"></audio>
-
+    <audio id="audio-calmo" src="audio/audio-calmo.mp3" loop preload="auto"></audio>
+    <audio id="audio-agressivo" src="audio/audio-agressivo.mp3" loop preload="auto"></audio>
 
     <script>
         /* =====================================================================
@@ -600,9 +611,11 @@ Parsing asset descriptors... Ok.</div>
         }
         setTimeout(printLog, 600);
 
-        // Inicialização do Contexto de Áudio Avançado após o Click
-        let audioCtx, gainCalmo, gainAgressivo, sourceCalmo, sourceAgressivo;
+        /* =====================================================================
+           2. AUDIO ENGINE COM PITCH SHIFT E SPEED UP
+           ===================================================================== */
         let isSystemRunning = false;
+        let audioCtx, gainCalmo, gainAgressivo;
 
         function startPortfolio() {
             document.getElementById('loading-screen').style.opacity = '0';
@@ -610,7 +623,6 @@ Parsing asset descriptors... Ok.</div>
                 document.getElementById('loading-screen').style.display = 'none';
             }, 800);
 
-            // Iniciar Audio Engine via Web Audio API para Crossfade Perfeito
             const audioCalmo = document.getElementById('audio-calmo');
             const audioAgressivo = document.getElementById('audio-agressivo');
             
@@ -625,7 +637,6 @@ Parsing asset descriptors... Ok.</div>
             srcCalmo.connect(gainCalmo).connect(audioCtx.destination);
             srcAgressivo.connect(gainAgressivo).connect(audioCtx.destination);
             
-            // Estado inicial: Toca calmo, silencia agressivo
             gainCalmo.gain.setValueAtTime(1.0, audioCtx.currentTime);
             gainAgressivo.gain.setValueAtTime(0.0, audioCtx.currentTime);
             
@@ -636,149 +647,18 @@ Parsing asset descriptors... Ok.</div>
         }
 
         /* =====================================================================
-           2. ALGORITMO ORIGINAL DO TEU SHADER (CLOUD-SKY.HTML)
-           ===================================================================== */
-        const cloudCanvas = document.getElementById('cloud-canvas');
-        const gl = cloudCanvas.getContext('webgl2', { antialias: false, powerPreference: 'high-performance' });
-        
-        const SCALE = window.devicePixelRatio > 1 ? 0.55 : 0.7;
-        let accumulatedTime = 0;
-        let speedFactor = 1.0;
-        let targetSpeedFactor = 1.0;
-
-        function resizeCloudCanvas() {
-            cloudCanvas.width  = Math.floor(window.innerWidth  * SCALE);
-            cloudCanvas.height = Math.floor(window.innerHeight * SCALE);
-            if(gl) gl.viewport(0, 0, cloudCanvas.width, cloudCanvas.height);
-        }
-        window.addEventListener('resize', resizeCloudCanvas);
-        resizeCloudCanvas();
-
-        const VERT = `#version 300 es
-        in vec2 aPos;
-        void main() { gl_Position = vec4(aPos, 0.0, 1.0); }`;
-
-        // Coloca o teu fragment shader PBR na íntegra
-        const FRAG = `#version 300 es
-        precision highp float;
-        uniform float uTime;
-        uniform vec2  uRes;
-        out vec4 fragColor;
-        const float PI = 3.14159265359;
-        const float TWOPI = 6.28318530718;
-        const float ISO = 0.07957747;
-        vec3 gSunDir; vec3 gSunColor; vec3 gCloudSunColor; vec3 gSunRadiance; vec3 gSkyAvg; float gTimeOfDay;
-        const vec3 kRayleigh = vec3(5.8e-3, 1.35e-2, 3.31e-2);
-        const float kRayleighH = 8.0; const float kMie = 0.015; const float kMieH = 1.2; const float kMS = 0.5;
-        const float kCosSun = 0.99985; const float kSunSA = TWOPI*(1.0-kCosSun);
-        float linstep(float a, float b, float x) { return clamp((x - a) / (b - a), 0.0, 1.0); }
-        float rayleighPhase(float cosA) { return 0.05968310365 * (1.0 + cosA * cosA); }
-        float hgPhase(float cosA, float g) { float k = 1.55*g - 0.55*g*g*g; float f = 1.0 - k * cosA; return (1.0 - k*k) / (TWOPI * 2.0 * f * f); }
-        float hash3(vec3 p) { p = fract(p * vec3(0.1031, 0.1030, 0.0973)); p += dot(p, p.yxz + 33.33); return fract((p.x + p.y) * p.z); }
-        float vnoise(vec3 x) {
-            vec3 p = floor(x); vec3 f = fract(x); f = f * f * (3.0 - 2.0 * f);
-            float v000 = hash3(p); float v100 = hash3(p + vec3(1,0,0)); float v010 = hash3(p + vec3(0,1,0)); float v110 = hash3(p + vec3(1,1,0));
-            float v001 = hash3(p + vec3(0,0,1)); float v101 = hash3(p + vec3(1,0,1)); float v011 = hash3(p + vec3(0,1,1)); float v111 = hash3(p + vec3(1,1,1));
-            return mix(mix(mix(v000, v100, f.x), mix(v010, v110, f.x), f.y), mix(mix(v001, v101, f.x), mix(v011, v111, f.x), f.y), f.z) * 2.0 - 1.0;
-        }
-        vec3 getSky(vec3 rd, float roughness) {
-            float r = max(1e-4, (rd.y + 0.1) / 1.1); r = mix(r, 0.6366, roughness); float ntd = exp(-r) / r; float rds = dot(rd, gSunDir);
-            float rPhase = rayleighPhase(rds) / ISO; rPhase = mix(rPhase, 1.0, roughness);
-            vec3 rTrans = exp(-kRayleigh * kRayleighH * ntd); vec3 rScatter = 1.0 - rTrans; vec3 rMS = kMS * mix(rScatter, gSkyAvg, 0.5);
-            float earthSh = smoothstep(-0.15, 0.1, gSunDir.y + rds * 0.02);
-            vec3 sunTrans = max(vec3(2.5e-4), earthSh * mix(rTrans, vec3(1.0), 0.2 + 0.8 * clamp(gSunDir.y * 3.0, 0.0, 1.0)));
-            vec3 sky = (rScatter * sunTrans + earthSh * rTrans * rMS) * rPhase;
-            float mieTrans = exp(-kMie * kMieH * ntd); float mieG = 0.75 - roughness * 0.6;
-            sky = sky * mieTrans + hgPhase(rds, mieG) / ISO * gCloudSunColor * earthSh * (1.0 - mieTrans); return sky;
-        }
-        float diskLight(vec3 rd, vec3 ld, float cosR, float rough) {
-            float dsa = TWOPI * (1.0 - cosR); float bsa = TWOPI * (1.0 - (cosR - rough)); float bright = dsa / max(1e-5, bsa);
-            float vdl = dot(rd, ld); float vis = linstep(cosR - 1e-4 - rough, cosR + 1e-4 + rough, vdl) * 2.0;
-            float bp = 7.0 - 6.0 * sqrt(rough); vis = pow(max(vis, 0.0), bp) / max(1e-5, 1.0 / (bp + 1.0)); return min(1.0, vis * bright);
-        }
-        vec3 getSun(vec3 rd, float rough) {
-            float vdl = dot(rd, gSunDir); vec3 disk = vec3(diskLight(rd, gSunDir, kCosSun, rough)) * gSunRadiance;
-            float bloom = linstep(kCosSun - (1.0 - kCosSun) * 10.0 - rough, kCosSun + rough, vdl);
-            disk += pow(max(bloom, 0.0), 4.0) * gSunColor * 2.0 * (1.0 - rough); return disk;
-        }
-        void initScene(float time) {
-            gSunDir = normalize(vec3(0.4, 0.0, 0.5)); float sr = PI * 0.025; float er = time * sr - sin(time * sr * 2.0) * 0.4;
-            float c = cos(er), s = sin(er); float ny = c * gSunDir.y + s * gSunDir.z; float nz = -s * gSunDir.y + c * gSunDir.z;
-            gSunDir.y = ny; gSunDir.z = nz; gTimeOfDay = fract(0.5 + time * sr / TWOPI) - 0.5;
-            float sr1 = max(1e-4, gSunDir.y); gSunColor = exp(-kRayleigh * kRayleighH * exp(-sr1) / sr1); gSunRadiance = gSunColor * 5.0 / kSunSA;
-            float sr2 = max(0.02, gSunDir.y + 0.01); gCloudSunColor = exp(-kRayleigh * kRayleighH * exp(-sr2) / sr2);
-            gSkyAvg = vec3(0.0); gSkyAvg = getSky(vec3(0.0, 1.0, 0.0), 0.5);
-        }
-        vec3 cloudOffset() { return vec3(0.0, 0.1, 1.0) * uTime * 0.28; }
-        float cden4(vec3 p) { vec3 q = p - cloudOffset(); float f = 0.5*vnoise(q); q *= 2.02; f += 0.25*vnoise(q); q *= 2.03; f += 0.125*vnoise(q); q *= 2.01; f += 0.0625*vnoise(q); return clamp(1.5 - p.y - 2.0 + 1.75 * f, 0.0, 1.0); }
-        float cden3(vec3 p) { vec3 q = p - cloudOffset(); float f = 0.5*vnoise(q); q *= 2.02; f += 0.25*vnoise(q); q *= 2.03; f += 0.125*vnoise(q); return clamp(1.5 - p.y - 2.0 + 1.75 * f, 0.0, 1.0); }
-        float cden2(vec3 p) { vec3 q = p - cloudOffset(); float f = 0.5*vnoise(q); q *= 2.02; f += 0.25*vnoise(q); return clamp(1.5 - p.y - 2.0 + 1.75 * f, 0.0, 1.0); }
-        vec4 cloudSample(float den, float dif, float t, vec3 bgcol) {
-            float dayAmt = clamp(gSunDir.y * 2.5 + 0.55, 0.0, 1.0); vec3 sunHue = gCloudSunColor * vec3(1.0, 0.72, 0.38);
-            vec3 ambDay = gSkyAvg * 0.45 + vec3(0.55, 0.68, 0.82); vec3 ambNight = vec3(0.04, 0.05, 0.12); vec3 ambient = mix(ambNight, ambDay, dayAmt);
-            vec3 lin = sunHue * (1.4 * dif) + ambient; vec3 cLight = mix(vec3(1.00, 0.96, 0.88), vec3(0.07, 0.08, 0.14), 1.0 - dayAmt);
-            vec3 cDark = mix(vec3(0.30, 0.34, 0.42), vec3(0.02, 0.03, 0.08), 1.0 - dayAmt); vec4 col = vec4(mix(cLight, cDark, den), den);
-            col.rgb *= lin; col.rgb = mix(col.rgb, bgcol, 1.0 - exp(-0.0025 * t * t)); col.a *= 0.4; col.rgb *= col.a; return col;
-        }
-        vec4 cloudMarch(vec3 ro, vec3 rd, vec3 bgcol, float dither) {
-            vec4 sum = vec4(0.0); float t = 0.05 * dither;
-            for (int i = 0; i < 25; i++) { vec3 pos = ro + t * rd; if (pos.y < -3.0 || pos.y > 2.0 || sum.a > 0.99) break; float den = cden4(pos); if (den > 0.01) { float dif = clamp((den - cden4(pos + 0.3 * gSunDir)) / 0.6, 0.0, 1.0); vec4 col = cloudSample(den, dif, t, bgcol); sum += col * (1.0 - sum.a); } t += max(0.06, 0.05 * t); }
-            for (int i = 0; i < 30; i++) { vec3 pos = ro + t * rd; if (pos.y < -3.0 || pos.y > 2.0 || sum.a > 0.99) break; float den = cden3(pos); if (den > 0.01) { float dif = clamp((den - cden3(pos + 0.3 * gSunDir)) / 0.6, 0.0, 1.0); vec4 col = cloudSample(den, dif, t, bgcol); sum += col * (1.0 - sum.a); } t += max(0.06, 0.05 * t); }
-            for (int i = 0; i < 25; i++) { vec3 pos = ro + t * rd; if (pos.y < -3.0 || pos.y > 2.0 || sum.a > 0.99) break; float den = cden2(pos); if (den > 0.01) { float dif = clamp((den - cden2(pos + 0.3 * gSunDir)) / 0.6, 0.0, 1.0); vec4 col = cloudSample(den, dif, t, bgcol); sum += col * (1.0 - sum.a); } t += max(0.06, 0.05 * t); }
-            return clamp(sum, 0.0, 1.0);
-        }
-        vec3 starField(vec3 rd, float nightAmt) {
-            if (nightAmt < 0.005 || rd.y < 0.0) return vec3(0.0); vec2 uv = rd.xz / max(0.001, rd.y); vec3 col = vec3(0.0);
-            for (int layer = 0; layer < 2; layer++) {
-                float sc = (layer == 0) ? 55.0 : 130.0; vec2 id = floor(uv * sc + float(layer) * 47.39); float r = hash3(vec3(id, float(layer) * 33.7));
-                vec2 off = (vec2(fract(sin(dot(id, vec2(17.3, 41.7))) * 4537.5), fract(sin(dot(id, vec2(31.1, 73.3))) * 8234.3)) - 0.5) * 0.85;
-                float d = length(fract(uv * sc + float(layer) * 47.39) - 0.5 + off); float sz = 0.025 + r * 0.05; float star = smoothstep(sz, sz * 0.3, d) * r;
-                vec3 sc3 = mix(vec3(0.7, 0.85, 1.0), vec3(1.0, 0.9, 0.7), r); col += star * sc3 * (0.25 + r * 0.75);
-            }
-            float rAlt = max(1e-4, (rd.y + 0.1) / 1.1); vec3 atmTr = exp(-kRayleigh * kRayleighH * exp(-rAlt) / rAlt); return col * atmTr * nightAmt;
-        }
-        vec3 aces(vec3 x) { return clamp((x * (2.51 * x + 0.03)) / (x * (2.43 * x + 0.59) + 0.14), 0.0, 1.0); }
-        void main() {
-            vec2 fc = gl_FragCoord.xy; vec2 p = (2.0 * fc - uRes) / uRes.y; initScene(uTime);
-            float ang = uTime * 0.035; float bob = sin(uTime * 0.08) * 0.4; vec3 ro = vec3(sin(ang) * 3.5, 1.45 + bob, cos(ang) * 3.5);
-            vec3 ta = vec3(0.0, -1.0, 0.0); vec3 cw = normalize(ta - ro); vec3 cr = normalize(cross(cw, vec3(0.05, 1.0, 0.01))); vec3 cu = cross(cr, cw); vec3 rd = normalize(p.x * cr + p.y * cu + 1.5 * cw);
-            vec3 skyCol = getSky(rd, 0.0) + getSun(rd, 0.0); float nightAmt = linstep(-0.04, -0.22, gSunDir.y); skyCol += starField(rd, nightAmt);
-            float dither = fract(sin(dot(fc, vec2(127.1, 311.7))) * 43758.5453); vec4 cld = cloudMarch(ro, rd, skyCol, dither);
-            vec3 col = skyCol * (1.0 - cld.a) + cld.rgb; float exposure = 1.0 + nightAmt * 0.8; col *= exposure; col = aces(col); col = pow(max(col, vec3(0.0)), vec3(1.0 / 2.2)); fragColor = vec4(col, 1.0);
-        }`;
-
-        function compileShader(type, src) {
-            const sh = gl.createShader(type); gl.shaderSource(sh, src); gl.compileShader(sh);
-            if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) { console.error(gl.getShaderInfoLog(sh)); return null; }
-            return sh;
-        }
-        const prog = gl.createProgram();
-        gl.attachShader(prog, compileShader(gl.VERTEX_SHADER, VERT));
-        gl.attachShader(prog, compileShader(gl.FRAGMENT_SHADER, FRAG));
-        gl.linkProgram(prog);
-
-        const vao = gl.createVertexArray(); gl.bindVertexArray(vao);
-        const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
-        const aPos = gl.getAttribLocation(prog, 'aPos'); gl.enableVertexAttribArray(aPos); gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
-        const uTime = gl.getUniformLocation(prog, 'uTime'); const uRes = gl.getUniformLocation(prog, 'uRes');
-
-        /* =====================================================================
            3. MOTOR THREE.JS — OLHO INTERATIVO (EYE.GLB)
            ===================================================================== */
         const tCanvas = document.getElementById('three-canvas');
         const scene = new THREE.Scene();
         
-        // Câmara ortográfica ou perspetiva equilibrada para manter o olho no lado esquerdo
         const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-        // Deslocamos a câmara ligeiramente para a direita, forçando o olho a renderizar à esquerda
         camera.position.set(-0.6, 0, 3.2);
 
         const renderer = new THREE.WebGLRenderer({ canvas: tCanvas, alpha: true, antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(window.devicePixelRatio);
 
-        // Iluminação de Estúdio
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
         scene.add(ambientLight);
         const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
@@ -786,7 +666,7 @@ Parsing asset descriptors... Ok.</div>
         scene.add(dirLight);
 
         let eyeModel = null;
-        let pupilMesh = null; // Detetado dinamicamente para expansão/contração
+        let pupilMesh = null;
         const loader = new THREE.GLTFLoader();
 
         loader.load('Eye.glb', (gltf) => {
@@ -794,15 +674,12 @@ Parsing asset descriptors... Ok.</div>
             eyeModel.scale.set(0.9, 0.9, 0.9);
             scene.add(eyeModel);
             
-            // Procura a malha interna da pupila ou íris para aplicar deformação no clique
             eyeModel.traverse((child) => {
                 if (child.isMesh && (child.name.toLowerCase().includes('pupil') || child.name.toLowerCase().includes('iris'))) {
                     pupilMesh = child;
                 }
             });
         }, undefined, (err) => {
-            console.warn("Ficheiro Eye.glb não encontrado localmente. A simular olho com geometria nativa.");
-            // Fallback elegante caso o ficheiro não esteja no diretório local
             const geo = new THREE.SphereGeometry(0.7, 32, 32);
             const mat = new THREE.MeshPhongMaterial({ color: 0xffffff, roughness: 0.1 });
             eyeModel = new THREE.Mesh(geo, mat);
@@ -815,26 +692,26 @@ Parsing asset descriptors... Ok.</div>
             scene.add(eyeModel);
         });
 
-        // Rastreio do Rato
         const mouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
         window.addEventListener('mousemove', (e) => {
-            // Mapeamento normalizado (-1 a 1)
             mouse.targetX = (e.clientX / window.innerWidth) * 2 - 1;
             mouse.targetY = -(e.clientY / window.innerHeight) * 2 + 1;
         });
 
         /* =====================================================================
-           4. SINCRO DE VELOCIDADE DA ENGINE: "HOLD FOR SPEED"
+           4. SISTEMA HOLD FOR SPEED - RAMP LENTO ATÉ 20X COM AUDIO PROCESSING
            ===================================================================== */
         let isHolding = false;
-        let holdProgress = 0; // Threshold / Rampa de aceleração (0 a 1)
+        let holdProgress = 0;
+        let speedFactor = 1.0;
+        let targetSpeedFactor = 1.0;
+        const MAX_SPEED = 20.0;
         const speedIndicator = document.getElementById('speed-indicator');
 
         window.addEventListener('mousedown', (e) => {
-            // Evita ativar a aceleração se clicar dentro de janelas ou botões
             if (e.target.closest('.classic-window') || e.target.closest('.desktop-icon') || e.target.closest('#btn-enter')) return;
             isHolding = true;
-            targetSpeedFactor = 15.0; // Pico extremo de velocidade temporal
+            targetSpeedFactor = MAX_SPEED;
         });
 
         window.addEventListener('mouseup', () => {
@@ -846,71 +723,88 @@ Parsing asset descriptors... Ok.</div>
            5. LOOP UNIFICADO DE RENDERING E ANIMAÇÃO (TICK)
            ===================================================================== */
         let lastTime = 0;
+        let accumulatedTime = 0;
 
         function tick(now) {
             if (lastTime === 0) lastTime = now;
             const delta = (now - lastTime) * 0.001;
             lastTime = now;
 
-            // 1. Gestão de velocidade (Rampa/Threshold Fluido)
+            // RAMP DE VELOCIDADE - Lento para subir, rápido para descer
             if (isHolding) {
-                holdProgress += delta * 0.8; // Sobe suavemente em direção ao threshold
+                holdProgress += delta * 0.35; // Sobe MUITO mais lentamente
                 if (holdProgress > 1) holdProgress = 1;
             } else {
-                holdProgress -= delta * 3.5; // Resposta de queda ultra rápida ao largar
+                holdProgress -= delta * 2.5; // Descer rápido
                 if (holdProgress < 0) holdProgress = 0;
             }
             
             speedFactor = THREE.MathUtils.lerp(1.0, targetSpeedFactor, holdProgress);
             accumulatedTime += delta * speedFactor;
 
-            // Atualizar indicador de velocidade no painel
-            speedIndicator.innerText = `HOLD FOR SPEED | ${speedFactor.toFixed(2)}x`;
-            speedIndicator.style.color = isHolding ? '#ff0000' : '#00ff00';
-
-            // 2. Crossfade Áudio com base no progresso do Hold
+            // AUDIO PROCESSING COM PITCH SHIFT E SPEED UP
             if (isSystemRunning && audioCtx) {
-                // Rampa linear de crossfade
-                gainCalmo.gain.setValueAtTime(1.0 - holdProgress, audioCtx.currentTime);
-                gainAgressivo.gain.setValueAtTime(holdProgress, audioCtx.currentTime);
+                const audioCalmo = document.getElementById('audio-calmo');
+                const audioAgressivo = document.getElementById('audio-agressivo');
+
+                // Blend Suave entre os dois áudios
+                const calmoGain = Math.max(0, 1.0 - holdProgress);
+                const agressivoGain = Math.min(1.0, holdProgress);
+
+                gainCalmo.gain.setValueAtTime(calmoGain, audioCtx.currentTime);
+                gainAgressivo.gain.setValueAtTime(agressivoGain, audioCtx.currentTime);
+
+                // PITCH SHIFT - Aumenta conforme acelera (audível até aos 20x)
+                const pitchFactor = 1.0 + holdProgress * 0.8; // 1.0 a 1.8x mais agudo
+                audioCalmo.playbackRate = Math.max(0.25, Math.min(2.0, pitchFactor));
+                audioAgressivo.playbackRate = Math.max(0.25, Math.min(2.0, pitchFactor * 0.95));
+
+                // Cores do Indicador - Gradual do verde para vermelho
+                if (holdProgress > 0.1) {
+                    const red = Math.floor(255 * holdProgress);
+                    const green = Math.floor(255 * (1 - holdProgress * 0.7));
+                    speedIndicator.style.color = `rgb(${red}, ${green}, 0)`;
+                } else {
+                    speedIndicator.style.color = '#00ff00';
+                }
             }
 
-            // 3. Renderizar Fundo de Nuvens Volumétricas com tempo alterado
-            if (gl) {
-                gl.viewport(0, 0, cloudCanvas.width, cloudCanvas.height);
-                gl.useProgram(prog);
-                gl.uniform1f(uTime, accumulatedTime);
-                gl.uniform2f(uRes, cloudCanvas.width, cloudCanvas.height);
-                gl.bindVertexArray(vao);
-                gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-            }
+            speedIndicator.innerText = `HOLD FOR SPEED | ${speedFactor.toFixed(2)}x`;
 
-            // 4. Animação Avançada do Olho 3D
+            // ANIMAÇÃO DO OLHO
             if (eyeModel) {
-                // Suavização do movimento de rotação (Lerp)
                 mouse.x += (mouse.targetX - mouse.x) * 0.08;
                 mouse.y += (mouse.targetY - mouse.y) * 0.08;
 
                 if (!isHolding) {
-                    // Estado Normal: Segue o rato com precisão fluida
-                    eyeModel.rotation.y = mouse.x * 0.6;
-                    eyeModel.rotation.x = -mouse.y * 0.4;
-                    eyeModel.rotation.z *= 0.9; // Amortece rotações espaciais antigas
+                    // Rotação Normal - Segue o rato com limites para não expor a parte de trás
+                    eyeModel.rotation.y = mouse.x * 0.5;
+                    eyeModel.rotation.x = -mouse.y * 0.35;
+                    eyeModel.rotation.z *= 0.95;
                     
-                    // Pupila regressa ao tamanho normal
+                    // Pupila aponta para o rato
                     if (pupilMesh) {
+                        const pupilDirX = mouse.targetX * 0.2;
+                        const pupilDirY = -mouse.targetY * 0.2;
+                        pupilMesh.position.set(pupilDirX * 0.3, pupilDirY * 0.3, 0.65);
                         pupilMesh.scale.set(1, 1, 1);
                     }
                 } else {
-                    // Estado HOLD ATIVADO (Tweak/Glitch e Spin Frenético)
-                    eyeModel.rotation.z += delta * 12.0; // Rotação rápida no próprio eixo
-                    eyeModel.rotation.y += (Math.random() - 0.5) * 0.15; // Jitter / Tweak de pânico
-                    eyeModel.rotation.x += (Math.random() - 0.5) * 0.15;
+                    // Estado HOLD - Olha para todos os cantos mas sem expor a parte de trás
+                    const cornerPhase = now * 0.006;
                     
-                    // Dilatação/Compressão extrema da pupila simulando aceleração vital
+                    // Corners seguros (não completa 90 graus em nenhuma direção)
+                    const cornerRotY = Math.sin(cornerPhase) * 0.7; // Max ±0.7 rad
+                    const cornerRotX = Math.cos(cornerPhase * 0.7) * 0.6; // Max ±0.6 rad
+                    
+                    eyeModel.rotation.z += delta * 8.0; // Rotação no próprio eixo
+                    eyeModel.rotation.y = cornerRotY + (Math.random() - 0.5) * 0.1;
+                    eyeModel.rotation.x = cornerRotX + (Math.random() - 0.5) * 0.1;
+                    
+                    // Pupila dilata conforme acelera
                     if (pupilMesh) {
-                        const pulse = 0.5 + Math.sin(now * 0.05) * 0.3;
-                        pupilMesh.scale.set(pulse, pulse, 1);
+                        const pupilScale = 0.6 + holdProgress * 0.8; // 0.6 a 1.4
+                        pupilMesh.scale.set(pupilScale, pupilScale, 1);
                     }
                 }
             }
@@ -924,7 +818,6 @@ Parsing asset descriptors... Ok.</div>
            6. GESTÃO DE JANELAS (SISTEMA DE ABAS WINDOWS 95)
            ===================================================================== */
         function openWindow(id) {
-            // Desativa foco das outras abas abertas para focar na nova
             document.querySelectorAll('.classic-window').forEach(win => {
                 win.classList.remove('active');
             });
@@ -937,7 +830,6 @@ Parsing asset descriptors... Ok.</div>
             if (targetWin) targetWin.classList.remove('active');
         }
 
-        // Sistema Simples de Drag & Drop para janelas retro
         document.querySelectorAll('.classic-window').forEach(win => {
             const title = win.querySelector('.window-title');
             let isDragging = false;
@@ -956,37 +848,50 @@ Parsing asset descriptors... Ok.</div>
                 currentY = e.clientY - initialY;
                 win.style.left = currentX + 'px';
                 win.style.top = currentY + 'px';
-                win.style.right = 'auto'; // Cancela alinhamento padrão à direita
+                win.style.right = 'auto';
             });
 
             window.addEventListener('mouseup', () => isDragging = false);
         });
 
         /* =====================================================================
-           7. ENGINE DO CARROSSEL DE FOTOGRAFIA (FOTOGRAFIA_1 ATÉ FOTOGRAFIA_12)
+           7. ENGINE DO CARROSSEL DE FOTOGRAFIA
            ===================================================================== */
         const track = document.getElementById('photo-track');
         let currentSlide = 0;
 
-        // Gerar dinamicamente os 12 slides para blindar contra falhas de renderização
-        for (let i = 1; i <= 12; i++) {
+        // Array de fotos reais
+        const photos = [
+            'Fotografia_1.JPG',
+            'Fotografia_2.JPG',
+            'Fotografia_3.JPG',
+            'Fotografia_4.JPG',
+            'Fotografia_5.JPG',
+            'Fotografia_6.jpeg',
+            'Fotografia_7.JPG',
+            'Fotografia_8.JPG',
+            'Fotografia_9.JPG',
+            'Fotografia_10.JPG',
+            'Fotografia_11.JPG',
+            'Fotografia_12.JPG'
+        ];
+
+        photos.forEach((photo, idx) => {
             const slide = document.createElement('div');
             slide.className = 'carousel-slide';
-            
-            // Fallback automático com picsum caso o servidor local falhe no carregamento
             slide.innerHTML = `
                 <div class="media-box">
-                    <img class="responsive-img" src="Fotografia_${i}.JPG" alt="Fotografia_${i}" onerror="this.src='https://picsum.photos/800/550?random=${i}'">
-                    <div class="img-caption">Série IN/OUT — Elemento_Visual_Fotografia_${i}</div>
+                    <img class="responsive-img" src="media/${photo}" alt="${photo}">
+                    <div class="img-caption">Série IN/OUT — Elemento_Visual_Fotografia_${idx + 1}</div>
                 </div>
             `;
             track.appendChild(slide);
-        }
+        });
 
         function moveCarousel(direction) {
             currentSlide += direction;
-            if (currentSlide < 0) currentSlide = 11;
-            if (currentSlide > 11) currentSlide = 0;
+            if (currentSlide < 0) currentSlide = photos.length - 1;
+            if (currentSlide >= photos.length) currentSlide = 0;
             track.style.transform = `translateX(-${currentSlide * 100}%)`;
         }
 
@@ -1000,7 +905,6 @@ Parsing asset descriptors... Ok.</div>
         setInterval(updateClock, 1000);
         updateClock();
 
-        // Reajuste do tamanho do renderer ThreeJS
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
