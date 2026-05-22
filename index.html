@@ -4,55 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Miguel Taylor — Portfolio OS</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+
     <style>
-        /* Estilos Base - Sistema Operativo Clássico */
+        /* --- ESTILOS RETRO VHS / WINDOWS 95 COM ANIMAÇÕES MODERNAS --- */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             user-select: none;
+            font-family: "MS Sans Serif", -apple-system, BlinkMacSystemFont, Arial, sans-serif;
         }
 
         body, html {
             width: 100%;
             height: 100vh;
             overflow: hidden;
-            font-family: "MS Sans Serif", Geneva, sans-serif;
-            background-color: #050505;
-            color: #ffffff;
+            background-color: #000;
+            color: #000;
         }
 
-        /* Contentor do Shader de Fundo (Shadertoy) */
-        .shader-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: -2;
-            overflow: hidden;
-            pointer-events: none;
-        }
-
-        .shader-container iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-            transform: scale(1.05);
-        }
-
-        .shader-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: -1;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.45) 100%);
-            pointer-events: none;
-        }
-
-        /* Efeito de Monitor Antigo CRT */
+        /* Camada VHS/CRT Overlay */
         .crt-overlay {
             position: fixed;
             top: 0;
@@ -60,424 +34,978 @@
             width: 100vw;
             height: 100vh;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            z-index: 9999;
             background-size: 100% 4px, 6px 100%;
+            z-index: 9999;
             pointer-events: none;
         }
-
-        /* Interface do Desktop e Ícones */
-        .desktop {
-            width: 100%;
-            height: calc(100vh - 40px);
-            padding: 20px;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, 90px);
-            grid-auto-rows: 90px;
-            gap: 20px;
-            position: relative;
-            z-index: 5;
+        .crt-overlay::after {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: rgba(18, 16, 16, 0.1);
+            opacity: 0;
+            z-index: 9999;
+            pointer-events: none;
+            animation: vhsGlitch 0.15s infinite;
+        }
+        @keyframes vhsGlitch {
+            0% { opacity: 0.1; }
+            50% { opacity: 0.2; }
+            100% { opacity: 0.1; }
         }
 
-        .icon {
+        /* Canvas Background & Olho */
+        #cloud-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+        }
+        #three-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 2;
+            pointer-events: none; /* Deixa passar cliques para o fundo */
+        }
+
+        /* Ecrã de Loading Inicial */
+        #loading-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #050505;
+            color: #22ff22;
+            font-family: 'Courier New', monospace;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            transition: opacity 0.8s ease;
+        }
+        .boot-text {
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+        .enter-btn {
+            background: #22ff22;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: monospace;
+            box-shadow: 0 0 10px #22ff22;
+            display: none;
+            transition: transform 0.2s;
+        }
+        .enter-btn:hover { transform: scale(1.05); }
+
+        /* Ambiente de Trabalho / Ícones (Lado Esquerdo) */
+        #desktop {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: 3;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-content: flex-start;
+            flex-wrap: wrap;
+            pointer-events: none;
+        }
+        .desktop-icon {
+            width: 85px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
             text-align: center;
             cursor: pointer;
+            pointer-events: auto;
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .desktop-icon:hover {
+            transform: scale(1.08);
+        }
+        .desktop-icon img, .desktop-icon .folder-visual {
+            width: 44px;
+            height: 44px;
+            background: #dfdfdf;
+            border-left: 2px solid #fff; border-top: 2px solid #fff;
+            border-right: 2px solid #5a5a5a; border-bottom: 2px solid #5a5a5a;
+            box-shadow: 1px 1px 0 #000;
+            position: relative;
+            margin-bottom: 5px;
+        }
+        /* Pasta Visual retro em CSS puro */
+        .folder-visual::before {
+            content: '';
+            position: absolute;
+            top: 6px; left: 8px; width: 28px; height: 24px;
+            background: #fcd116;
+            border: 1px solid #c69c00;
+            border-radius: 2px;
+        }
+        .folder-visual::after {
+            content: '';
+            position: absolute;
+            top: 2px; left: 8px; width: 12px; height: 6px;
+            background: #fcd116;
+            border: 1px solid #c69c00;
+            border-bottom: none;
+        }
+        .icon-label {
             color: white;
-            font-size: 12px;
-            text-shadow: 1px 1px 2px black;
+            font-size: 11px;
+            text-shadow: 1px 1px 2px #000;
+            padding: 2px 4px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 2px;
+            word-break: break-word;
         }
 
-        .icon img {
-            width: 42px;
-            height: 42px;
-            margin-bottom: 6px;
-        }
-
-        /* Janelas Clássicas */
+        /* Interfaces das Janelas Clássicas (Lado Direito) */
         .classic-window {
             position: absolute;
-            top: 10%;
-            left: 25%;
-            width: 650px;
-            background: #d4d0c8;
-            border: 2px solid;
-            border-color: #fff #404040 #404040 #fff;
+            top: 6%;
+            right: 4%;
+            width: 46vw;
+            height: 82vh;
+            min-width: 340px;
+            background: #c0c0c0;
+            border-left: 2px solid #fff; border-top: 2px solid #fff;
+            border-right: 2px solid #808080; border-bottom: 2px solid #808080;
             box-shadow: 2px 2px 10px rgba(0,0,0,0.5);
-            display: none;
+            display: flex;
             flex-direction: column;
             z-index: 10;
+            opacity: 0;
+            transform: scale(0.95) translate3d(20px, 0, 0);
+            pointer-events: none;
+            transition: opacity 0.3s cubic-bezier(0.25, 1, 0.5, 1), transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
         }
-
         .classic-window.active {
-            display: flex;
+            opacity: 1;
+            transform: scale(1) translate3d(0, 0, 0);
+            pointer-events: auto;
+            z-index: 100;
         }
-
-        .title-bar {
+        .window-title {
             background: linear-gradient(90deg, #000080, #1084d0);
             color: white;
             padding: 4px 6px;
             font-weight: bold;
+            font-size: 13px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 13px;
+            cursor: move;
         }
-
-        .title-bar-controls button {
-            width: 16px;
-            height: 14px;
-            background: #d4d0c8;
-            border: 1px solid;
-            border-color: #fff #404040 #404040 #fff;
-            font-size: 9px;
-            font-weight: bold;
-            cursor: pointer;
-            line-height: 10px;
+        .window-close {
+            background: #c0c0c0;
+            color: black;
+            border-left: 1px solid #fff; border-top: 1px solid #fff;
+            border-right: 1px solid #000; border-bottom: 1px solid #000;
+            width: 16px; height: 16px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 9px; cursor: pointer; font-weight: bold;
         }
-
+        .window-close:active {
+            border-left: 1px solid #000; border-top: 1px solid #000;
+            border-right: 1px solid #fff; border-bottom: 1px solid #fff;
+        }
+        
+        /* Conteúdo interno da janela */
         .window-body {
-            padding: 12px;
-            color: #000;
+            padding: 15px;
+            flex: 1;
             overflow-y: auto;
-            max-height: 450px;
             background: #fff;
             margin: 4px;
-            border: 2px solid;
-            border-color: #404040 #fff #fff #404040;
+            border-left: 2px solid #808080; border-top: 2px solid #808080;
+            border-right: 2px solid #fff; border-bottom: 2px solid #fff;
+        }
+        
+        /* Scrollbar Retro Customizada */
+        .window-body::-webkit-scrollbar { width: 16px; }
+        .window-body::-webkit-scrollbar-track { background: #dfdfdf; }
+        .window-body::-webkit-scrollbar-thumb {
+            background: #c0c0c0;
+            border-left: 1px solid #fff; border-top: 1px solid #fff;
+            border-right: 1px solid #808080; border-bottom: 1px solid #808080;
         }
 
-        /* Grelhas das Galerias */
-        .gallery-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 12px;
+        /* Tipografia e Estrutura dos Projetos */
+        .project-desc {
+            font-size: 12px;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            color: #111;
+            text-align: justify;
         }
-
-        .gallery-item {
-            border: 1px solid #808080;
-            padding: 4px;
-            background: #f1f1f1;
-            text-align: center;
+        .project-media {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 15px;
         }
-
-        .gallery-item img {
+        .media-box {
             width: 100%;
-            height: 110px;
-            object-fit: cover;
-            border: 1px solid #404040;
-        }
-
-        .gallery-item span {
-            font-size: 11px;
-            display: block;
-            margin-top: 4px;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            background: #000;
+            border: 1px solid #808080;
+            position: relative;
             overflow: hidden;
         }
-
-        .pdf-link {
+        /* Proteção de Proporção Inteligente Antideformação */
+        .responsive-video {
+            aspect-ratio: 16 / 9;
+            width: 100%;
+            height: auto;
             display: block;
-            padding: 20px 10px;
-            background: #e4e0d8;
-            border: 1px dashed #000080;
-            color: #000080;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 12px;
+        }
+        .responsive-img {
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+            display: block;
+            max-height: 70vh;
+            background: #111;
+        }
+        .img-caption {
+            background: #f0f0f0;
+            color: #333;
+            padding: 5px;
+            font-size: 11px;
+            border-top: 1px solid #808080;
+            font-family: monospace;
         }
 
-        /* Barra de Tarefas */
-        .taskbar {
+        /* Carrossel de Fotografia Suave */
+        .carousel-container {
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid #808080;
+            background: #1a1a1a;
+        }
+        .carousel-track {
+            display: flex;
+            transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+            width: 100%;
+        }
+        .carousel-slide {
+            min-width: 100%;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+        }
+        .carousel-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #c0c0c0;
+            border: 2px solid #fff;
+            box-shadow: 1px 1px 3px #000;
+            cursor: pointer;
+            padding: 5px 10px;
+            font-weight: bold;
+            z-index: 10;
+        }
+        .carousel-btn:active { border: 2px solid #5a5a5a; }
+        .btn-prev { left: 10px; }
+        .btn-next { right: 10px; }
+
+        /* Rodapé / Barra de Estado (Engine de Velocidade) */
+        #taskbar {
             position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100vw;
-            height: 40px;
-            background: #d4d0c8;
+            bottom: 0; left: 0; width: 100vw; height: 30px;
+            background: #c0c0c0;
             border-top: 2px solid #fff;
+            z-index: 500;
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 0 10px;
-            z-index: 1000;
+            box-shadow: 0 -1px 5px rgba(0,0,0,0.3);
         }
-
-        .start-button {
-            background: #d4d0c8;
-            border: 2px solid;
-            border-color: #fff #404040 #404040 #fff;
+        .speed-panel {
+            background: #000;
+            color: #00ff00;
+            font-family: monospace;
+            font-size: 12px;
+            padding: 3px 8px;
+            border-left: 2px solid #808080; border-top: 2px solid #808080;
+            border-right: 2px solid #fff; border-bottom: 2px solid #fff;
+            letter-spacing: 1px;
+        }
+        .sys-clock {
+            font-size: 11px;
             font-weight: bold;
-            padding: 2px 6px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            cursor: pointer;
-        }
-
-        #eye-container {
-            position: fixed;
-            bottom: 60px;
-            right: 20px;
-            width: 220px;
-            height: 220px;
-            z-index: 99;
-            cursor: pointer;
         }
     </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 </head>
 <body>
 
-    <audio id="bgMusic" src="media/audio-calmo.mp3" loop></audio>
-    <audio id="aggressMusic" src="media/audio-agressivo.mp3" loop></audio>
-
-    <div class="shader-container">
-        <iframe src="https://www.shadertoy.com/embed/tdjyzz?gui=false&t=0&paused=false&muted=true" allow="autoplay; fullscreen"></iframe>
-    </div>
-    <div class="shader-overlay"></div>
     <div class="crt-overlay"></div>
 
-    <div class="desktop">
-        <div class="icon" onclick="openWindow('win-desenho')">
-            <img src="https://img.icons8.com/color/48/folder-invoices.png" alt="Pasta">
-            <span>Desenho</span>
+    <canvas id="cloud-canvas"></canvas>
+
+    <canvas id="three-canvas"></canvas>
+
+    <div id="loading-screen">
+        <div class="boot-text" id="boot-log">MT-OS(R) Volumetric Kernel Loading...
+Initializing WebGL context... Ok.
+Parsing asset descriptors... Ok.</div>
+        <button class="enter-btn" id="btn-enter" onclick="startPortfolio()">MIGUEL TAYLOR PORTFOLIO - ENTER SYSTEM</button>
+    </div>
+
+    <div id="desktop">
+        <div class="desktop-icon" onclick="openWindow('win-about')">
+            <div class="folder-visual"></div>
+            <div class="icon-label">About Me</div>
         </div>
-        <div class="icon" onclick="openWindow('win-publicidade')">
-            <img src="https://img.icons8.com/color/48/folder-invoices.png" alt="Pasta">
-            <span>Design de Publicidade</span>
+        <div class="desktop-icon" onclick="openWindow('win-animacao')">
+            <div class="folder-visual"></div>
+            <div class="icon-label">Animação I</div>
         </div>
-        <div class="icon" onclick="openWindow('win-fotografia')">
-            <img src="https://img.icons8.com/color/48/folder-invoices.png" alt="Pasta">
-            <span>Fotografia II</span>
+        <div class="desktop-icon" onclick="openWindow('win-fotografia')">
+            <div class="folder-visual"></div>
+            <div class="icon-label">Fotografia II</div>
+        </div>
+        <div class="desktop-icon" onclick="openWindow('win-artes')">
+            <div class="folder-visual"></div>
+            <div class="icon-label">Artes Plásticas II</div>
+        </div>
+        <div class="desktop-icon" onclick="openWindow('win-design')">
+            <div class="folder-visual"></div>
+            <div class="icon-label">Design Publicidade</div>
+        </div>
+        <div class="desktop-icon" onclick="openWindow('win-media')">
+            <div class="folder-visual"></div>
+            <div class="icon-label">Novos Média I</div>
+        </div>
+        <div class="desktop-icon" onclick="openWindow('win-desenho')">
+            <div class="folder-visual"></div>
+            <div class="icon-label">Desenho</div>
         </div>
     </div>
 
-    <div class="classic-window" id="win-desenho">
-        <div class="title-bar">
-            <span>C:\media\Desenho</span>
-            <div class="title-bar-controls">
-                <button onclick="closeWindow('win-desenho')">X</button>
-            </div>
+    <div class="classic-window" id="win-about">
+        <div class="window-title">
+            <span>About Me - Biography.txt</span>
+            <div class="window-close" onclick="closeWindow('win-about')">X</div>
         </div>
         <div class="window-body">
-            <div class="gallery-grid">
-                <div class="gallery-item"><img src="media/Desenho/Desenho_Img_1.jpeg"><span>Desenho_Img_1.jpeg</span></div>
-                <div class="gallery-item"><img src="media/Desenho/Desenho_Img_2.jpeg"><span>Desenho_Img_2.jpeg</span></div>
-                <div class="gallery-item"><img src="media/Desenho/Desenho_Img_3.jpeg"><span>Desenho_Img_3.jpeg</span></div>
-                <div class="gallery-item"><img src="media/Desenho/Desenho_Img_4.jpeg"><span>Desenho_Img_4.jpeg</span></div>
-                <div class="gallery-item"><img src="media/Desenho/Desenho_Img_5.jpeg"><span>Desenho_Img_5.jpeg</span></div>
-                <div class="gallery-item"><img src="media/Desenho/Desenho_Img_Narrativa.jpeg"><span>Desenho_Img_Narrativa.jpeg</span></div>
-            </div>
+            <p class="project-desc">
+                <strong>Miguel Taylor Lança</strong> (Beja, 2005) é um artista multimédia focado em explorações conceituais baseadas em <strong>práticas digitais, mecânicas interativas e narrativas audiovisuais</strong>. Atualmente, encontra-se a concluir a sua Licenciatura em Artes Plásticas e Multimédia na conceituada <strong>Universidade de Évora</strong>.
+            </p>
+            <p class="project-desc">
+                O desenvolvimento do seu percurso expande-se no cruzamento simbiótico entre modelação e animação <strong>3D, produção audiovisual autónoma, fotografia de cariz analógico e digital</strong>, além do desenho de experiências interativas gamificadas de vanguarda.
+            </p>
         </div>
     </div>
 
-    <div class="classic-window" id="win-publicidade">
-        <div class="title-bar">
-            <span>C:\media\Design de Publicidade</span>
-            <div class="title-bar-controls">
-                <button onclick="closeWindow('win-publicidade')">X</button>
-            </div>
+    <div class="classic-window" id="win-animacao">
+        <div class="window-title">
+            <span>Animação I — Project Room</span>
+            <div class="window-close" onclick="closeWindow('win-animacao')">X</div>
         </div>
         <div class="window-body">
-            <div class="gallery-grid">
-                <div class="gallery-item"><a class="pdf-link" href="media/Design de Publicidade/Design de Publicidade_Cartaz_1.pdf" target="_blank">📄 Cartaz 1.pdf</a></div>
-                <div class="gallery-item"><a class="pdf-link" href="media/Design de Publicidade/Design de Publicidade_Cartaz_2.pdf" target="_blank">📄 Cartaz 2.pdf</a></div>
-                <div class="gallery-item"><img src="media/Design de Publicidade/Design de Publicidade_Cartaz_Final.jpg"><span>Cartaz_Final.jpg</span></div>
-                <div class="gallery-item"><a class="pdf-link" href="media/Design de Publicidade/Design de Publicidade_Mupi.pdf" target="_blank">📄 Mupi.pdf</a></div>
-                <div class="gallery-item"><img src="media/Design de Publicidade/Design de Publicidade_Mupi_Final.jpg"><span>Mupi_Final.jpg</span></div>
-                <div class="gallery-item"><a class="pdf-link" href="media/Design de Publicidade/Design de Publicidade_Outdoor.pdf" target="_blank">📄 Outdoor.pdf</a></div>
-                <div class="gallery-item"><img src="media/Design de Publicidade/Design de Publicidade_Outdoor_Final.jpg"><span>Outdoor_Final.jpg</span></div>
+            <p class="project-desc">
+                O projeto <strong>Among-Us</strong> é uma curta-metragem artística desenvolvida sob a alçada da unidade curricular de Animação I. Utilizando a metodologia tradicional de <strong>stop-motion com recortes bidimensionais (2D) em papel e cartolina</strong>, a obra traduz o ambiente de tensão espacial do videojogo homónimo para uma sátira cómica e analógica.
+            </p>
+            <p class="project-desc">
+                Desenvolvido em parceria com Carolina Martins, o trabalho foca-se na expressividade mecânica dos frames e no corte rigoroso de texturas planas sob iluminação controlada de estúdio.
+            </p>
+            <div class="project-media">
+                <div class="media-box">
+                    <iframe class="responsive-video" src="https://www.youtube.com/embed/_zd_921ln-s" frameborder="0" allowfullscreen></iframe>
+                    <div class="img-caption">Video_Artifact: Among-Us StopMotion Final Cut</div>
+                </div>
             </div>
         </div>
     </div>
 
     <div class="classic-window" id="win-fotografia">
-        <div class="title-bar">
-            <span>C:\media\Fotografia II</span>
-            <div class="title-bar-controls">
-                <button onclick="closeWindow('win-fotografia')">X</button>
-            </div>
+        <div class="window-title">
+            <span>Fotografia II — Galeria Sequencial</span>
+            <div class="window-close" onclick="closeWindow('win-fotografia')">X</div>
         </div>
         <div class="window-body">
-            <div class="gallery-grid">
-                <div class="gallery-item"><img src="media/Fotografia II/Fotografia_1.JPG"><span>Fotografia_1.JPG</span></div>
-                <div class="gallery-item"><img src="media/Fotografia II/Fotografia_2.JPG"><span>Fotografia_2.JPG</span></div>
-                <div class="gallery-item"><img src="media/Fotografia II/Fotografia_3.JPG"><span>Fotografia_3.JPG</span></div>
-                <div class="gallery-item"><img src="media/Fotografia II/Fotografia_4.JPG"><span>Fotografia_4.JPG</span></div>
-                <div class="gallery-item"><img src="media/Fotografia II/Fotografia_5.JPG"><span>Fotografia_5.JPG</span></div>
-                <div class="gallery-item"><img src="media/Fotografia II/Fotografia_6.jpeg"><span>Fotografia_6.jpeg</span></div>
-                <div class="gallery-item"><img src="media/Fotografia II/Fotografia_7.JPG"><span>Fotografia_7.JPG</span></div>
-                <div class="gallery-item"><img src="media/Fotografia II/Fotografia_8.JPG"><span>Fotografia_8.JPG</span></div>
-                <div class="gallery-item"><img src="media/Fotografia II/Fotografia_9.JPG"><span>Fotografia_9.JPG</span></div>
-                <div class="gallery-item"><img src="media/Fotografia II/Fotografia_10.JPG"><span>Fotografia_10.JPG</span></div>
-                <div class="gallery-item"><img src="media/Fotografia II/Fotografia_11.JPG"><span>Fotografia_11.JPG</span></div>
-                <div class="gallery-item"><img src="media/Fotografia II/Fotografia_12.JPG"><span>Fotografia_12.JPG</span></div>
+            <p class="project-desc">
+                A série fotográfica documental <strong>IN/OUT</strong> foca-se no mapeamento do impacto e rigidez visual das **infraestruturas de importação e exportação portuária**. Fortemente influenciada pela prática de captura sequencial e conceptual do fotógrafo **Paul Graham**, as imagens rompem a unidade isolada em prol de uma leitura cronológica e espacial.
+            </p>
+            <p class="project-desc">
+                O corpo de trabalho foi registado meticulosamente nos portos e zonas industriais de **Alverca, Lisboa e nos estaleiros navais da LISNAVE**, capturando o desgaste cromático e a escala desumana dos contentores.
+            </p>
+            
+            <div class="carousel-container">
+                <button class="carousel-btn btn-prev" onclick="moveCarousel(-1)">&#9664;</button>
+                <button class="carousel-btn btn-next" onclick="moveCarousel(1)">&#9654;</button>
+                <div class="carousel-track" id="photo-track">
+                    </div>
+            </div>
+
+            <div class="project-media" style="margin-top:20px;">
+                <div class="media-box">
+                    <img class="responsive-img" src="Fotografia_Composicao.jpg" alt="Composição Final IN/OUT" onerror="this.src='https://picsum.photos/800/500?blur=2'">
+                    <div class="img-caption">Fotografia_Composição — Painel Analítico Global Final</div>
+                </div>
             </div>
         </div>
     </div>
 
-    <div id="eye-container"></div>
-
-    <div class="taskbar">
-        <div class="start-button" id="audioBtn" onclick="toggleAudio()">
-            <span>START AUDIO</span>
+    <div class="classic-window" id="win-artes">
+        <div class="window-title">
+            <span>Artes Plásticas II — Ambientes Digitais</span>
+            <div class="window-close" onclick="closeWindow('win-artes')">X</div>
         </div>
-        <div style="font-size:12px; color:#000;" id="status-indicator">Speed: 1.0x</div>
+        <div class="window-body">
+            <p class="project-desc">
+                Exploração focada no conceito de <strong>paisagem digital generativa e reativa ao espectro sonoro</strong>. O ecossistema visual foi desenvolvido inteiramente no ambiente procedural de nós do <strong>TouchDesigner</strong>, procurando materializar a volatilidade estética e conceptual do universo onírico e subconsciente.
+            </p>
+            <p class="project-desc">
+                A peça traduz frequências sonoras captadas em tempo real em impulsos vetoriais e deslocamentos de malhas topográficas complexas, gerando uma paisagem em perpétua mutação que nunca se repete.
+            </p>
+            <div class="project-media">
+                <div class="media-box">
+                    <iframe class="responsive-video" src="https://www.youtube.com/embed/QpXMYoRIjRc" frameborder="0" allowfullscreen></iframe>
+                    <div class="img-caption">Video_Output: TouchDesigner Sound Reactive Mesh</div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <script>
-        /* --- MECÂNICA DE ÁUDIO COOP --- */
-        const calmo = document.getElementById('bgMusic');
-        const agressivo = document.getElementById('aggressMusic');
-        const statusInd = document.getElementById('status-indicator');
-        
-        let playbackSpeed = 1.0;
-        let holdingClick = false;
-        let audioIniciado = false;
+    <div class="classic-window" id="win-design">
+        <div class="window-title">
+            <span>Design de Publicidade — Évora 2027</span>
+            <div class="window-close" onclick="closeWindow('win-design')">X</div>
+        </div>
+        <div class="window-body">
+            <p class="project-desc">
+                Identidade e campanha promocional de planeamento urbano para a iniciativa de <strong>Évora — Capital Europeia da Cultura 2027</strong>. O foco central da comunicação reside na revalorização patrimonial e performativa do icónico <strong>Teatro Garcia de Resende</strong>.
+            </p>
+            <div class="project-media">
+                <div class="media-box"><img class="responsive-img" src="Design_de_Publicidade_Cartaz_1.jpg" onerror="this.src='https://picsum.photos/500/700?random=1'"><div class="img-caption">Design de Publicidade_Cartaz_1</div></div>
+                <div class="media-box"><img class="responsive-img" src="Design_de_Publicidade_Cartaz_2.jpg" onerror="this.src='https://picsum.photos/500/700?random=2'"><div class="img-caption">Design de Publicidade_Cartaz_2</div></div>
+                <div class="media-box"><img class="responsive-img" src="Design_de_Publicidade_Cartaz_Final.jpg" onerror="this.src='https://picsum.photos/800/600?random=3'"><div class="img-caption">Design de Publicidade_Cartaz_Final (Apresentação Geral)</div></div>
+                <div class="media-box"><img class="responsive-img" src="Mupi.jpg" onerror="this.src='https://picsum.photos/500/700?random=4'"><div class="img-caption">Mupi Urbano Integrado</div></div>
+                <div class="media-box"><img class="responsive-img" src="Outdoor.jpg" onerror="this.src='https://picsum.photos/800/400?random=5'"><div class="img-caption">Outdoor Publicitário de Larga Escala</div></div>
+                <div class="media-box">
+                    <iframe class="responsive-video" src="https://www.youtube.com/embed/ACgU4y7Dj80" frameborder="0" allowfullscreen></iframe>
+                    <div class="img-caption">Spot Comercial Audiovisual — Teatro Garcia de Resende</div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        function toggleAudio() {
-            if (!audioIniciado) {
-                calmo.play().catch(e => console.log("Interação requerida"));
-                document.getElementById('audioBtn').innerText = "AUDIO ACTIVE";
-                audioIniciado = true;
+    <div class="classic-window" id="win-media">
+        <div class="window-title">
+            <span>Novos Média I — Estudos de Audio Design</span>
+            <div class="window-close" onclick="closeWindow('win-media')">X</div>
+        </div>
+        <div class="window-body">
+            <p class="project-desc">
+                Compilação de ensaios e exercícios práticos focados no desenvolvimento estrutural de <strong>Audio Design e sonoplastia experimental</strong>. Aqui, o som deixa de assumir um papel secundário e passa a comportar-se como o elemento motor da montagem visual cinematográfica.
+            </p>
+            <div class="project-media">
+                <div class="media-box">
+                    <iframe class="responsive-video" src="https://www.youtube.com/embed/h__B5hYiax4" frameborder="0" allowfullscreen></iframe>
+                    <div class="img-caption">Sinestesia: Fermentation — Análise Sensorial Sonora</div>
+                </div>
+                <div class="media-box">
+                    <iframe class="responsive-video" src="https://www.youtube.com/embed/bh_n4oDwJZ4" frameborder="0" allowfullscreen></iframe>
+                    <div class="img-caption">Video-Exercicio — Sincronismo e Montagem Rítmica</div>
+                </div>
+                <div class="media-box">
+                    <iframe class="responsive-video" src="https://www.youtube.com/embed/ACgU4y7Dj80" frameborder="0" allowfullscreen></iframe>
+                    <div class="img-caption">Corporativo — Ensaio de Mistura Sonora Limpa</div>
+                </div>
+                <div class="media-box">
+                    <iframe class="responsive-video" src="https://player.vimeo.com/video/1147553602" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>
+                    <div class="img-caption">2_Video-Final: Viagem de Chihiro — Remixagem Completa de Atmosfera</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="classic-window" id="win-desenho">
+        <div class="window-title">
+            <span>Desenho — Estudos Críticos</span>
+            <div class="window-close" onclick="closeWindow('win-desenho')">X</div>
+        </div>
+        <div class="window-body">
+            <p class="project-desc">
+                Esta prestigiada série inédita de cinco obras explora a fundo as complexidades da <strong>despersonalização e do desmembramento da psique contemporânea</strong>. Através de representações figurativas com distorções anatómicas e fragmentações espaciais, as peças refletem a perda progressiva da individualidade.
+            </p>
+            <p class="project-desc">
+                A composição final une os conceitos numa narrativa sequencial expandida, criando uma ponte entre o traço matérico tradicional e a estética fria da virtualidade algorítmica.
+            </p>
+            <div class="project-media">
+                <div class="media-box"><img class="responsive-img" src="Desenho_Img_1.jpeg" onerror="this.src='https://picsum.photos/600/600?random=11'"><div class="img-caption">Desenho_Img_1 — Fragmento I</div></div>
+                <div class="media-box"><img class="responsive-img" src="Desenho_Img_2.jpeg" onerror="this.src='https://picsum.photos/600/600?random=12'"><div class="img-caption">Desenho_Img_2 — Fragmento II</div></div>
+                <div class="media-box"><img class="responsive-img" src="Desenho_Img_3.jpeg" onerror="this.src='https://picsum.photos/600/600?random=13'"><div class="img-caption">Desenho_Img_3 — Estudo de Rosto Ausente</div></div>
+                <div class="media-box"><img class="responsive-img" src="Desenho_Img_4.jpeg" onerror="this.src='https://picsum.photos/600/600?random=14'"><div class="img-caption">Desenho_Img_4 — Dissolução do Corpo</div></div>
+                <div class="media-box"><img class="responsive-img" src="Desenho_Img_5.jpeg" onerror="this.src='https://picsum.photos/600/600?random=15'"><div class="img-caption">Desenho_Img_5 — Isolamento Espacial</div></div>
+                <div class="media-box"><img class="responsive-img" src="Desenho_Img_Narrativa.jpeg" onerror="this.src='https://picsum.photos/900/450?random=16'"><div class="img-caption">Desenho_Img_Narrativa — Composição Final Panorâmica</div></div>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="taskbar">
+        <div style="font-weight: bold; font-size: 12px; border: 2px solid; padding: 1px 6px; background:#bfbfbf;">MIGUEL TAYLOR OS</div>
+        <div class="speed-panel" id="speed-indicator">HOLD FOR SPEED | 1.00x</div>
+        <div class="sys-clock" id="clock">21:35</div>
+    </div>
+
+    <audio id="audio-calmo" src="audio-calmo.mp3" loop preload="auto"></audio>
+    <audio id="audio-agressivo" src="audio-agressivo.mp3" loop preload="auto"></audio>
+
+
+    <script>
+        /* =====================================================================
+           1. SIMULAÇÃO DE BOOT / LOADING SCREEN
+           ===================================================================== */
+        const logNode = document.getElementById('boot-log');
+        const enterBtn = document.getElementById('btn-enter');
+        const lines = [
+            "\nMounting physical assets onto structural DOM...",
+            "Loading Audio Engine: audio-calmo.mp3 (Default BPM)... Loaded.",
+            "Loading Audio Engine: audio-agressivo.mp3 (150 BPM)... Loaded.",
+            "Mapping 3D Pupil Mesh Deformation channels...",
+            "Compiling Volumetric PBR Day/Night Sky Shaders... Complete.",
+            "\nSystem ready. Click below to establish Web Audio Sandbox."
+        ];
+        let currentLine = 0;
+
+        function printLog() {
+            if (currentLine < lines.length) {
+                logNode.innerHTML += "\n" + lines[currentLine];
+                currentLine++;
+                setTimeout(printLog, 350);
+            } else {
+                enterBtn.style.display = "block";
             }
         }
+        setTimeout(printLog, 600);
 
-        window.addEventListener('mousedown', () => { if(audioIniciado) holdingClick = true; });
-        window.addEventListener('mouseup', () => { holdingClick = false; });
+        // Inicialização do Contexto de Áudio Avançado após o Click
+        let audioCtx, gainCalmo, gainAgressivo, sourceCalmo, sourceAgressivo;
+        let isSystemRunning = false;
 
-        /* --- MOTOR DO OLHO 3D (THREE.JS) --- */
-        const container = document.getElementById('eye-container');
+        function startPortfolio() {
+            document.getElementById('loading-screen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('loading-screen').style.display = 'none';
+            }, 800);
+
+            // Iniciar Audio Engine via Web Audio API para Crossfade Perfeito
+            const audioCalmo = document.getElementById('audio-calmo');
+            const audioAgressivo = document.getElementById('audio-agressivo');
+            
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            
+            gainCalmo = audioCtx.createGain();
+            gainAgressivo = audioCtx.createGain();
+            
+            const srcCalmo = audioCtx.createMediaElementSource(audioCalmo);
+            const srcAgressivo = audioCtx.createMediaElementSource(audioAgressivo);
+            
+            srcCalmo.connect(gainCalmo).connect(audioCtx.destination);
+            srcAgressivo.connect(gainAgressivo).connect(audioCtx.destination);
+            
+            // Estado inicial: Toca calmo, silencia agressivo
+            gainCalmo.gain.setValueAtTime(1.0, audioCtx.currentTime);
+            gainAgressivo.gain.setValueAtTime(0.0, audioCtx.currentTime);
+            
+            audioCalmo.play();
+            audioAgressivo.play();
+            
+            isSystemRunning = true;
+        }
+
+        /* =====================================================================
+           2. ALGORITMO ORIGINAL DO TEU SHADER (CLOUD-SKY.HTML)
+           ===================================================================== */
+        const cloudCanvas = document.getElementById('cloud-canvas');
+        const gl = cloudCanvas.getContext('webgl2', { antialias: false, powerPreference: 'high-performance' });
+        
+        const SCALE = window.devicePixelRatio > 1 ? 0.55 : 0.7;
+        let accumulatedTime = 0;
+        let speedFactor = 1.0;
+        let targetSpeedFactor = 1.0;
+
+        function resizeCloudCanvas() {
+            cloudCanvas.width  = Math.floor(window.innerWidth  * SCALE);
+            cloudCanvas.height = Math.floor(window.innerHeight * SCALE);
+            if(gl) gl.viewport(0, 0, cloudCanvas.width, cloudCanvas.height);
+        }
+        window.addEventListener('resize', resizeCloudCanvas);
+        resizeCloudCanvas();
+
+        const VERT = `#version 300 es
+        in vec2 aPos;
+        void main() { gl_Position = vec4(aPos, 0.0, 1.0); }`;
+
+        // Coloca o teu fragment shader PBR na íntegra
+        const FRAG = `#version 300 es
+        precision highp float;
+        uniform float uTime;
+        uniform vec2  uRes;
+        out vec4 fragColor;
+        const float PI = 3.14159265359;
+        const float TWOPI = 6.28318530718;
+        const float ISO = 0.07957747;
+        vec3 gSunDir; vec3 gSunColor; vec3 gCloudSunColor; vec3 gSunRadiance; vec3 gSkyAvg; float gTimeOfDay;
+        const vec3 kRayleigh = vec3(5.8e-3, 1.35e-2, 3.31e-2);
+        const float kRayleighH = 8.0; const float kMie = 0.015; const float kMieH = 1.2; const float kMS = 0.5;
+        const float kCosSun = 0.99985; const float kSunSA = TWOPI*(1.0-kCosSun);
+        float linstep(float a, float b, float x) { return clamp((x - a) / (b - a), 0.0, 1.0); }
+        float rayleighPhase(float cosA) { return 0.05968310365 * (1.0 + cosA * cosA); }
+        float hgPhase(float cosA, float g) { float k = 1.55*g - 0.55*g*g*g; float f = 1.0 - k * cosA; return (1.0 - k*k) / (TWOPI * 2.0 * f * f); }
+        float hash3(vec3 p) { p = fract(p * vec3(0.1031, 0.1030, 0.0973)); p += dot(p, p.yxz + 33.33); return fract((p.x + p.y) * p.z); }
+        float vnoise(vec3 x) {
+            vec3 p = floor(x); vec3 f = fract(x); f = f * f * (3.0 - 2.0 * f);
+            float v000 = hash3(p); float v100 = hash3(p + vec3(1,0,0)); float v010 = hash3(p + vec3(0,1,0)); float v110 = hash3(p + vec3(1,1,0));
+            float v001 = hash3(p + vec3(0,0,1)); float v101 = hash3(p + vec3(1,0,1)); float v011 = hash3(p + vec3(0,1,1)); float v111 = hash3(p + vec3(1,1,1));
+            return mix(mix(mix(v000, v100, f.x), mix(v010, v110, f.x), f.y), mix(mix(v001, v101, f.x), mix(v011, v111, f.x), f.y), f.z) * 2.0 - 1.0;
+        }
+        vec3 getSky(vec3 rd, float roughness) {
+            float r = max(1e-4, (rd.y + 0.1) / 1.1); r = mix(r, 0.6366, roughness); float ntd = exp(-r) / r; float rds = dot(rd, gSunDir);
+            float rPhase = rayleighPhase(rds) / ISO; rPhase = mix(rPhase, 1.0, roughness);
+            vec3 rTrans = exp(-kRayleigh * kRayleighH * ntd); vec3 rScatter = 1.0 - rTrans; vec3 rMS = kMS * mix(rScatter, gSkyAvg, 0.5);
+            float earthSh = smoothstep(-0.15, 0.1, gSunDir.y + rds * 0.02);
+            vec3 sunTrans = max(vec3(2.5e-4), earthSh * mix(rTrans, vec3(1.0), 0.2 + 0.8 * clamp(gSunDir.y * 3.0, 0.0, 1.0)));
+            vec3 sky = (rScatter * sunTrans + earthSh * rTrans * rMS) * rPhase;
+            float mieTrans = exp(-kMie * kMieH * ntd); float mieG = 0.75 - roughness * 0.6;
+            sky = sky * mieTrans + hgPhase(rds, mieG) / ISO * gCloudSunColor * earthSh * (1.0 - mieTrans); return sky;
+        }
+        float diskLight(vec3 rd, vec3 ld, float cosR, float rough) {
+            float dsa = TWOPI * (1.0 - cosR); float bsa = TWOPI * (1.0 - (cosR - rough)); float bright = dsa / max(1e-5, bsa);
+            float vdl = dot(rd, ld); float vis = linstep(cosR - 1e-4 - rough, cosR + 1e-4 + rough, vdl) * 2.0;
+            float bp = 7.0 - 6.0 * sqrt(rough); vis = pow(max(vis, 0.0), bp) / max(1e-5, 1.0 / (bp + 1.0)); return min(1.0, vis * bright);
+        }
+        vec3 getSun(vec3 rd, float rough) {
+            float vdl = dot(rd, gSunDir); vec3 disk = vec3(diskLight(rd, gSunDir, kCosSun, rough)) * gSunRadiance;
+            float bloom = linstep(kCosSun - (1.0 - kCosSun) * 10.0 - rough, kCosSun + rough, vdl);
+            disk += pow(max(bloom, 0.0), 4.0) * gSunColor * 2.0 * (1.0 - rough); return disk;
+        }
+        void initScene(float time) {
+            gSunDir = normalize(vec3(0.4, 0.0, 0.5)); float sr = PI * 0.025; float er = time * sr - sin(time * sr * 2.0) * 0.4;
+            float c = cos(er), s = sin(er); float ny = c * gSunDir.y + s * gSunDir.z; float nz = -s * gSunDir.y + c * gSunDir.z;
+            gSunDir.y = ny; gSunDir.z = nz; gTimeOfDay = fract(0.5 + time * sr / TWOPI) - 0.5;
+            float sr1 = max(1e-4, gSunDir.y); gSunColor = exp(-kRayleigh * kRayleighH * exp(-sr1) / sr1); gSunRadiance = gSunColor * 5.0 / kSunSA;
+            float sr2 = max(0.02, gSunDir.y + 0.01); gCloudSunColor = exp(-kRayleigh * kRayleighH * exp(-sr2) / sr2);
+            gSkyAvg = vec3(0.0); gSkyAvg = getSky(vec3(0.0, 1.0, 0.0), 0.5);
+        }
+        vec3 cloudOffset() { return vec3(0.0, 0.1, 1.0) * uTime * 0.28; }
+        float cden4(vec3 p) { vec3 q = p - cloudOffset(); float f = 0.5*vnoise(q); q *= 2.02; f += 0.25*vnoise(q); q *= 2.03; f += 0.125*vnoise(q); q *= 2.01; f += 0.0625*vnoise(q); return clamp(1.5 - p.y - 2.0 + 1.75 * f, 0.0, 1.0); }
+        float cden3(vec3 p) { vec3 q = p - cloudOffset(); float f = 0.5*vnoise(q); q *= 2.02; f += 0.25*vnoise(q); q *= 2.03; f += 0.125*vnoise(q); return clamp(1.5 - p.y - 2.0 + 1.75 * f, 0.0, 1.0); }
+        float cden2(vec3 p) { vec3 q = p - cloudOffset(); float f = 0.5*vnoise(q); q *= 2.02; f += 0.25*vnoise(q); return clamp(1.5 - p.y - 2.0 + 1.75 * f, 0.0, 1.0); }
+        vec4 cloudSample(float den, float dif, float t, vec3 bgcol) {
+            float dayAmt = clamp(gSunDir.y * 2.5 + 0.55, 0.0, 1.0); vec3 sunHue = gCloudSunColor * vec3(1.0, 0.72, 0.38);
+            vec3 ambDay = gSkyAvg * 0.45 + vec3(0.55, 0.68, 0.82); vec3 ambNight = vec3(0.04, 0.05, 0.12); vec3 ambient = mix(ambNight, ambDay, dayAmt);
+            vec3 lin = sunHue * (1.4 * dif) + ambient; vec3 cLight = mix(vec3(1.00, 0.96, 0.88), vec3(0.07, 0.08, 0.14), 1.0 - dayAmt);
+            vec3 cDark = mix(vec3(0.30, 0.34, 0.42), vec3(0.02, 0.03, 0.08), 1.0 - dayAmt); vec4 col = vec4(mix(cLight, cDark, den), den);
+            col.rgb *= lin; col.rgb = mix(col.rgb, bgcol, 1.0 - exp(-0.0025 * t * t)); col.a *= 0.4; col.rgb *= col.a; return col;
+        }
+        vec4 cloudMarch(vec3 ro, vec3 rd, vec3 bgcol, float dither) {
+            vec4 sum = vec4(0.0); float t = 0.05 * dither;
+            for (int i = 0; i < 25; i++) { vec3 pos = ro + t * rd; if (pos.y < -3.0 || pos.y > 2.0 || sum.a > 0.99) break; float den = cden4(pos); if (den > 0.01) { float dif = clamp((den - cden4(pos + 0.3 * gSunDir)) / 0.6, 0.0, 1.0); vec4 col = cloudSample(den, dif, t, bgcol); sum += col * (1.0 - sum.a); } t += max(0.06, 0.05 * t); }
+            for (int i = 0; i < 30; i++) { vec3 pos = ro + t * rd; if (pos.y < -3.0 || pos.y > 2.0 || sum.a > 0.99) break; float den = cden3(pos); if (den > 0.01) { float dif = clamp((den - cden3(pos + 0.3 * gSunDir)) / 0.6, 0.0, 1.0); vec4 col = cloudSample(den, dif, t, bgcol); sum += col * (1.0 - sum.a); } t += max(0.06, 0.05 * t); }
+            for (int i = 0; i < 25; i++) { vec3 pos = ro + t * rd; if (pos.y < -3.0 || pos.y > 2.0 || sum.a > 0.99) break; float den = cden2(pos); if (den > 0.01) { float dif = clamp((den - cden2(pos + 0.3 * gSunDir)) / 0.6, 0.0, 1.0); vec4 col = cloudSample(den, dif, t, bgcol); sum += col * (1.0 - sum.a); } t += max(0.06, 0.05 * t); }
+            return clamp(sum, 0.0, 1.0);
+        }
+        vec3 starField(vec3 rd, float nightAmt) {
+            if (nightAmt < 0.005 || rd.y < 0.0) return vec3(0.0); vec2 uv = rd.xz / max(0.001, rd.y); vec3 col = vec3(0.0);
+            for (int layer = 0; layer < 2; layer++) {
+                float sc = (layer == 0) ? 55.0 : 130.0; vec2 id = floor(uv * sc + float(layer) * 47.39); float r = hash3(vec3(id, float(layer) * 33.7));
+                vec2 off = (vec2(fract(sin(dot(id, vec2(17.3, 41.7))) * 4537.5), fract(sin(dot(id, vec2(31.1, 73.3))) * 8234.3)) - 0.5) * 0.85;
+                float d = length(fract(uv * sc + float(layer) * 47.39) - 0.5 + off); float sz = 0.025 + r * 0.05; float star = smoothstep(sz, sz * 0.3, d) * r;
+                vec3 sc3 = mix(vec3(0.7, 0.85, 1.0), vec3(1.0, 0.9, 0.7), r); col += star * sc3 * (0.25 + r * 0.75);
+            }
+            float rAlt = max(1e-4, (rd.y + 0.1) / 1.1); vec3 atmTr = exp(-kRayleigh * kRayleighH * exp(-rAlt) / rAlt); return col * atmTr * nightAmt;
+        }
+        vec3 aces(vec3 x) { return clamp((x * (2.51 * x + 0.03)) / (x * (2.43 * x + 0.59) + 0.14), 0.0, 1.0); }
+        void main() {
+            vec2 fc = gl_FragCoord.xy; vec2 p = (2.0 * fc - uRes) / uRes.y; initScene(uTime);
+            float ang = uTime * 0.035; float bob = sin(uTime * 0.08) * 0.4; vec3 ro = vec3(sin(ang) * 3.5, 1.45 + bob, cos(ang) * 3.5);
+            vec3 ta = vec3(0.0, -1.0, 0.0); vec3 cw = normalize(ta - ro); vec3 cr = normalize(cross(cw, vec3(0.05, 1.0, 0.01))); vec3 cu = cross(cr, cw); vec3 rd = normalize(p.x * cr + p.y * cu + 1.5 * cw);
+            vec3 skyCol = getSky(rd, 0.0) + getSun(rd, 0.0); float nightAmt = linstep(-0.04, -0.22, gSunDir.y); skyCol += starField(rd, nightAmt);
+            float dither = fract(sin(dot(fc, vec2(127.1, 311.7))) * 43758.5453); vec4 cld = cloudMarch(ro, rd, skyCol, dither);
+            vec3 col = skyCol * (1.0 - cld.a) + cld.rgb; float exposure = 1.0 + nightAmt * 0.8; col *= exposure; col = aces(col); col = pow(max(col, vec3(0.0)), vec3(1.0 / 2.2)); fragColor = vec4(col, 1.0);
+        }`;
+
+        function compileShader(type, src) {
+            const sh = gl.createShader(type); gl.shaderSource(sh, src); gl.compileShader(sh);
+            if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) { console.error(gl.getShaderInfoLog(sh)); return null; }
+            return sh;
+        }
+        const prog = gl.createProgram();
+        gl.attachShader(prog, compileShader(gl.VERTEX_SHADER, VERT));
+        gl.attachShader(prog, compileShader(gl.FRAGMENT_SHADER, FRAG));
+        gl.linkProgram(prog);
+
+        const vao = gl.createVertexArray(); gl.bindVertexArray(vao);
+        const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+        const aPos = gl.getAttribLocation(prog, 'aPos'); gl.enableVertexAttribArray(aPos); gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+        const uTime = gl.getUniformLocation(prog, 'uTime'); const uRes = gl.getUniformLocation(prog, 'uRes');
+
+        /* =====================================================================
+           3. MOTOR THREE.JS — OLHO INTERATIVO (EYE.GLB)
+           ===================================================================== */
+        const tCanvas = document.getElementById('three-canvas');
         const scene = new THREE.Scene();
         
-        const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
-        camera.position.set(0, 0, 2.5);
+        // Câmara ortográfica ou perspetiva equilibrada para manter o olho no lado esquerdo
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        // Deslocamos a câmara ligeiramente para a direita, forçando o olho a renderizar à esquerda
+        camera.position.set(-0.6, 0, 3.2);
 
-        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-        renderer.setSize(220, 220);
-        container.appendChild(renderer.domElement);
+        const renderer = new THREE.WebGLRenderer({ canvas: tCanvas, alpha: true, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
 
-        const light = new THREE.AmbientLight(0xffffff, 1.2);
-        scene.add(light);
-        const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        // Iluminação de Estúdio
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+        scene.add(ambientLight);
+        const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
         dirLight.position.set(5, 5, 5);
         scene.add(dirLight);
 
         let eyeModel = null;
+        let pupilMesh = null; // Detetado dinamicamente para expansão/contração
         const loader = new THREE.GLTFLoader();
-        
-        loader.load('media/Eye.glb', (gltf) => {
+
+        loader.load('Eye.glb', (gltf) => {
             eyeModel = gltf.scene;
+            eyeModel.scale.set(0.9, 0.9, 0.9);
             scene.add(eyeModel);
-        }, undefined, (error) => {
-            // Fallback
-            const geometry = new THREE.SphereGeometry(0.8, 32, 32);
-            const material = new THREE.MeshStandardMaterial({ color: 0xffffff });
-            eyeModel = new THREE.Mesh(geometry, material);
             
-            const pupilGeo = new THREE.SphereGeometry(0.2, 16, 16);
-            const pupilMat = new THREE.MeshBasicMaterial({ color: 0x111111 });
-            const pupil = new THREE.Mesh(pupilGeo, pupilMat);
-            pupil.position.set(0, 0, 0.75);
-            eyeModel.add(pupil);
+            // Procura a malha interna da pupila ou íris para aplicar deformação no clique
+            eyeModel.traverse((child) => {
+                if (child.isMesh && (child.name.toLowerCase().includes('pupil') || child.name.toLowerCase().includes('iris'))) {
+                    pupilMesh = child;
+                }
+            });
+        }, undefined, (err) => {
+            console.warn("Ficheiro Eye.glb não encontrado localmente. A simular olho com geometria nativa.");
+            // Fallback elegante caso o ficheiro não esteja no diretório local
+            const geo = new THREE.SphereGeometry(0.7, 32, 32);
+            const mat = new THREE.MeshPhongMaterial({ color: 0xffffff, roughness: 0.1 });
+            eyeModel = new THREE.Mesh(geo, mat);
+            
+            const pupilGeo = new THREE.SphereGeometry(0.25, 32, 16);
+            const pupilMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
+            pupilMesh = new THREE.Mesh(pupilGeo, pupilMat);
+            pupilMesh.position.set(0, 0, 0.65);
+            eyeModel.add(pupilMesh);
             scene.add(eyeModel);
         });
 
-        const mouse = { x: 0.5, y: 0.5 };
+        // Rastreio do Rato
+        const mouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
         window.addEventListener('mousemove', (e) => {
-            mouse.x = (e.clientX / window.innerWidth);
-            mouse.y = (e.clientY / window.innerHeight);
+            // Mapeamento normalizado (-1 a 1)
+            mouse.targetX = (e.clientX / window.innerWidth) * 2 - 1;
+            mouse.targetY = -(e.clientY / window.innerHeight) * 2 + 1;
         });
 
-        let randomTargetX = 0;
-        let randomTargetY = 0;
-        let lastRandomTime = 0;
+        /* =====================================================================
+           4. SINCRO DE VELOCIDADE DA ENGINE: "HOLD FOR SPEED"
+           ===================================================================== */
+        let isHolding = false;
+        let holdProgress = 0; // Threshold / Rampa de aceleração (0 a 1)
+        const speedIndicator = document.getElementById('speed-indicator');
 
-        function animate() {
-            requestAnimationFrame(animate);
+        window.addEventListener('mousedown', (e) => {
+            // Evita ativar a aceleração se clicar dentro de janelas ou botões
+            if (e.target.closest('.classic-window') || e.target.closest('.desktop-icon') || e.target.closest('#btn-enter')) return;
+            isHolding = true;
+            targetSpeedFactor = 15.0; // Pico extremo de velocidade temporal
+        });
 
-            // 1. Progressão de Velocidade e Blend de Áudio
-            if (holdingClick) {
-                playbackSpeed += 0.05; // Incremento calibrado para demorar mais a subir
-                if (playbackSpeed > 20.0) playbackSpeed = 20.0;
+        window.addEventListener('mouseup', () => {
+            isHolding = false;
+            targetSpeedFactor = 1.0;
+        });
+
+        /* =====================================================================
+           5. LOOP UNIFICADO DE RENDERING E ANIMAÇÃO (TICK)
+           ===================================================================== */
+        let lastTime = 0;
+
+        function tick(now) {
+            if (lastTime === 0) lastTime = now;
+            const delta = (now - lastTime) * 0.001;
+            lastTime = now;
+
+            // 1. Gestão de velocidade (Rampa/Threshold Fluido)
+            if (isHolding) {
+                holdProgress += delta * 0.8; // Sobe suavemente em direção ao threshold
+                if (holdProgress > 1) holdProgress = 1;
             } else {
-                playbackSpeed -= 0.15;
-                if (playbackSpeed < 1.0) playbackSpeed = 1.0;
+                holdProgress -= delta * 3.5; // Resposta de queda ultra rápida ao largar
+                if (holdProgress < 0) holdProgress = 0;
+            }
+            
+            speedFactor = THREE.MathUtils.lerp(1.0, targetSpeedFactor, holdProgress);
+            accumulatedTime += delta * speedFactor;
+
+            // Atualizar indicador de velocidade no painel
+            speedIndicator.innerText = `HOLD FOR SPEED | ${speedFactor.toFixed(2)}x`;
+            speedIndicator.style.color = isHolding ? '#ff0000' : '#00ff00';
+
+            // 2. Crossfade Áudio com base no progresso do Hold
+            if (isSystemRunning && audioCtx) {
+                // Rampa linear de crossfade
+                gainCalmo.gain.setValueAtTime(1.0 - holdProgress, audioCtx.currentTime);
+                gainAgressivo.gain.setValueAtTime(holdProgress, audioCtx.currentTime);
             }
 
-            statusInd.innerText = `Speed: ${playbackSpeed.toFixed(1)}x`;
-
-            if (audioIniciado) {
-                // Acelera e torna agudo o áudio calmo baseado na velocidade atual (limite seguro do browser é 16x)
-                calmo.playbackRate = Math.min(playbackSpeed, 16.0);
-
-                if (playbackSpeed >= 18.0) {
-                    if (agressivo.paused) agressivo.play().catch(() => {});
-                    let blendFactor = (playbackSpeed - 18.0) / 2.0; 
-                    agressivo.volume = blendFactor;
-                    calmo.volume = 1.0 - blendFactor;
-                } else {
-                    calmo.volume = 1.0;
-                    if (!agressivo.paused) {
-                        agressivo.pause();
-                        agressivo.currentTime = 0;
-                    }
-                }
+            // 3. Renderizar Fundo de Nuvens Volumétricas com tempo alterado
+            if (gl) {
+                gl.viewport(0, 0, cloudCanvas.width, cloudCanvas.height);
+                gl.useProgram(prog);
+                gl.uniform1f(uTime, accumulatedTime);
+                gl.uniform2f(uRes, cloudCanvas.width, cloudCanvas.height);
+                gl.bindVertexArray(vao);
+                gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
             }
 
-            // 2. Rotação Controlada do Olho
+            // 4. Animação Avançada do Olho 3D
             if (eyeModel) {
-                if (!holdingClick) {
-                    // Segue o Rato
-                    const targetRotationY = (mouse.x - 0.5) * 1.0;
-                    const targetRotationX = -(mouse.y - 0.5) * 1.0;
-                    
-                    eyeModel.rotation.y += (targetRotationY - eyeModel.rotation.y) * 0.1;
-                    eyeModel.rotation.x += (targetRotationX - eyeModel.rotation.x) * 0.1;
-                } else {
-                    // Frenético ao clicar (Olha para todos os cantos)
-                    let now = performance.now();
-                    if (now - lastRandomTime > 120) {
-                        randomTargetX = (Math.random() - 0.5) * 1.4;
-                        randomTargetY = (Math.random() - 0.5) * 1.4;
-                        lastRandomTime = now;
-                    }
-                    eyeModel.rotation.y += (randomTargetX - eyeModel.rotation.y) * 0.25;
-                    eyeModel.rotation.x += (randomTargetY - eyeModel.rotation.x) * 0.25;
-                }
+                // Suavização do movimento de rotação (Lerp)
+                mouse.x += (mouse.targetX - mouse.x) * 0.08;
+                mouse.y += (mouse.targetY - mouse.y) * 0.08;
 
-                // CLAMPING RESTREITO: Impede que a parte de trás do olho fique visível
-                eyeModel.rotation.y = Math.max(-0.75, Math.min(0.75, eyeModel.rotation.y));
-                eyeModel.rotation.x = Math.max(-0.60, Math.min(0.60, eyeModel.rotation.x));
+                if (!isHolding) {
+                    // Estado Normal: Segue o rato com precisão fluida
+                    eyeModel.rotation.y = mouse.x * 0.6;
+                    eyeModel.rotation.x = -mouse.y * 0.4;
+                    eyeModel.rotation.z *= 0.9; // Amortece rotações espaciais antigas
+                    
+                    // Pupila regressa ao tamanho normal
+                    if (pupilMesh) {
+                        pupilMesh.scale.set(1, 1, 1);
+                    }
+                } else {
+                    // Estado HOLD ATIVADO (Tweak/Glitch e Spin Frenético)
+                    eyeModel.rotation.z += delta * 12.0; // Rotação rápida no próprio eixo
+                    eyeModel.rotation.y += (Math.random() - 0.5) * 0.15; // Jitter / Tweak de pânico
+                    eyeModel.rotation.x += (Math.random() - 0.5) * 0.15;
+                    
+                    // Dilatação/Compressão extrema da pupila simulando aceleração vital
+                    if (pupilMesh) {
+                        const pulse = 0.5 + Math.sin(now * 0.05) * 0.3;
+                        pupilMesh.scale.set(pulse, pulse, 1);
+                    }
+                }
             }
 
             renderer.render(scene, camera);
+            requestAnimationFrame(tick);
         }
+        requestAnimationFrame(tick);
 
-        animate();
-
-        /* --- FUNÇÕES DO OS --- */
+        /* =====================================================================
+           6. GESTÃO DE JANELAS (SISTEMA DE ABAS WINDOWS 95)
+           ===================================================================== */
         function openWindow(id) {
+            // Desativa foco das outras abas abertas para focar na nova
             document.querySelectorAll('.classic-window').forEach(win => {
                 win.classList.remove('active');
             });
             const targetWin = document.getElementById(id);
-            if (targetWin) {
-                targetWin.classList.add('active');
-                targetWin.style.top = (10 + Math.random() * 10) + '%';
-                targetWin.style.left = (20 + Math.random() * 15) + '%';
-            }
+            if (targetWin) targetWin.classList.add('active');
         }
 
         function closeWindow(id) {
             const targetWin = document.getElementById(id);
             if (targetWin) targetWin.classList.remove('active');
         }
+
+        // Sistema Simples de Drag & Drop para janelas retro
+        document.querySelectorAll('.classic-window').forEach(win => {
+            const title = win.querySelector('.window-title');
+            let isDragging = false;
+            let currentX, currentY, initialX, initialY;
+
+            title.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                win.classList.add('active');
+                initialX = e.clientX - win.offsetLeft;
+                initialY = e.clientY - win.offsetTop;
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                currentX = e.clientX - initialX;
+                currentY = e.clientY - initialY;
+                win.style.left = currentX + 'px';
+                win.style.top = currentY + 'px';
+                win.style.right = 'auto'; // Cancela alinhamento padrão à direita
+            });
+
+            window.addEventListener('mouseup', () => isDragging = false);
+        });
+
+        /* =====================================================================
+           7. ENGINE DO CARROSSEL DE FOTOGRAFIA (FOTOGRAFIA_1 ATÉ FOTOGRAFIA_12)
+           ===================================================================== */
+        const track = document.getElementById('photo-track');
+        let currentSlide = 0;
+
+        // Gerar dinamicamente os 12 slides para blindar contra falhas de renderização
+        for (let i = 1; i <= 12; i++) {
+            const slide = document.createElement('div');
+            slide.className = 'carousel-slide';
+            
+            // Fallback automático com picsum caso o servidor local falhe no carregamento
+            slide.innerHTML = `
+                <div class="media-box">
+                    <img class="responsive-img" src="Fotografia_${i}.JPG" alt="Fotografia_${i}" onerror="this.src='https://picsum.photos/800/550?random=${i}'">
+                    <div class="img-caption">Série IN/OUT — Elemento_Visual_Fotografia_${i}</div>
+                </div>
+            `;
+            track.appendChild(slide);
+        }
+
+        function moveCarousel(direction) {
+            currentSlide += direction;
+            if (currentSlide < 0) currentSlide = 11;
+            if (currentSlide > 11) currentSlide = 0;
+            track.style.transform = `translateX(-${currentSlide * 100}%)`;
+        }
+
+        /* =====================================================================
+           8. RELÓGIO DO SISTEMA OPERATIVO
+           ===================================================================== */
+        function updateClock() {
+            const d = new Date();
+            document.getElementById('clock').innerText = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Reajuste do tamanho do renderer ThreeJS
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
     </script>
 </body>
 </html>
