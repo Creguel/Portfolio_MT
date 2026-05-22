@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Miguel Taylor — Portfolio OS</title>
     <style>
-        /* Estilos Base - Sistema Operativo Antigo / Retro */
+        /* Estilos Base - Sistema Operativo Clássico */
         * {
             margin: 0;
             padding: 0;
@@ -29,7 +29,7 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            z-index: -2; /* Atrás de tudo */
+            z-index: -2;
             overflow: hidden;
             pointer-events: none;
         }
@@ -38,7 +38,7 @@
             width: 100%;
             height: 100%;
             border: none;
-            transform: scale(1.05); /* Evita micro-bordas */
+            transform: scale(1.05);
         }
 
         .shader-overlay {
@@ -52,7 +52,7 @@
             pointer-events: none;
         }
 
-        /* Efeito de Monitor Antigo CRT / VHS Overlay */
+        /* Efeito de Monitor Antigo CRT */
         .crt-overlay {
             position: fixed;
             top: 0;
@@ -96,7 +96,7 @@
             margin-bottom: 6px;
         }
 
-        /* Janelas Estilo Clássico (Windows 95/98) */
+        /* Janelas Clássicas */
         .classic-window {
             position: absolute;
             top: 10%;
@@ -149,7 +149,7 @@
             border-color: #404040 #fff #fff #404040;
         }
 
-        /* Grelhas das Galerias Realistas */
+        /* Grelhas das Galerias */
         .gallery-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
@@ -190,7 +190,7 @@
             font-size: 12px;
         }
 
-        /* Barra de Tarefas Inferior */
+        /* Barra de Tarefas */
         .taskbar {
             position: fixed;
             bottom: 0;
@@ -218,7 +218,6 @@
             cursor: pointer;
         }
 
-        /* Elemento de Canvas Central (Olho Tridimensional) */
         #eye-container {
             position: fixed;
             bottom: 60px;
@@ -234,8 +233,8 @@
 </head>
 <body>
 
-    <audio id="bgMusic" src="audio-calmo.mp3" loop></audio>
-    <audio id="aggressMusic" src="audio-agressivo.mp3" loop></audio>
+    <audio id="bgMusic" src="media/audio-calmo.mp3" loop></audio>
+    <audio id="aggressMusic" src="media/audio-agressivo.mp3" loop></audio>
 
     <div class="shader-container">
         <iframe src="https://www.shadertoy.com/embed/tdjyzz?gui=false&t=0&paused=false&muted=true" allow="autoplay; fullscreen"></iframe>
@@ -260,64 +259,64 @@
 
     <div class="classic-window" id="win-desenho">
         <div class="title-bar">
-            <span>C:\Media\Desenho</span>
+            <span>C:\media\Desenho</span>
             <div class="title-bar-controls">
                 <button onclick="closeWindow('win-desenho')">X</button>
             </div>
         </div>
         <div class="window-body">
             <div class="gallery-grid">
-                <div class="gallery-item"><img src="Desenho/Desenho_Img_1.jpeg"><span>Desenho_Img_1.jpeg</span></div>
-                <div class="gallery-item"><img src="Desenho/Desenho_Img_2.jpeg"><span>Desenho_Img_2.jpeg</span></div>
-                <div class="gallery-item"><img src="Desenho/Desenho_Img_3.jpeg"><span>Desenho_Img_3.jpeg</span></div>
-                <div class="gallery-item"><img src="Desenho/Desenho_Img_4.jpeg"><span>Desenho_Img_4.jpeg</span></div>
-                <div class="gallery-item"><img src="Desenho/Desenho_Img_5.jpeg"><span>Desenho_Img_5.jpeg</span></div>
-                <div class="gallery-item"><img src="Desenho/Desenho_Img_Narrativa.jpeg"><span>Desenho_Img_Narrativa.jpeg</span></div>
+                <div class="gallery-item"><img src="media/Desenho/Desenho_Img_1.jpeg"><span>Desenho_Img_1.jpeg</span></div>
+                <div class="gallery-item"><img src="media/Desenho/Desenho_Img_2.jpeg"><span>Desenho_Img_2.jpeg</span></div>
+                <div class="gallery-item"><img src="media/Desenho/Desenho_Img_3.jpeg"><span>Desenho_Img_3.jpeg</span></div>
+                <div class="gallery-item"><img src="media/Desenho/Desenho_Img_4.jpeg"><span>Desenho_Img_4.jpeg</span></div>
+                <div class="gallery-item"><img src="media/Desenho/Desenho_Img_5.jpeg"><span>Desenho_Img_5.jpeg</span></div>
+                <div class="gallery-item"><img src="media/Desenho/Desenho_Img_Narrativa.jpeg"><span>Desenho_Img_Narrativa.jpeg</span></div>
             </div>
         </div>
     </div>
 
     <div class="classic-window" id="win-publicidade">
         <div class="title-bar">
-            <span>C:\Media\Design de Publicidade</span>
+            <span>C:\media\Design de Publicidade</span>
             <div class="title-bar-controls">
                 <button onclick="closeWindow('win-publicidade')">X</button>
             </div>
         </div>
         <div class="window-body">
             <div class="gallery-grid">
-                <div class="gallery-item"><a class="pdf-link" href="Design de Publicidade/Design de Publicidade_Cartaz_1.pdf" target="_blank">📄 Cartaz 1.pdf</a></div>
-                <div class="gallery-item"><a class="pdf-link" href="Design de Publicidade/Design de Publicidade_Cartaz_2.pdf" target="_blank">📄 Cartaz 2.pdf</a></div>
-                <div class="gallery-item"><img src="Design de Publicidade/Design de Publicidade_Cartaz_Final.jpg"><span>Cartaz_Final.jpg</span></div>
-                <div class="gallery-item"><a class="pdf-link" href="Design de Publicidade/Design de Publicidade_Mupi.pdf" target="_blank">📄 Mupi.pdf</a></div>
-                <div class="gallery-item"><img src="Design de Publicidade/Design de Publicidade_Mupi_Final.jpg"><span>Mupi_Final.jpg</span></div>
-                <div class="gallery-item"><a class="pdf-link" href="Design de Publicidade/Design de Publicidade_Outdoor.pdf" target="_blank">📄 Outdoor.pdf</a></div>
-                <div class="gallery-item"><img src="Design de Publicidade/Design de Publicidade_Outdoor_Final.jpg"><span>Outdoor_Final.jpg</span></div>
+                <div class="gallery-item"><a class="pdf-link" href="media/Design de Publicidade/Design de Publicidade_Cartaz_1.pdf" target="_blank">📄 Cartaz 1.pdf</a></div>
+                <div class="gallery-item"><a class="pdf-link" href="media/Design de Publicidade/Design de Publicidade_Cartaz_2.pdf" target="_blank">📄 Cartaz 2.pdf</a></div>
+                <div class="gallery-item"><img src="media/Design de Publicidade/Design de Publicidade_Cartaz_Final.jpg"><span>Cartaz_Final.jpg</span></div>
+                <div class="gallery-item"><a class="pdf-link" href="media/Design de Publicidade/Design de Publicidade_Mupi.pdf" target="_blank">📄 Mupi.pdf</a></div>
+                <div class="gallery-item"><img src="media/Design de Publicidade/Design de Publicidade_Mupi_Final.jpg"><span>Mupi_Final.jpg</span></div>
+                <div class="gallery-item"><a class="pdf-link" href="media/Design de Publicidade/Design de Publicidade_Outdoor.pdf" target="_blank">📄 Outdoor.pdf</a></div>
+                <div class="gallery-item"><img src="media/Design de Publicidade/Design de Publicidade_Outdoor_Final.jpg"><span>Outdoor_Final.jpg</span></div>
             </div>
         </div>
     </div>
 
     <div class="classic-window" id="win-fotografia">
         <div class="title-bar">
-            <span>C:\Media\Fotografia II</span>
+            <span>C:\media\Fotografia II</span>
             <div class="title-bar-controls">
                 <button onclick="closeWindow('win-fotografia')">X</button>
             </div>
         </div>
         <div class="window-body">
             <div class="gallery-grid">
-                <div class="gallery-item"><img src="Fotografia II/Fotografia_1.JPG"><span>Fotografia_1.JPG</span></div>
-                <div class="gallery-item"><img src="Fotografia II/Fotografia_2.JPG"><span>Fotografia_2.JPG</span></div>
-                <div class="gallery-item"><img src="Fotografia II/Fotografia_3.JPG"><span>Fotografia_3.JPG</span></div>
-                <div class="gallery-item"><img src="Fotografia II/Fotografia_4.JPG"><span>Fotografia_4.JPG</span></div>
-                <div class="gallery-item"><img src="Fotografia II/Fotografia_5.JPG"><span>Fotografia_5.JPG</span></div>
-                <div class="gallery-item"><img src="Fotografia II/Fotografia_6.jpeg"><span>Fotografia_6.jpeg</span></div>
-                <div class="gallery-item"><img src="Fotografia II/Fotografia_7.JPG"><span>Fotografia_7.JPG</span></div>
-                <div class="gallery-item"><img src="Fotografia II/Fotografia_8.JPG"><span>Fotografia_8.JPG</span></div>
-                <div class="gallery-item"><img src="Fotografia II/Fotografia_9.JPG"><span>Fotografia_9.JPG</span></div>
-                <div class="gallery-item"><img src="Fotografia II/Fotografia_10.JPG"><span>Fotografia_10.JPG</span></div>
-                <div class="gallery-item"><img src="Fotografia II/Fotografia_11.JPG"><span>Fotografia_11.JPG</span></div>
-                <div class="gallery-item"><img src="Fotografia II/Fotografia_12.JPG"><span>Fotografia_12.JPG</span></div>
+                <div class="gallery-item"><img src="media/Fotografia II/Fotografia_1.JPG"><span>Fotografia_1.JPG</span></div>
+                <div class="gallery-item"><img src="media/Fotografia II/Fotografia_2.JPG"><span>Fotografia_2.JPG</span></div>
+                <div class="gallery-item"><img src="media/Fotografia II/Fotografia_3.JPG"><span>Fotografia_3.JPG</span></div>
+                <div class="gallery-item"><img src="media/Fotografia II/Fotografia_4.JPG"><span>Fotografia_4.JPG</span></div>
+                <div class="gallery-item"><img src="media/Fotografia II/Fotografia_5.JPG"><span>Fotografia_5.JPG</span></div>
+                <div class="gallery-item"><img src="media/Fotografia II/Fotografia_6.jpeg"><span>Fotografia_6.jpeg</span></div>
+                <div class="gallery-item"><img src="media/Fotografia II/Fotografia_7.JPG"><span>Fotografia_7.JPG</span></div>
+                <div class="gallery-item"><img src="media/Fotografia II/Fotografia_8.JPG"><span>Fotografia_8.JPG</span></div>
+                <div class="gallery-item"><img src="media/Fotografia II/Fotografia_9.JPG"><span>Fotografia_9.JPG</span></div>
+                <div class="gallery-item"><img src="media/Fotografia II/Fotografia_10.JPG"><span>Fotografia_10.JPG</span></div>
+                <div class="gallery-item"><img src="media/Fotografia II/Fotografia_11.JPG"><span>Fotografia_11.JPG</span></div>
+                <div class="gallery-item"><img src="media/Fotografia II/Fotografia_12.JPG"><span>Fotografia_12.JPG</span></div>
             </div>
         </div>
     </div>
@@ -332,7 +331,7 @@
     </div>
 
     <script>
-        /* ----------------------- MECÂNICA DE ÁUDIO COOP ----------------------- */
+        /* --- MECÂNICA DE ÁUDIO COOP --- */
         const calmo = document.getElementById('bgMusic');
         const agressivo = document.getElementById('aggressMusic');
         const statusInd = document.getElementById('status-indicator');
@@ -349,11 +348,10 @@
             }
         }
 
-        // Detetar se o rato está pressionado em qualquer lugar do ecrã
         window.addEventListener('mousedown', () => { if(audioIniciado) holdingClick = true; });
         window.addEventListener('mouseup', () => { holdingClick = false; });
 
-        /* ----------------------- MOTOR TRIDIMENSIONAL (EYE) ----------------------- */
+        /* --- MOTOR DO OLHO 3D (THREE.JS) --- */
         const container = document.getElementById('eye-container');
         const scene = new THREE.Scene();
         
@@ -373,16 +371,15 @@
         let eyeModel = null;
         const loader = new THREE.GLTFLoader();
         
-        loader.load('Eye.glb', (gltf) => {
+        loader.load('media/Eye.glb', (gltf) => {
             eyeModel = gltf.scene;
             scene.add(eyeModel);
         }, undefined, (error) => {
-            // Fallback caso o ficheiro .glb falhe
+            // Fallback
             const geometry = new THREE.SphereGeometry(0.8, 32, 32);
             const material = new THREE.MeshStandardMaterial({ color: 0xffffff });
             eyeModel = new THREE.Mesh(geometry, material);
             
-            // Adicionar uma pupila visível para testes de rotação
             const pupilGeo = new THREE.SphereGeometry(0.2, 16, 16);
             const pupilMat = new THREE.MeshBasicMaterial({ color: 0x111111 });
             const pupil = new THREE.Mesh(pupilGeo, pupilMat);
@@ -397,7 +394,6 @@
             mouse.y = (e.clientY / window.innerHeight);
         });
 
-        // Variáveis de movimento randómico ao clicar
         let randomTargetX = 0;
         let randomTargetY = 0;
         let lastRandomTime = 0;
@@ -405,10 +401,9 @@
         function animate() {
             requestAnimationFrame(animate);
 
-            // 1. Atualização e Blend de Áudio Estilo Aceleração Linear Dinâmica
+            // 1. Progressão de Velocidade e Blend de Áudio
             if (holdingClick) {
-                // Aceleração mais suave e demorada para chegar aos 20x (incremento de 0.05)
-                playbackSpeed += 0.05; 
+                playbackSpeed += 0.05; // Incremento calibrado para demorar mais a subir
                 if (playbackSpeed > 20.0) playbackSpeed = 20.0;
             } else {
                 playbackSpeed -= 0.15;
@@ -418,18 +413,15 @@
             statusInd.innerText = `Speed: ${playbackSpeed.toFixed(1)}x`;
 
             if (audioIniciado) {
-                // Aplica velocidade e pitch agudo em tempo real ao áudio calmo
-                calmo.playbackRate = playbackSpeed;
+                // Acelera e torna agudo o áudio calmo baseado na velocidade atual (limite seguro do browser é 16x)
+                calmo.playbackRate = Math.min(playbackSpeed, 16.0);
 
                 if (playbackSpeed >= 18.0) {
-                    // Blend e crossfade: Ativa o áudio agressivo organicamente
                     if (agressivo.paused) agressivo.play().catch(() => {});
-                    
-                    let blendFactor = (playbackSpeed - 18.0) / 2.0; // 0.0 a 1.0
+                    let blendFactor = (playbackSpeed - 18.0) / 2.0; 
                     agressivo.volume = blendFactor;
                     calmo.volume = 1.0 - blendFactor;
                 } else {
-                    // Estado padrão abaixo de 18x
                     calmo.volume = 1.0;
                     if (!agressivo.paused) {
                         agressivo.pause();
@@ -438,19 +430,19 @@
                 }
             }
 
-            // 2. Comportamento Controlado do Olho Tridimensional
+            // 2. Rotação Controlada do Olho
             if (eyeModel) {
                 if (!holdingClick) {
-                    // Comportamento Padrão: Pupila direcionada e focada suavemente no Rato
+                    // Segue o Rato
                     const targetRotationY = (mouse.x - 0.5) * 1.0;
                     const targetRotationX = -(mouse.y - 0.5) * 1.0;
                     
                     eyeModel.rotation.y += (targetRotationY - eyeModel.rotation.y) * 0.1;
                     eyeModel.rotation.x += (targetRotationX - eyeModel.rotation.x) * 0.1;
                 } else {
-                    // Ao Clicar: Olhar frenético para todos os cantos
+                    // Frenético ao clicar (Olha para todos os cantos)
                     let now = performance.now();
-                    if (now - lastRandomTime > 120) { // Muda de direção a cada 120ms
+                    if (now - lastRandomTime > 120) {
                         randomTargetX = (Math.random() - 0.5) * 1.4;
                         randomTargetY = (Math.random() - 0.5) * 1.4;
                         lastRandomTime = now;
@@ -459,7 +451,7 @@
                     eyeModel.rotation.x += (randomTargetY - eyeModel.rotation.x) * 0.25;
                 }
 
-                // CLAMPING CRÍTICO: Limita os ângulos máximos para que o fundo do olho NUNCA apareça
+                // CLAMPING RESTREITO: Impede que a parte de trás do olho fique visível
                 eyeModel.rotation.y = Math.max(-0.75, Math.min(0.75, eyeModel.rotation.y));
                 eyeModel.rotation.x = Math.max(-0.60, Math.min(0.60, eyeModel.rotation.x));
             }
@@ -469,7 +461,7 @@
 
         animate();
 
-        /* ----------------------- FUNÇÕES DE INTERFACE DO OS ----------------------- */
+        /* --- FUNÇÕES DO OS --- */
         function openWindow(id) {
             document.querySelectorAll('.classic-window').forEach(win => {
                 win.classList.remove('active');
@@ -477,7 +469,6 @@
             const targetWin = document.getElementById(id);
             if (targetWin) {
                 targetWin.classList.add('active');
-                // Posicionamento em cascata aleatório básico
                 targetWin.style.top = (10 + Math.random() * 10) + '%';
                 targetWin.style.left = (20 + Math.random() * 15) + '%';
             }
