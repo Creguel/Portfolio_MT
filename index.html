@@ -921,7 +921,7 @@ void main() {
         setTimeout(printLog, 600);
 
         /* =====================================================================
-           2. AUDIO ENGINE COM PITCH SHIFT E SPEED UP
+           2. AUDIO ENGINE COM FADE ENTRE CALMO E AGRESSIVO
            ===================================================================== */
         let isSystemRunning = false;
         let audioCtx, gainCalmo, gainAgressivo;
@@ -1051,21 +1051,25 @@ void main() {
             speedFactor = THREE.MathUtils.lerp(1.0, targetSpeedFactor, holdProgress);
             accumulatedTime += delta * speedFactor;
 
-            // AUDIO PROCESSING COM PITCH SHIFT E SPEED UP
+            // AUDIO PROCESSING COM FADE ENTRE CALMO E AGRESSIVO
             if (isSystemRunning && audioCtx) {
                 const audioCalmo = document.getElementById('audio-calmo');
                 const audioAgressivo = document.getElementById('audio-agressivo');
 
+                // Fade suave: calmo começa em 1.0, vai para 0.0
+                // agressivo começa em 0.0, vai para 1.0
                 const calmoGain = Math.max(0, 1.0 - holdProgress);
                 const agressivoGain = Math.min(1.0, holdProgress);
 
                 gainCalmo.gain.setValueAtTime(calmoGain, audioCtx.currentTime);
                 gainAgressivo.gain.setValueAtTime(agressivoGain, audioCtx.currentTime);
 
-                const pitchFactor = 1.0 + holdProgress * 0.8;
-                audioCalmo.playbackRate = Math.max(0.25, Math.min(2.0, pitchFactor));
-                audioAgressivo.playbackRate = Math.max(0.25, Math.min(2.0, pitchFactor * 0.95));
+                // Ajuste de pitch durante o fade (opcional)
+                const pitchFactor = 1.0 + holdProgress * 0.3;
+                audioCalmo.playbackRate = Math.max(0.8, Math.min(1.2, pitchFactor));
+                audioAgressivo.playbackRate = 1.0; // Sem alteração de pitch
 
+                // Atualizar cor do indicador de velocidade
                 if (holdProgress > 0.1) {
                     const red = Math.floor(255 * holdProgress);
                     const green = Math.floor(255 * (1 - holdProgress * 0.7));
