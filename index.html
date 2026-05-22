@@ -26,6 +26,16 @@
             color: #000;
         }
 
+        /* Canvas Background */
+        #cloud-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+        }
+
         /* Camada VHS/CRT Overlay */
         .crt-overlay {
             position: fixed;
@@ -348,6 +358,7 @@
 </head>
 <body>
 
+    <canvas id="cloud-canvas"></canvas>
     <div class="crt-overlay"></div>
 
     <canvas id="three-canvas"></canvas>
@@ -448,7 +459,7 @@ Parsing asset descriptors... Ok.</div>
 
             <div class="project-media" style="margin-top:20px;">
                 <div class="media-box">
-                    <img class="responsive-img" src="https://picsum.photos/800/500?random=comp" alt="Composição Final IN/OUT">
+                    <img class="responsive-img" src="https://raw.githubusercontent.com/Creguel/Portfolio_MT/main/media/Fotografia%20II/Fotografia_Composi%C3%A7%C3%A3o.png" alt="Composição Final IN/OUT">
                     <div class="img-caption">Fotografia_Composição — Painel Analítico Global Final</div>
                 </div>
             </div>
@@ -486,11 +497,9 @@ Parsing asset descriptors... Ok.</div>
                 Identidade e campanha promocional de planeamento urbano para a iniciativa de <strong>Évora — Capital Europeia da Cultura 2027</strong>. O foco central da comunicação reside na revalorização patrimonial e performativa do icónico <strong>Teatro Garcia de Resende</strong>.
             </p>
             <div class="project-media">
-                <div class="media-box"><img class="responsive-img" src="https://picsum.photos/500/700?random=d1" alt="Cartaz 1"><div class="img-caption">Design de Publicidade_Cartaz_1</div></div>
-                <div class="media-box"><img class="responsive-img" src="https://picsum.photos/500/700?random=d2" alt="Cartaz 2"><div class="img-caption">Design de Publicidade_Cartaz_2</div></div>
-                <div class="media-box"><img class="responsive-img" src="https://picsum.photos/800/600?random=d3" alt="Cartaz Final"><div class="img-caption">Design de Publicidade_Cartaz_Final</div></div>
-                <div class="media-box"><img class="responsive-img" src="https://picsum.photos/500/700?random=d4" alt="Mupi"><div class="img-caption">Mupi Urbano Integrado</div></div>
-                <div class="media-box"><img class="responsive-img" src="https://picsum.photos/800/400?random=d5" alt="Outdoor"><div class="img-caption">Outdoor Publicitário de Larga Escala</div></div>
+                <div class="media-box"><img class="responsive-img" src="https://raw.githubusercontent.com/Creguel/Portfolio_MT/main/media/Design%20de%20Publicidade/Design%20de%20Publicidade_Cartaz_Final.jpg" alt="Cartaz Final"><div class="img-caption">Design de Publicidade_Cartaz_Final</div></div>
+                <div class="media-box"><img class="responsive-img" src="https://raw.githubusercontent.com/Creguel/Portfolio_MT/main/media/Design%20de%20Publicidade/Design%20de%20Publicidade_Mupi_Final.jpg" alt="Mupi"><div class="img-caption">Mupi Urbano Integrado</div></div>
+                <div class="media-box"><img class="responsive-img" src="https://raw.githubusercontent.com/Creguel/Portfolio_MT/main/media/Design%20de%20Publicidade/Design%20de%20Publicidade_Outdoor_Final.jpg" alt="Outdoor"><div class="img-caption">Outdoor Publicitário de Larga Escala</div></div>
                 <div class="media-box">
                     <iframe class="responsive-video" src="https://www.youtube.com/embed/ACgU4y7Dj80" frameborder="0" allowfullscreen></iframe>
                     <div class="img-caption">Spot Comercial Audiovisual — Teatro Garcia de Resende</div>
@@ -542,12 +551,12 @@ Parsing asset descriptors... Ok.</div>
                 A composição final une os conceitos numa narrativa sequencial expandida, criando uma ponte entre o traço matérico tradicional e a estética fria da virtualidade algorítmica.
             </p>
             <div class="project-media">
-                <div class="media-box"><img class="responsive-img" src="https://picsum.photos/600/600?random=11" alt="Desenho 1"><div class="img-caption">Desenho_Img_1 — Fragmento I</div></div>
-                <div class="media-box"><img class="responsive-img" src="https://picsum.photos/600/600?random=12" alt="Desenho 2"><div class="img-caption">Desenho_Img_2 — Fragmento II</div></div>
-                <div class="media-box"><img class="responsive-img" src="https://picsum.photos/600/600?random=13" alt="Desenho 3"><div class="img-caption">Desenho_Img_3 — Estudo de Rosto Ausente</div></div>
-                <div class="media-box"><img class="responsive-img" src="https://picsum.photos/600/600?random=14" alt="Desenho 4"><div class="img-caption">Desenho_Img_4 — Dissolução do Corpo</div></div>
-                <div class="media-box"><img class="responsive-img" src="https://picsum.photos/600/600?random=15" alt="Desenho 5"><div class="img-caption">Desenho_Img_5 — Isolamento Espacial</div></div>
-                <div class="media-box"><img class="responsive-img" src="https://picsum.photos/900/450?random=16" alt="Narrativa"><div class="img-caption">Desenho_Img_Narrativa — Composição Final Panorâmica</div></div>
+                <div class="media-box"><img class="responsive-img" src="https://raw.githubusercontent.com/Creguel/Portfolio_MT/main/media/Desenho/Desenho_Img_1.jpeg" alt="Desenho 1"><div class="img-caption">Desenho_Img_1 — Fragmento I</div></div>
+                <div class="media-box"><img class="responsive-img" src="https://raw.githubusercontent.com/Creguel/Portfolio_MT/main/media/Desenho/Desenho_Img_2.jpeg" alt="Desenho 2"><div class="img-caption">Desenho_Img_2 — Fragmento II</div></div>
+                <div class="media-box"><img class="responsive-img" src="https://raw.githubusercontent.com/Creguel/Portfolio_MT/main/media/Desenho/Desenho_Img_3.jpeg" alt="Desenho 3"><div class="img-caption">Desenho_Img_3 — Estudo de Rosto Ausente</div></div>
+                <div class="media-box"><img class="responsive-img" src="https://raw.githubusercontent.com/Creguel/Portfolio_MT/main/media/Desenho/Desenho_Img_4.jpeg" alt="Desenho 4"><div class="img-caption">Desenho_Img_4 — Dissolução do Corpo</div></div>
+                <div class="media-box"><img class="responsive-img" src="https://raw.githubusercontent.com/Creguel/Portfolio_MT/main/media/Desenho/Desenho_Img_5.jpeg" alt="Desenho 5"><div class="img-caption">Desenho_Img_5 — Isolamento Espacial</div></div>
+                <div class="media-box"><img class="responsive-img" src="https://raw.githubusercontent.com/Creguel/Portfolio_MT/main/media/Desenho/Desenho_Img_Narrativa.jpeg" alt="Narrativa"><div class="img-caption">Desenho_Img_Narrativa — Composição Final Panorâmica</div></div>
             </div>
         </div>
     </div>
@@ -562,6 +571,54 @@ Parsing asset descriptors... Ok.</div>
     <audio id="audio-agressivo" src="audio-rapido.mp3" loop preload="auto"></audio>
 
     <script>
+        /* =====================================================================
+           0. CLOUD BACKGROUND CANVAS (NOISE SHADER)
+           ===================================================================== */
+        const cloudCanvas = document.getElementById('cloud-canvas');
+        const cloudCtx = cloudCanvas.getContext('2d');
+        
+        cloudCanvas.width = window.innerWidth;
+        cloudCanvas.height = window.innerHeight;
+        
+        let time = 0;
+        
+        function drawCloudBackground() {
+            const imageData = cloudCtx.createImageData(cloudCanvas.width, cloudCanvas.height);
+            const data = imageData.data;
+            
+            for (let i = 0; i < data.length; i += 4) {
+                const pixelIndex = i / 4;
+                const x = pixelIndex % cloudCanvas.width;
+                const y = Math.floor(pixelIndex / cloudCanvas.width);
+                
+                // Simplex-like noise using sin
+                const nx = Math.sin(x * 0.005 + time * 0.0001) * 50;
+                const ny = Math.sin(y * 0.005 + time * 0.00015) * 50;
+                const noise = Math.sin(nx + ny + time * 0.0002) * 0.5 + 0.5;
+                
+                // Gradient color based on position and noise
+                const r = Math.floor(26 + noise * 30 + (y / cloudCanvas.height) * 20);
+                const g = Math.floor(33 + noise * 40 + (y / cloudCanvas.height) * 30);
+                const b = Math.floor(62 + noise * 50 + (y / cloudCanvas.height) * 40);
+                
+                data[i] = r;
+                data[i + 1] = g;
+                data[i + 2] = b;
+                data[i + 3] = 255;
+            }
+            
+            cloudCtx.putImageData(imageData, 0, 0);
+            time += 0.5;
+            requestAnimationFrame(drawCloudBackground);
+        }
+        
+        drawCloudBackground();
+        
+        window.addEventListener('resize', () => {
+            cloudCanvas.width = window.innerWidth;
+            cloudCanvas.height = window.innerHeight;
+        });
+
         /* =====================================================================
            1. SIMULAÇÃO DE BOOT / LOADING SCREEN
            ===================================================================== */
@@ -829,16 +886,27 @@ Parsing asset descriptors... Ok.</div>
         let currentSlide = 0;
 
         const photos = [
-            'random=f1', 'random=f2', 'random=f3', 'random=f4', 'random=f5', 'random=f6',
-            'random=f7', 'random=f8', 'random=f9', 'random=f10', 'random=f11', 'random=f12'
+            'media/Fotografia%20II/Fotografia_1.JPG',
+            'media/Fotografia%20II/Fotografia_2.JPG',
+            'media/Fotografia%20II/Fotografia_3.JPG',
+            'media/Fotografia%20II/Fotografia_4.JPG',
+            'media/Fotografia%20II/Fotografia_5.JPG',
+            'media/Fotografia%20II/Fotografia_6.jpeg',
+            'media/Fotografia%20II/Fotografia_7.JPG',
+            'media/Fotografia%20II/Fotografia_8.JPG',
+            'media/Fotografia%20II/Fotografia_9.JPG',
+            'media/Fotografia%20II/Fotografia_10.JPG',
+            'media/Fotografia%20II/Fotografia_11.JPG',
+            'media/Fotografia%20II/Fotografia_12.JPG'
         ];
 
         photos.forEach((photo, idx) => {
             const slide = document.createElement('div');
             slide.className = 'carousel-slide';
+            const photoUrl = `https://raw.githubusercontent.com/Creguel/Portfolio_MT/main/${photo}`;
             slide.innerHTML = `
                 <div class="media-box">
-                    <img class="responsive-img" src="https://picsum.photos/800/550?${photo}" alt="Fotografia_${idx + 1}">
+                    <img class="responsive-img" src="${photoUrl}" alt="Fotografia_${idx + 1}">
                     <div class="img-caption">Série IN/OUT — Elemento_Visual_Fotografia_${idx + 1}</div>
                 </div>
             `;
