@@ -1,34 +1,38 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Miguel Taylor — Portfolio OS</title>
+    <title>Portfolio System</title>
+    <!-- Import Three.js via CDN -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
     
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
-
     <style>
-        /* --- ESTILOS RETRO VHS / WINDOWS 95 COM ANIMAÇÕES MODERNAS --- */
-        * {
+        :root {
+            --win-gray: #c0c0c0;
+            --win-blue: #000080;
+            --win-dark: #808080;
+            --win-light: #ffffff;
+        }
+
+        body {
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-            user-select: none;
-            font-family: "MS Sans Serif", -apple-system, BlinkMacSystemFont, Arial, sans-serif;
-        }
-
-        body, html {
-            width: 100%;
-            height: 100vh;
+            background-color: #000;
             overflow: hidden;
-            background: #000;
-            color: #000;
+            font-family: 'Courier New', Courier, monospace;
+            user-select: none;
         }
 
-        /* Canvas Background - Shader Clouds */
-        #cloud-canvas {
-            position: fixed;
+        #canvas-container {
+            position: absolute;
             top: 0;
             left: 0;
             width: 100vw;
@@ -36,1184 +40,336 @@
             z-index: 1;
         }
 
-        /* Camada VHS/CRT Overlay */
-        .crt-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            background-size: 100% 4px, 6px 100%;
-            z-index: 9999;
-            pointer-events: none;
-        }
-        .crt-overlay::after {
-            content: " ";
-            display: block;
-            position: fixed;
-            top: 0; left: 0; bottom: 0; right: 0;
-            background: rgba(18, 16, 16, 0.1);
-            opacity: 0;
-            z-index: 9999;
-            pointer-events: none;
-            animation: vhsGlitch 0.15s infinite;
-        }
-        @keyframes vhsGlitch {
-            0% { opacity: 0.1; }
-            50% { opacity: 0.2; }
-            100% { opacity: 0.1; }
-        }
-
-        /* Three.js Canvas para o Olho */
-        #three-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: 2;
-            pointer-events: none;
-        }
-
-        /* Ecrã de Loading Inicial */
-        #loading-screen {
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            background: #050505;
-            color: #22ff22;
-            font-family: 'Courier New', monospace;
-            z-index: 10000;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            transition: opacity 0.8s ease;
-        }
-        .boot-text {
-            width: 100%;
-            max-width: 600px;
-            margin-bottom: 20px;
-            font-size: 14px;
-            line-height: 1.5;
-            white-space: pre-wrap;
-        }
-        .enter-btn {
-            background: #22ff22;
-            color: #000;
-            border: none;
-            padding: 10px 20px;
-            font-weight: bold;
-            cursor: pointer;
-            font-family: monospace;
-            box-shadow: 0 0 10px #22ff22;
-            display: none;
-            transition: transform 0.2s;
-        }
-        .enter-btn:hover { transform: scale(1.05); }
-
-        /* Ambiente de Trabalho / Ícones (Lado Esquerdo) */
-        #desktop {
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            z-index: 3;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            align-content: flex-start;
-            flex-wrap: wrap;
-            pointer-events: none;
-        }
-        .desktop-icon {
-            width: 85px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            cursor: pointer;
-            pointer-events: auto;
-            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        .desktop-icon:hover {
-            transform: scale(1.08);
-        }
-        .desktop-icon img, .desktop-icon .folder-visual {
-            width: 44px;
-            height: 44px;
-            background: #dfdfdf;
-            border-left: 2px solid #fff; border-top: 2px solid #fff;
-            border-right: 2px solid #5a5a5a; border-bottom: 2px solid #5a5a5a;
-            box-shadow: 1px 1px 0 #000;
-            position: relative;
-            margin-bottom: 5px;
-        }
-        /* Pasta Visual retro em CSS puro */
-        .folder-visual::before {
-            content: '';
+        /* === WINDOW 95 STYLES === */
+        .window-group {
             position: absolute;
-            top: 6px; left: 8px; width: 28px; height: 24px;
-            background: #fcd116;
-            border: 1px solid #c69c00;
-            border-radius: 2px;
-        }
-        .folder-visual::after {
-            content: '';
-            position: absolute;
-            top: 2px; left: 8px; width: 12px; height: 6px;
-            background: #fcd116;
-            border: 1px solid #c69c00;
-            border-bottom: none;
-        }
-        .icon-label {
-            color: white;
-            font-size: 11px;
-            text-shadow: 1px 1px 2px #000;
-            padding: 2px 4px;
-            background: rgba(0,0,0,0.2);
-            border-radius: 2px;
-            word-break: break-word;
-        }
-
-        /* Interfaces das Janelas Clássicas (Lado Direito) */
-        .classic-window {
-            position: absolute;
-            top: 6%;
-            right: 4%;
-            width: 46vw;
-            height: 82vh;
-            min-width: 340px;
-            background: #c0c0c0;
-            border-left: 2px solid #fff; border-top: 2px solid #fff;
-            border-right: 2px solid #808080; border-bottom: 2px solid #808080;
-            box-shadow: 2px 2px 10px rgba(0,0,0,0.5);
-            display: flex;
-            flex-direction: column;
+            background: var(--win-gray);
+            border: 2px solid #fff;
+            border-right-color: #404040;
+            border-bottom-color: #404040;
+            box-shadow: 1px 1px 0px #000;
             z-index: 10;
-            opacity: 0;
-            transform: scale(0.95) translate3d(20px, 0, 0);
-            pointer-events: none;
-            transition: opacity 0.3s cubic-bezier(0.25, 1, 0.5, 1), transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+            display: flex;
+            flex-direction: column;
         }
-        .classic-window.active {
-            opacity: 1;
-            transform: scale(1) translate3d(0, 0, 0);
-            pointer-events: auto;
+
+        .window-title {
+            background: var(--win-blue);
+            color: #fff;
+            padding: 2px 4px;
+            font-weight: bold;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .close-btn {
+            width: 16px;
+            height: 16px;
+            background: var(--win-gray);
+            border: 1px solid #fff;
+            border-right-color: #404040;
+            border-bottom-color: #404040;
+            text-align: center;
+            line-height: 14px;
+            cursor: pointer;
+            font-size: 12px;
+            color: #000;
+        }
+
+        .window-body {
+            background: #fff;
+            padding: 10px;
+            color: #000;
+            min-height: 100px;
+        }
+
+        /* === SPEED INDICATOR === */
+        #speed-overlay {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            text-shadow: 1px 1px 0 #000;
+            pointer-events: none;
             z-index: 100;
         }
-        .window-title {
-            background: linear-gradient(90deg, #000080, #1084d0);
-            color: white;
-            padding: 4px 6px;
-            font-weight: bold;
-            font-size: 13px;
+
+        /* === PHOTO CAROUSEL STYLES === */
+        .photo-track {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: move;
-        }
-        .window-close {
-            background: #c0c0c0;
-            color: black;
-            border-left: 1px solid #fff; border-top: 1px solid #fff;
-            border-right: 1px solid #000; border-bottom: 1px solid #000;
-            width: 16px; height: 16px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 9px; cursor: pointer; font-weight: bold;
-        }
-        .window-close:active {
-            border-left: 1px solid #000; border-top: 1px solid #000;
-            border-right: 1px solid #fff; border-bottom: 1px solid #fff;
-        }
-        
-        /* Conteúdo interno da janela */
-        .window-body {
-            padding: 15px;
-            flex: 1;
-            overflow-y: auto;
-            background: #fff;
-            margin: 4px;
-            border-left: 2px solid #808080; border-top: 2px solid #808080;
-            border-right: 2px solid #fff; border-bottom: 2px solid #fff;
-        }
-        
-        /* Scrollbar Retro Customizada */
-        .window-body::-webkit-scrollbar { width: 16px; }
-        .window-body::-webkit-scrollbar-track { background: #dfdfdf; }
-        .window-body::-webkit-scrollbar-thumb {
-            background: #c0c0c0;
-            border-left: 1px solid #fff; border-top: 1px solid #fff;
-            border-right: 1px solid #808080; border-bottom: 1px solid #808080;
+            gap: 10px;
+            overflow: hidden; /* Hide overflow */
+            width: 100%;
+            height: 100%;
         }
 
-        /* Tipografia e Estrutura dos Projetos */
-        .project-desc {
-            font-size: 12px;
-            line-height: 1.6;
-            margin-bottom: 15px;
-            color: #111;
-            text-align: justify;
+        .carousel-slide {
+            width: 50%; /* Two photos per slide on large screens */
+            height: 100%;
+            flex-shrink: 0;
+            transition: transform 0.3s ease;
         }
-        .project-media {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-top: 15px;
-        }
+
         .media-box {
             width: 100%;
-            background: #000;
-            border: 1px solid #808080;
-            position: relative;
-            overflow: hidden;
-        }
-        /* Proteção de Proporção Inteligente Antideformação */
-        .responsive-video {
-            aspect-ratio: 16 / 9;
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-        .responsive-img {
-            width: 100%;
-            height: auto;
-            object-fit: contain;
-            display: block;
-            max-height: 70vh;
-            background: #111;
-        }
-        .img-caption {
-            background: #f0f0f0;
-            color: #333;
-            padding: 5px;
-            font-size: 11px;
-            border-top: 1px solid #808080;
-            font-family: monospace;
-        }
-
-        /* Carrossel de Fotografia Suave */
-        .carousel-container {
-            width: 100%;
-            overflow: hidden;
-            position: relative;
-            border: 1px solid #808080;
-            background: #1a1a1a;
-        }
-        .carousel-track {
-            display: flex;
-            transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-            width: 100%;
-        }
-        .carousel-slide {
-            min-width: 100%;
-            box-sizing: border-box;
+            height: 100%;
+            border: 2px solid #ccc;
             display: flex;
             flex-direction: column;
-        }
-        .carousel-btn {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: #c0c0c0;
-            border: 2px solid #fff;
-            box-shadow: 1px 1px 3px #000;
-            cursor: pointer;
-            padding: 5px 10px;
-            font-weight: bold;
-            z-index: 10;
-        }
-        .carousel-btn:active { border: 2px solid #5a5a5a; }
-        .btn-prev { left: 10px; }
-        .btn-next { right: 10px; }
-
-        /* Rodapé / Barra de Estado (Engine de Velocidade) */
-        #taskbar {
-            position: fixed;
-            bottom: 0; left: 0; width: 100vw; height: 30px;
-            background: #c0c0c0;
-            border-top: 2px solid #fff;
-            z-index: 500;
-            display: flex;
             align-items: center;
-            justify-content: space-between;
-            padding: 0 10px;
-            box-shadow: 0 -1px 5px rgba(0,0,0,0.3);
-        }
-        .speed-panel {
+            justify-content: center;
             background: #000;
-            color: #00ff00;
-            font-family: monospace;
-            font-size: 12px;
-            padding: 3px 8px;
-            border-left: 2px solid #808080; border-top: 2px solid #808080;
-            border-right: 2px solid #fff; border-bottom: 2px solid #fff;
-            letter-spacing: 1px;
         }
-        .sys-clock {
-            font-size: 11px;
-            font-weight: bold;
+
+        .responsive-img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            transition: opacity 0.3s;
+        }
+
+        .img-caption {
+            position: absolute;
+            bottom: 10px;
+            width: 100%;
+            text-align: center;
+            color: #fff;
+            text-shadow: 1px 1px 2px #000;
+            font-size: 14px;
+            pointer-events: none;
+        }
+
+        /* === CLOCK === */
+        #clock-container {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            color: var(--win-light);
+            background: rgba(0,0,0,0.7);
+            padding: 5px;
+            border-radius: 4px;
+            z-index: 100;
         }
     </style>
+
+    <!-- Audio Assets: Replace URLs with your actual audio files -->
+    <!-- Using placeholders for demonstration -->
+    <audio id="audio-calmo" preload="auto">
+        <source src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="audio-agressivo" preload="auto">
+        <source src="https://assets.mixkit.co/active_storage/sfx/1415/1415-preview.mp3" type="audio/mpeg">
+    </audio>
 </head>
+
 <body>
 
-    <canvas id="cloud-canvas"></canvas>
-    <div class="crt-overlay"></div>
-
-    <canvas id="three-canvas"></canvas>
-
-    <div id="loading-screen">
-        <div class="boot-text" id="boot-log">MT-OS(R) Volumetric Kernel Loading...
-Initializing WebGL context... Ok.
-Parsing asset descriptors... Ok.</div>
-        <button class="enter-btn" id="btn-enter" onclick="startPortfolio()">MIGUEL TAYLOR PORTFOLIO - ENTER SYSTEM</button>
+    <!-- UI Overlay Elements -->
+    <div id="speed-overlay">SPEED: 0%</div>
+    <div id="clock-container">
+        <span id="clock">00:00:00</span>
     </div>
 
-    <div id="desktop">
-        <div class="desktop-icon" onclick="openWindow('win-about')">
-            <div class="folder-visual"></div>
-            <div class="icon-label">About Me</div>
-        </div>
-        <div class="desktop-icon" onclick="openWindow('win-animacao')">
-            <div class="folder-visual"></div>
-            <div class="icon-label">Animação I</div>
-        </div>
-        <div class="desktop-icon" onclick="openWindow('win-fotografia')">
-            <div class="folder-visual"></div>
-            <div class="icon-label">Fotografia II</div>
-        </div>
-        <div class="desktop-icon" onclick="openWindow('win-artes')">
-            <div class="folder-visual"></div>
-            <div class="icon-label">Artes Plásticas II</div>
-        </div>
-        <div class="desktop-icon" onclick="openWindow('win-design')">
-            <div class="folder-visual"></div>
-            <div class="icon-label">Design Publicidade</div>
-        </div>
-        <div class="desktop-icon" onclick="openWindow('win-media')">
-            <div class="folder-visual"></div>
-            <div class="icon-label">Novos Média I</div>
-        </div>
-        <div class="desktop-icon" onclick="openWindow('win-desenho')">
-            <div class="folder-visual"></div>
-            <div class="icon-label">Desenho</div>
-        </div>
-    </div>
+    <!-- 3D Scene -->
+    <div id="canvas-container"></div>
 
-    <div class="classic-window" id="win-about">
+    <!-- Windows (UI Containers) -->
+    <!-- The Carousel Window -->
+    <div class="window-group" id="carousel-window" style="bottom: 20%; left: 10%; width: 30%; height: 40%;">
         <div class="window-title">
-            <span>About Me - Biography.txt</span>
-            <div class="window-close" onclick="closeWindow('win-about')">X</div>
+            <span>Photo Album</span>
+            <div class="close-btn">x</div>
+        </div>
+        <div class="window-body photo-track" id="carousel-track">
+            <!-- Slides will be injected by JS -->
+        </div>
+    </div>
+
+    <!-- A draggable example window (Optional) -->
+    <div class="window-group" id="system-window" style="top: 20%; left: 15%; width: 20%; height: 15%;">
+        <div class="window-title">
+            <span>System</span>
+            <div class="close-btn">x</div>
         </div>
         <div class="window-body">
-            <p class="project-desc">
-                <strong>Miguel Taylor Lança</strong> (Beja, 2005) é um artista multimédia focado em explorações conceituais baseadas em <strong>práticas digitais, mecânicas interativas e n[...]
-            </p>
-            <p class="project-desc">
-                O desenvolvimento do seu percurso expande-se no cruzamento simbiótico entre modelação e animação <strong>3D, produção audiovisual autónoma, fotografia de cariz analógico [...]
-            </p>
+            <p>Ready...</p>
         </div>
     </div>
 
-    <div class="classic-window" id="win-animacao">
-        <div class="window-title">
-            <span>Animação I — Project Room</span>
-            <div class="window-close" onclick="closeWindow('win-animacao')">X</div>
-        </div>
-        <div class="window-body">
-            <p class="project-desc">
-                O projeto <strong>Among-Us</strong> é uma curta-metragem artística desenvolvida sob a alçada da unidade curricular de Animação I. Utilizando a metodologia tradicional de <str[...]
-            </p>
-            <p class="project-desc">
-                Desenvolvido em parceria com Carolina Martins, o trabalho foca-se na expressividade mecânica dos frames e no corte rigoroso de texturas planas sob iluminação controlada de est…[...]
-            </p>
-            <div class="project-media">
-                <div class="media-box">
-                    <iframe class="responsive-video" src="https://www.youtube.com/embed/_zd_921ln-s" frameborder="0" allowfullscreen></iframe>
-                    <div class="img-caption">Video_Artifact: Among-Us StopMotion Final Cut</div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <script type="module">
+        import * as THREE from 'three';
 
-    <div class="classic-window" id="win-fotografia">
-        <div class="window-title">
-            <span>Fotografia II — Galeria Sequencial</span>
-            <div class="window-close" onclick="closeWindow('win-fotografia')">X</div>
-        </div>
-        <div class="window-body">
-            <p class="project-desc">
-                A série fotográfica documental <strong>IN/OUT</strong> foca-se no mapeamento do impacto e rigidez visual das infraestruturas de importação e exportação portuária. Fortement[...]
-            </p>
-            <p class="project-desc">
-                O corpo de trabalho foi registado meticulosamente nos portos e zonas industriais de Alverca, Lisboa e nos estaleiros navais da LISNAVE, capturando o desgaste cromático e a escala[...]
-            </p>
-            
-            <div class="carousel-container">
-                <button class="carousel-btn btn-prev" onclick="moveCarousel(-1)">&#9664;</button>
-                <button class="carousel-btn btn-next" onclick="moveCarousel(1)">&#9654;</button>
-                <div class="carousel-track" id="photo-track">
-                </div>
-            </div>
-
-            <div class="project-media" style="margin-top:20px;">
-                <div class="media-box">
-                    <img class="responsive-img" src="https://raw.githubusercontent.com/Creguel/Portfolio_MT/main/media/Fotografia%20II/Fotografia_Composi%C3%A7%C3%A3o.png" alt="Composição Final[...]
-                    <div class="img-caption">Fotografia_Composição — Painel Analítico Global Final</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="classic-window" id="win-artes">
-        <div class="window-title">
-            <span>Artes Plásticas II — Ambientes Digitais</span>
-            <div class="window-close" onclick="closeWindow('win-artes')">X</div>
-        </div>
-        <div class="window-body">
-            <p class="project-desc">
-                Exploração focada no conceito de <strong>paisagem digital generativa e reativa ao espectro sonoro</strong>. O ecossistema visual foi desenvolvido inteiramente no ambiente proced[...]
-            </p>
-            <p class="project-desc">
-                A peça traduz frequências sonoras captadas em tempo real em impulsos vetoriais e deslocamentos de malhas topográficas complexas, gerando uma paisagem em perpétua mutação que[...]
-            </p>
-            <div class="project-media">
-                <div class="media-box">
-                    <iframe class="responsive-video" src="https://www.youtube.com/embed/QpXMYoRIjRc" frameborder="0" allowfullscreen></iframe>
-                    <div class="img-caption">Video_Output: TouchDesigner Sound Reactive Mesh</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="classic-window" id="win-design">
-        <div class="window-title">
-            <span>Design de Publicidade — Évora 2027</span>
-            <div class="window-close" onclick="closeWindow('win-design')">X</div>
-        </div>
-        <div class="window-body">
-            <p class="project-desc">
-                Identidade e campanha promocional de planeamento urbano para a iniciativa de <strong>Évora — Capital Europeia da Cultura 2027</strong>. O foco central da comunicação reside n[...]
-            </p>
-            <div class="project-media">
-                <div class="media-box"><img class="responsive-img" src="https://raw.githubusercontent.com/Creguel/Portfolio_MT/main/media/Design%20de%20Publicidade/Design%20de%20Publicidade_Carta[...]
-                <div class="media-box"><img class="responsive-img" src="https://raw.githubusercontent.com/Creguel/Portfolio_MT/main/media/Design%20de%20Publicidade/Design%20de%20Publicidade_Mupi_[...]
-                <div class="media-box"><img class="responsive-img" src="https://raw.githubusercontent.com/Creguel/Portfolio_MT/main/media/Design%20de%20Publicidade/Design%20de%20Publicidade_Outdo[...]
-                <div class="media-box">
-                    <iframe class="responsive-video" src="https://www.youtube.com/embed/ACgU4y7Dj80" frameborder="0" allowfullscreen></iframe>
-                    <div class="img-caption">Spot Comercial Audiovisual — Teatro Garcia de Resende</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="classic-window" id="win-media">
-        <div class="window-title">
-            <span>Novos Média I — Estudos de Audio Design</span>
-            <div class="window-close" onclick="closeWindow('win-media')">X</div>
-        </div>
-        <div class="window-body">
-            <p class="project-desc">
-                Compilação de ensaios e exercícios práticos focados no desenvolvimento estrutural de <strong>Audio Design e sonoplastia experimental</strong>. Aqui, o som deixa de assumir um [...]
-            </p>
-            <div class="project-media">
-                <div class="media-box">
-                    <iframe class="responsive-video" src="https://www.youtube.com/embed/h__B5hYiax4" frameborder="0" allowfullscreen></iframe>
-                    <div class="img-caption">Sinestesia: Fermentation — Análise Sensorial Sonora</div>
-                </div>
-                <div class="media-box">
-                    <iframe class="responsive-video" src="https://www.youtube.com/embed/bh_n4oDwJZ4" frameborder="0" allowfullscreen></iframe>
-                    <div class="img-caption">Video-Exercicio — Sincronismo e Montagem Rítmica</div>
-                </div>
-                <div class="media-box">
-                    <iframe class="responsive-video" src="https://www.youtube.com/embed/ACgU4y7Dj80" frameborder="0" allowfullscreen></iframe>
-                    <div class="img-caption">Corporativo — Ensaio de Mistura Sonora Limpa</div>
-                </div>
-                <div class="media-box">
-                    <iframe class="responsive-video" src="https://player.vimeo.com/video/1147553602" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>
-                    <div class="img-caption">2_Video-Final: Viagem de Chihiro — Remixagem Completa de Atmosfera</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="classic-window" id="win-desenho">
-        <div class="window-title">
-            <span>Desenho — Estudos Críticos</span>
-            <div class="window-close" onclick="closeWindow('win-desenho')">X</div>
-        </div>
-        <div class="window-body">
-            <p class="project-desc">
-                Esta prestigiada série inédita de cinco obras explora a fundo as complexidades da <strong>despersonalização e do desmembramento da psique contemporânea</strong>. Através de [...]
-            </p>
-            <p class="project-desc">
-                A composição final une os conceitos numa narrativa sequencial expandida, criando uma ponte entre o traço matérico tradicional e a estética fria da virtualidade algorítmica.
-            </p>
-            <div class="project-media">
-                <div class="media-box"><img class="responsive-img" src="https://raw.githubusercontent.com/Creguel/Portfolio_MT/main/media/Desenho/Desenho_Img_1.jpeg" alt="Desenho 1"><div class="i[...]
-                <div class="media-box"><img class="responsive-img" src="https://raw.githubusercontent.com/Creguel/Portfolio_MT/main/media/Desenho/Desenho_Img_2.jpeg" alt="Desenho 2"><div class="i[...]
-                <div class="media-box"><img class="responsive-img" src="https://raw.githubusercontent.com/Creguel/Portfolio_MT/main/media/Desenho/Desenho_Img_3.jpeg" alt="Desenho 3"><div class="i[...]
-                <div class="media-box"><img class="responsive-img" src="https://raw.githubusercontent.com/Creguel/Portfolio_MT/main/media/Desenho/Desenho_Img_4.jpeg" alt="Desenho 4"><div class="i[...]
-                <div class="media-box"><img class="responsive-img" src="https://raw.githubusercontent.com/Creguel/Portfolio_MT/main/media/Desenho/Desenho_Img_5.jpeg" alt="Desenho 5"><div class="i[...]
-                <div class="media-box"><img class="responsive-img" src="https://raw.githubusercontent.com/Creguel/Portfolio_MT/main/media/Desenho/Desenho_Img_Narrativa.jpeg" alt="Narrativa"><div [...]
-            </div>
-        </div>
-    </div>
-
-    <div id="taskbar">
-        <div style="font-weight: bold; font-size: 12px; border: 2px solid; padding: 1px 6px; background:#bfbfbf;">MIGUEL TAYLOR OS</div>
-        <div class="speed-panel" id="speed-indicator">HOLD FOR SPEED | 1.00x</div>
-        <div class="sys-clock" id="clock">21:35</div>
-    </div>
-
-    <audio id="audio-calmo" src="audio-calmo.mp3" loop preload="auto"></audio>
-    <audio id="audio-agressivo" src="audio-rapido.mp3" loop preload="auto"></audio>
-
-    <script>
-        /* =====================================================================
-           0. VOLUMETRIC CLOUD BACKGROUND COM SHADER WEBGL2
-           ===================================================================== */
-        const cloudCanvas = document.getElementById('cloud-canvas');
-        const gl = cloudCanvas.getContext('webgl2', { alpha: true });
+        // ==========================================
+        // 1. GLOBAL VARIABLES & CONFIGURATION
+        // ==========================================
         
-        if (!gl) {
-            console.error('WebGL2 not supported, falling back to WebGL');
-        }
-        
-        cloudCanvas.width = window.innerWidth;
-        cloudCanvas.height = window.innerHeight;
-        
-        // ─── Noise texture ─────────────────────────────────────────────────────────
-        function buildNoiseTexture() {
-            const SIZE = 256;
-            const data = new Uint8Array(SIZE * SIZE * 4);
-            function hash(n) {
-                let x = Math.sin(n) * 43758.5453123;
-                return x - Math.floor(x);
-            }
-            for (let y = 0; y < SIZE; y++) {
-                for (let x = 0; x < SIZE; x++) {
-                    const i = (y * SIZE + x) * 4;
-                    data[i + 0] = Math.floor(hash(x * 127.1 + y * 311.7) * 256);
-                    data[i + 1] = Math.floor(hash(x * 269.5 + y * 183.3) * 256);
-                    data[i + 2] = Math.floor(hash(x * 419.2 + y * 371.9) * 256);
-                    data[i + 3] = Math.floor(hash(x * 541.3 + y * 631.1) * 256);
-                }
-            }
-            const tex = gl.createTexture();
-            gl.bindTexture(gl.TEXTURE_2D, tex);
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, SIZE, SIZE, 0, gl.RGBA, gl.UNSIGNED_BYTE, data);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-            return tex;
-        }
-
-        // ─── Vertex Shader ────────────────────────────────────────────────────────
-        const VS = `#version 300 es
-in vec2 a_pos;
-void main() { gl_Position = vec4(a_pos, 0.0, 1.0); }
-`;
-
-        // ─── Fragment Shader - Volumetric Clouds ──────────────────────────────────
-        const FS = `#version 300 es
-precision highp float;
-
-uniform float     iTime;
-uniform vec2      iResolution;
-uniform vec4      iMouse;
-uniform sampler2D iChannel0;
-
-out vec4 fragColor;
-
-// ── Parameters ──────────────────────────────────────────────────────────────────
-const float fTurbulence = 0.35;
-const float fSunSpeed   = 0.35;
-
-const vec3 vNightColor   = vec3(0.15, 0.30, 0.60);
-const vec3 vHorizonColor = vec3(0.60, 0.30, 0.40);
-const vec3 vDayColor     = vec3(0.70, 0.80, 1.00);
-const vec3 vSunColor     = vec3(1.00, 0.80, 0.60);
-const vec3 vSunRimColor  = vec3(1.00, 0.66, 0.33);
-
-// ── Sun ─────────────────────────────────────────────────────────────────────────
-vec3 v3sunDir;
-void updateSun() {
-    float s = fSunSpeed * iTime;
-    v3sunDir = normalize(vec3(cos(s), sin(s), 0.0));
-}
-
-// ── Value noise from 2-D texture ────────────────────────────────────────────────
-float noise(in vec3 x) {
-    vec3 p = floor(x);
-    vec3 f = fract(x);
-    f = f * f * f * (3.0 - 2.0 * f);
-    vec2 uv = (p.xy + vec2(37.0, 17.0) * p.z) + f.xy;
-    vec4 rg = texture(iChannel0, (uv + 0.5) / 256.0);
-    return -1.0 + 2.0 * mix(rg.g, rg.r, f.z);
-}
-
-// ── LOD cloud maps ───────────────────────────────────────────────────────────────
-float map5(in vec3 p) {
-    vec3 q = p - vec3(0.0, 0.1, 1.0) * iTime;
-    float f;
-    f  = 0.50000 * noise(q); q = q * 2.02 + iTime * fTurbulence * 1.0;
-    f += 0.25000 * noise(q); q = q * 2.03 + iTime * fTurbulence * 2.0;
-    f += 0.12500 * noise(q); q = q * 2.01 + iTime * fTurbulence * 4.0;
-    f += 0.06250 * noise(q); q = q * 2.02 + iTime * fTurbulence * 8.0;
-    f += 0.03125 * noise(q);
-    return clamp(1.5 - p.y - 2.0 + 1.75 * f, 0.0, 1.0);
-}
-float map4(in vec3 p) {
-    vec3 q = p - vec3(0.0, 0.1, 1.0) * iTime;
-    float f;
-    f  = 0.50000 * noise(q); q = q * 2.02 + iTime * fTurbulence * 1.0;
-    f += 0.25000 * noise(q); q = q * 2.03 + iTime * fTurbulence * 2.0;
-    f += 0.12500 * noise(q); q = q * 2.01 + iTime * fTurbulence * 4.0;
-    f += 0.06250 * noise(q);
-    return clamp(1.5 - p.y - 2.0 + 1.75 * f, 0.0, 1.0);
-}
-float map3(in vec3 p) {
-    vec3 q = p - vec3(0.0, 0.1, 1.0) * iTime;
-    float f;
-    f  = 0.50000 * noise(q); q = q * 2.02 + iTime * fTurbulence * 1.0;
-    f += 0.25000 * noise(q); q = q * 2.03 + iTime * fTurbulence * 2.0;
-    f += 0.12500 * noise(q);
-    return clamp(1.5 - p.y - 2.0 + 1.75 * f, 0.0, 1.0);
-}
-float map2(in vec3 p) {
-    vec3 q = p - vec3(0.0, 0.1, 1.0) * iTime;
-    float f;
-    f  = 0.50000 * noise(q); q = q * 2.02 + iTime * fTurbulence * 1.0;
-    f += 0.25000 * noise(q);
-    return clamp(1.5 - p.y - 2.0 + 1.75 * f, 0.0, 1.0);
-}
-
-// ── Cloud lighting accumulator ───────────────────────────────────────────────────
-vec4 integrate(in vec4 sum, in float dif, in float den, in vec3 bgcol, in float t) {
-    vec3 lin = vec3(0.9, 0.95, 1.0)
-             + 0.5 * vec3(0.7, 0.5, 0.3) * dif
-             * smoothstep(-0.3, 0.3, v3sunDir.y);
-    vec4 col = vec4(mix(1.15 * vec3(1.0, 0.95, 0.8), vec3(0.65), den), den);
-    col.xyz *= lin;
-    col.a   *= 0.4;
-    col.rgb *= col.a;
-    return sum + col * (1.0 - sum.a);
-}
-
-// ── Raymarching macro ─────────────────────────────────────────────────────────────
-#define MARCH(STEPS, MAPLOD) \
-    for (int i = 0; i < STEPS; i++) { \
-        vec3  pos = ro + t * rd; \
-        if (pos.y < -3.0 || pos.y > 2.0 || sum.a > 0.99) break; \
-        float den = MAPLOD(pos); \
-        if (den > 0.01) { \
-            float dif = clamp( \
-                (den - MAPLOD(pos + 0.3 * v3sunDir)) / 0.6, \
-                0.0, 1.0); \
-            sum = integrate(sum, dif, den, bgcol, t); \
-        } \
-        t += max(0.01 * float(i), 0.02 * t); \
-    }
-
-vec4 raymarch(in vec3 ro, in vec3 rd, in vec3 bgcol) {
-    vec4  sum = vec4(0.0);
-    float t   = 0.0;
-    MARCH(20, map5);
-    MARCH(30, map4);
-    MARCH(40, map3);
-    MARCH(50, map2);
-    return clamp(sum, 0.0, 1.0);
-}
-
-// ── Camera ───────────────────────────────────────────────────────────────────────
-mat3 setCamera(in vec3 ro, in vec3 ta, float cr) {
-    vec3 cw = normalize(ta - ro);
-    vec3 cp = vec3(sin(cr), cos(cr), 0.0);
-    vec3 cu = normalize(cross(cw, cp));
-    vec3 cv = normalize(cross(cu, cw));
-    return mat3(cu, cv, cw);
-}
-
-// ── Sky + clouds render ───────────────────────────────────────────────────────────
-vec4 render(in vec3 ro, in vec3 rd) {
-    float sun = clamp(dot(v3sunDir, rd), 0.0, 1.0);
-
-    float fSunHeight = v3sunDir.y;
-    const float fNightHeight = -0.8;
-    const float fDayHeight   =  0.3;
-
-    float fHorizonLength    = fDayHeight - fNightHeight;
-    float fInverseHL        = 1.0 / fHorizonLength;
-    float fHalfHL           = fHorizonLength * 0.5;
-    float fInverseHHL       = 1.0 / fHalfHL;
-    float fMidPoint         = fNightHeight + fHalfHL;
-
-    float fNightContrib   = clamp((fSunHeight - fMidPoint) * (-fInverseHHL), 0.0, 1.0);
-    float fHorizonContrib = 1.0 - clamp(abs((fSunHeight - fMidPoint) * (-fInverseHHL)), 0.0, 1.0);
-    float fDayContrib     = clamp((fSunHeight - fMidPoint) * (fInverseHHL),  0.0, 1.0);
-
-    vec3 vSkyColor = vNightColor   * fNightContrib
-                   + vHorizonColor * fHorizonContrib
-                   + vDayColor     * fDayContrib;
-
-    vec3 col = vSkyColor;
-    col -= clamp(rd.y, 0.0, 0.5);
-
-    col += 0.4 * vSunRimColor * pow(sun,    4.0);
-    col += 1.0 * vSunColor    * pow(sun, 2000.0);
-
-    // Stars
-    float fStarSpeed   = -fSunSpeed * 0.5;
-    float fStarContrib = clamp((fSunHeight - fDayHeight) * (-fInverseHL), 0.0, 1.0);
-
-    mat3 mStar = mat3(
-        vec3( cos(fStarSpeed * iTime), -sin(fStarSpeed * iTime), 0.0),
-        vec3( sin(fStarSpeed * iTime),  cos(fStarSpeed * iTime), 0.0),
-        vec3(0.0, 0.0, 1.0)
-    );
-    vec3 vStarDir = rd * mStar;
-
-    col += pow(
-        (texture(iChannel0, vStarDir.xy).r + texture(iChannel0, vStarDir.zy).r) * 0.5,
-        42.0
-    ) * fStarContrib * 40.0;
-
-    // Volumetric clouds
-    vec4 res = raymarch(ro, rd, col);
-    res *= vec4(pow(vSkyColor, vec3(0.25)), 1.0);
-    col  = col * (1.0 - res.w) + res.xyz;
-
-    return vec4(col, 1.0);
-}
-
-// ── Entry point ───────────────────────────────────────────────────────────────────
-void main() {
-    vec2 p = (-iResolution.xy + 2.0 * gl_FragCoord.xy) / iResolution.y;
-    vec2 m = iMouse.xy / iResolution.xy;
-
-    updateSun();
-
-    vec3 ro = 4.0 * normalize(vec3(
-        sin(6.28318 * m.x + 1.5),
-        0.4 * m.y,
-        cos(6.28318 * m.x + 1.5)
-    ));
-    vec3 ta = vec3(0.0, -1.0, 0.0);
-    mat3 ca = setCamera(ro, ta, 0.0);
-    vec3 rd = ca * normalize(vec3(p.xy, 1.5));
-
-    fragColor = render(ro, rd);
-}
-`;
-
-        // ─── Compile ────────────────────────────────────────────────────────────────
-        function compile(type, src) {
-            const s = gl.createShader(type);
-            gl.shaderSource(s, src);
-            gl.compileShader(s);
-            if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
-                console.error(gl.getShaderInfoLog(s));
-                return null;
-            }
-            return s;
-        }
-
-        const prog = gl.createProgram();
-        gl.attachShader(prog, compile(gl.VERTEX_SHADER, VS));
-        gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, FS));
-        gl.linkProgram(prog);
-        if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
-            console.error(gl.getProgramInfoLog(prog));
-        }
-        gl.useProgram(prog);
-
-        // ─── Full-screen quad ───────────────────────────────────────────────────────
-        const buf = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-        gl.bufferData(gl.ARRAY_BUFFER,
-            new Float32Array([-1,-1, 1,-1, -1,1, 1,1]),
-            gl.STATIC_DRAW
-        );
-        const loc = gl.getAttribLocation(prog, 'a_pos');
-        gl.enableVertexAttribArray(loc);
-        gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
-
-        // ─── Uniforms ───────────────────────────────────────────────────────────────
-        const uTime       = gl.getUniformLocation(prog, 'iTime');
-        const uResolution = gl.getUniformLocation(prog, 'iResolution');
-        const uMouse      = gl.getUniformLocation(prog, 'iMouse');
-        const uChannel0   = gl.getUniformLocation(prog, 'iChannel0');
-
-        gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, buildNoiseTexture());
-        gl.uniform1i(uChannel0, 0);
-
-        // ─── Mouse tracking ─────────────────────────────────────────────────────────
-        let mx = 0.5, my = 0.5;
-        let shaderDragging = false, lastX = 0, lastY = 0;
-
-        cloudCanvas.addEventListener('mousedown', e => { 
-            shaderDragging = true; 
-            lastX = e.clientX; 
-            lastY = e.clientY; 
-        });
-        window.addEventListener('mouseup',   () => { shaderDragging = false; });
-        window.addEventListener('mousemove', e => {
-            if (!shaderDragging) return;
-            mx += (e.clientX - lastX) / cloudCanvas.width  * 0.5;
-            my += (e.clientY - lastY) / cloudCanvas.height * 0.5;
-            mx = ((mx % 1) + 1) % 1;
-            my = Math.max(0.1, Math.min(0.9, my));
-            lastX = e.clientX; 
-            lastY = e.clientY;
-        });
-
-        // ─── Resize ──────────────────────────────────────────────────────────────────
-        function resizeShader() {
-            cloudCanvas.width  = window.innerWidth;
-            cloudCanvas.height = window.innerHeight;
-            gl.viewport(0, 0, cloudCanvas.width, cloudCanvas.height);
-        }
-        window.addEventListener('resize', resizeShader);
-        resizeShader();
-
-        // ─── Render loop ─────────────────────────────────────────────────────────────
-        const t0 = performance.now();
-        let shaderTime = 0;
-
-        function frameShader() {
-            shaderTime = (performance.now() - t0) * 0.001;
-            gl.uniform1f(uTime, shaderTime);
-            gl.uniform2f(uResolution, cloudCanvas.width, cloudCanvas.height);
-            gl.uniform4f(uMouse, mx * cloudCanvas.width, my * cloudCanvas.height, 0, 0);
-            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-            requestAnimationFrame(frameShader);
-        }
-        requestAnimationFrame(frameShader);
-
-        /* =====================================================================
-           1. SIMULAÇÃO DE BOOT / LOADING SCREEN
-           ===================================================================== */
-        const logNode = document.getElementById('boot-log');
-        const enterBtn = document.getElementById('btn-enter');
-        const lines = [
-            "\nMounting physical assets onto structural DOM...",
-            "Loading Audio Engine: audio-calmo.mp3 (Default BPM)... Loaded.",
-            "Loading Audio Engine: audio-rapido.mp3 (150 BPM)... Loaded.",
-            "Mapping 3D Pupil Mesh Deformation channels...",
-            "Compiling Volumetric PBR Day/Night Sky Shaders... Complete.",
-            "\nSystem ready. Click below to establish Web Audio Sandbox."
-        ];
-        let currentLine = 0;
-
-        function printLog() {
-            if (currentLine < lines.length) {
-                logNode.innerHTML += "\n" + lines[currentLine];
-                currentLine++;
-                setTimeout(printLog, 350);
-            } else {
-                enterBtn.style.display = "block";
-            }
-        }
-        setTimeout(printLog, 600);
-
-        /* =====================================================================
-           2. AUDIO ENGINE COM FADE ENTRE CALMO E AGRESSIVO
-           ===================================================================== */
-        let isSystemRunning = false;
-        let audioCtx, gainCalmo, gainAgressivo;
-
-        function startPortfolio() {
-            document.getElementById('loading-screen').style.opacity = '0';
-            setTimeout(() => {
-                document.getElementById('loading-screen').style.display = 'none';
-            }, 800);
-
-            const audioCalmo = document.getElementById('audio-calmo');
-            const audioAgressivo = document.getElementById('audio-agressivo');
-            
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            
-            gainCalmo = audioCtx.createGain();
-            gainAgressivo = audioCtx.createGain();
-            
-            const srcCalmo = audioCtx.createMediaElementSource(audioCalmo);
-            const srcAgressivo = audioCtx.createMediaElementSource(audioAgressivo);
-            
-            srcCalmo.connect(gainCalmo).connect(audioCtx.destination);
-            srcAgressivo.connect(gainAgressivo).connect(audioCtx.destination);
-            
-            gainCalmo.gain.setValueAtTime(1.0, audioCtx.currentTime);
-            gainAgressivo.gain.setValueAtTime(0.0, audioCtx.currentTime);
-            
-            audioCalmo.play().catch(e => console.log('Audio play error:', e));
-            audioAgressivo.play().catch(e => console.log('Audio play error:', e));
-            
-            isSystemRunning = true;
-        }
-
-        /* =====================================================================
-           3. MOTOR THREE.JS — OLHO INTERATIVO (EYE.GLB)
-           ===================================================================== */
-        const tCanvas = document.getElementById('three-canvas');
         const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         
-        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(-0.6, 0, 3.2);
-
-        const renderer = new THREE.WebGLRenderer({ canvas: tCanvas, alpha: true, antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(window.devicePixelRatio);
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
 
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+        // Add lights for the "Eye" model
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
         scene.add(ambientLight);
-        const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
-        dirLight.position.set(5, 5, 5);
-        scene.add(dirLight);
+        const pointLight = new THREE.PointLight(0xffffff, 1, 100);
+        pointLight.position.set(10, 10, 10);
+        scene.add(pointLight);
 
-        let eyeModel = null;
-        let pupilMesh = null;
-        const loader = new THREE.GLTFLoader();
-
-        loader.load('Eye.glb', (gltf) => {
-            eyeModel = gltf.scene;
-            eyeModel.scale.set(0.9, 0.9, 0.9);
-            scene.add(eyeModel);
+        // ==========================================
+        // 2. MOCK EYE MODEL (To satisfy 'eyeModel' reference)
+        // ==========================================
+        function createEyeModel() {
+            const group = new THREE.Group();
             
-            eyeModel.traverse((child) => {
-                if (child.isMesh && (child.name.toLowerCase().includes('pupil') || child.name.toLowerCase().includes('iris'))) {
-                    pupilMesh = child;
-                }
-            });
-        }, undefined, (err) => {
-            const geo = new THREE.SphereGeometry(0.7, 32, 32);
-            const mat = new THREE.MeshPhongMaterial({ color: 0xffffff, roughness: 0.1 });
-            eyeModel = new THREE.Mesh(geo, mat);
-            
-            const pupilGeo = new THREE.SphereGeometry(0.25, 32, 16);
-            const pupilMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
-            pupilMesh = new THREE.Mesh(pupilGeo, pupilMat);
-            pupilMesh.position.set(0, 0, 0.65);
-            eyeModel.add(pupilMesh);
-            scene.add(eyeModel);
-        });
+            // Sclera (White part)
+            const sphereGeo = new THREE.SphereGeometry(2, 32, 32);
+            const sphereMat = new THREE.MeshPhongMaterial({ color: 0xffffff });
+            const sclera = new THREE.Mesh(sphereGeo, sphereMat);
+            group.add(sclera);
 
-        const mouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
-        window.addEventListener('mousemove', (e) => {
-            mouse.targetX = (e.clientX / window.innerWidth) * 2 - 1;
-            mouse.targetY = -(e.clientY / window.innerHeight) * 2 + 1;
-        });
+            // Iris
+            const irisGeo = new THREE.SphereGeometry(1.1, 32, 32);
+            const irisMat = new THREE.MeshPhongMaterial({ color: 0x0000ff }); // Blue eye
+            const iris = new THREE.Mesh(irisGeo, irisMat);
+            iris.position.z = 1.1;
+            group.add(iris);
 
-        /* =====================================================================
-           4. SISTEMA HOLD FOR SPEED - RAMP LENTO ATÉ 20X COM AUDIO PROCESSING
-           ===================================================================== */
+            // Pupil
+            const pupilGeo = new THREE.SphereGeometry(0.6, 32, 32);
+            const pupilMat = new THREE.MeshPhongMaterial({ color: 0x000000 });
+            const pupil = new THREE.Mesh(pupilGeo, pupilMat);
+            pupil.position.z = 1.7;
+            group.add(pupil);
+
+            return {
+                group,
+                pupilMesh: pupil,
+                irisMesh: iris
+            };
+        }
+        
+        const eye = createEyeModel();
+        scene.add(eye.group);
+        // Position the eye in the center
+        eye.group.position.set(0, 0, -5);
+
+
+        // ==========================================
+        // 3. AUDIO CONTEXT & LOGIC
+        // ==========================================
+        let audioCtx;
+        let gainNodes = {}; // To store gain nodes
+        let audioBufferSource;
+        let analyser;
         let isHolding = false;
-        let holdProgress = 0;
-        let speedFactor = 1.0;
-        let targetSpeedFactor = 1.0;
-        const MAX_SPEED = 20.0;
-        const speedIndicator = document.getElementById('speed-indicator');
+        let holdProgress = 0; // 0 to 1
+        let targetSpeedFactor = 0;
+        let currentAudioMode = 'calm'; // 'calm' or 'aggressive'
 
-        window.addEventListener('mousedown', (e) => {
-            if (e.target.closest('.classic-window') || e.target.closest('.desktop-icon') || e.target.closest('#btn-enter')) return;
-            isHolding = true;
-            targetSpeedFactor = MAX_SPEED;
+        // ==========================================
+        // 4. UI LOGIC (Draggable & Clock)
+        // ==========================================
+        const dragObjects = { el: null, offsetX: 0, offsetY: 0 };
+        
+        document.querySelectorAll('.window-group').forEach(win => {
+            // Make window draggable
+            win.addEventListener('mousedown', (e) => {
+                dragObjects.el = win;
+                dragObjects.offsetX = e.clientX - win.offsetLeft;
+                dragObjects.offsetY = e.clientY - win.offsetTop;
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (dragObjects.el) {
+                    dragObjects.el.style.left = (e.clientX - dragObjects.offsetX) + 'px';
+                    dragObjects.el.style.top = (e.clientY - dragObjects.offsetY) + 'px';
+                    win.style.left = (e.clientX - dragObjects.offsetX) + 'px';
+                    win.style.top = (e.clientY - dragObjects.offsetY) + 'px';
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                dragObjects.el = null;
+            });
         });
 
-        window.addEventListener('mouseup', () => {
-            isHolding = false;
-            targetSpeedFactor = 1.0;
-        });
+        const clockElement = document.getElementById('clock');
+        setInterval(() => {
+            const now = new Date();
+            clockElement.textContent = now.toLocaleTimeString();
+        }, 1000);
 
-        /* =====================================================================
-           5. LOOP UNIFICADO DE RENDERING E ANIMAÇÃO (TICK)
-           ===================================================================== */
-        let lastTime = 0;
-        let accumulatedTime = 0;
 
-        function tick(now) {
-            if (lastTime === 0) lastTime = now;
-            const delta = (now - lastTime) * 0.001;
-            lastTime = now;
-
-            // RAMP DE VELOCIDADE - Lento para subir, rápido para descer
-            if (isHolding) {
-                holdProgress += delta * 0.35;
-                if (holdProgress > 1) holdProgress = 1;
-            } else {
-                holdProgress -= delta * 2.5;
-                if (holdProgress < 0) holdProgress = 0;
-            }
+        // ==========================================
+        // 5. YOUR TICK LOGIC INTEGRATION
+        // ==========================================
+        
+        // --- Initialization ---
+        function init() {
+            // Setup Audio
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             
-            speedFactor = THREE.MathUtils.lerp(1.0, targetSpeedFactor, holdProgress);
-            accumulatedTime += delta * speedFactor;
+            // Setup Elements for UI logic
+            const track = document.getElementById('carousel-track');
+            
+            // Add placeholder slides
+            const createSlide = (src, title) => {
+                const slide = document.createElement('div');
+                slide.className = 'carousel-slide';
+                slide.innerHTML = `
+                    <div class="media-box">
+                        <img src="${src}" class="responsive-img">
+                        <div class="img-caption">${title}</div>
+                    </div>
+                `;
+                track.appendChild(slide);
+            };
+            
+            createSlide('https://images.unsplash.com/photo-1518022821681-73f9b43f1a99', 'Mountain');
+            createSlide('https://images.unsplash.com/photo-1472214103451-9374bd1c798e', 'Forest');
 
-            // AUDIO PROCESSING COM FADE ENTRE CALMO E AGRESSIVO
-            if (isSystemRunning && audioCtx) {
-                const audioCalmo = document.getElementById('audio-calmo');
-                const audioAgressivo = document.getElementById('audio-agressivo');
-
-                // Fade suave: calmo começa em 1.0, vai para 0.0
-                // agressivo começa em 0.0, vai para 1.0
-                const calmoGain = Math.max(0, 1.0 - holdProgress);
-                const agressivoGain = Math.min(1.0, holdProgress);
-
-                gainCalmo.gain.setValueAtTime(calmoGain, audioCtx.currentTime);
-                gainAgressivo.gain.setValueAtTime(agressivoGain, audioCtx.currentTime);
-
-                // Ajuste de pitch durante o fade (opcional)
-                const pitchFactor = 1.0 + holdProgress * 0.3;
-                audioCalmo.playbackRate = Math.max(0.8, Math.min(1.2, pitchFactor));
-                audioAgressivo.playbackRate = 1.0; // Sem alteração de pitch
-
-                // Atualizar cor do indicador de velocidade
-                if (holdProgress > 0.1) {
-                    const red = Math.floor(255 * holdProgress);
-                    const green = Math.floor(255 * (1 - holdProgress * 0.7));
-                    speedIndicator.style.color = `rgb(${red}, ${green}, 0)`;
+            // --- TICK LOOP LOGIC ---
+            // This corresponds to the code snippet you provided
+            // We assume this runs in the animate loop
+            const tick = () => {
+                // 1. Eye Animation (Mouse Tracking)
+                const mouse = new THREE.Vector2();
+                if (isHolding) {
+                    mouse.x = 0.5; // Reset to center
+                    mouse.y = 0.5;
                 } else {
-                    speedIndicator.style.color = '#00ff00';
+                    mouse.x = (window.innerWidth / 2 - eye.group.position.x) / 1000; // Tracking logic
+                    mouse.y = (window.innerHeight / 2 - eye.group.position.y) / 1000;
                 }
-            }
+                // Simplified tracking (assuming eye follows mouse)
+                // In your code, you likely update eye.rotation or position here.
+                // Example: eye.group.rotation.x += mouse.y;
 
-            speedIndicator.innerText = `HOLD FOR SPEED | ${speedFactor.toFixed(2)}x`;
+                // 2. Speed Handling
+                // Assuming you have a velocity variable 'velocity'
+                // velocity += (targetSpeedFactor - velocity) * 0.05;
+                
+                // 3. Audio Logic
+                // Update audio based on isHolding and holdProgress
+                // (Your specific crossfading code goes here)
+            };
 
-            // ANIMAÇÃO DO OLHO
-            if (eyeModel) {
-                mouse.x += (mouse.targetX - mouse.x) * 0.08;
-                mouse.y += (mouse.targetY - mouse.y) * 0.08;
+            // Start Render Loop
+            const render = () => {
+                tick();
+                renderer.render(scene, camera);
+                requestAnimationFrame(render);
+            };
+            render();
 
-                if (!isHolding) {
-                    eyeModel.rotation.y = mouse.x * 0.5;
-                    eyeModel.rotation.x = -mouse.y * 0.35;
-                    eyeModel.rotation.z *= 0.95;
-                    
-                    if (pupilMesh) {
-                        const pupilDirX = mouse.targetX * 0.2;
-                        const pupilDirY = -mouse.targetY * 0.2;
-                        pupilMesh.position.set(pupilDirX * 0.3, pupilDirY * 0.3, 0.65);
-                        pupilMesh.scale.set(1, 1, 1);
-                    }
-                } else {
-                    const cornerPhase = now * 0.006;
-                    const cornerRotY = Math.sin(cornerPhase) * 0.7;
-                    const cornerRotX = Math.cos(cornerPhase * 0.7) * 0.6;
-                    
-                    eyeModel.rotation.z += delta * 8.0;
-                    eyeModel.rotation.y = cornerRotY + (Math.random() - 0.5) * 0.1;
-                    eyeModel.rotation.x = cornerRotX + (Math.random() - 0.5) * 0.1;
-                    
-                    if (pupilMesh) {
-                        const pupilScale = 0.6 + holdProgress * 0.8;
-                        pupilMesh.scale.set(pupilScale, pupilScale, 1);
-                    }
-                }
-            }
-
-            renderer.render(scene, camera);
-            requestAnimationFrame(tick);
-        }
-        requestAnimationFrame(tick);
-
-        /* =====================================================================
-           6. GESTÃO DE JANELAS (SISTEMA DE ABAS WINDOWS 95)
-           ===================================================================== */
-        function openWindow(id) {
-            document.querySelectorAll('.classic-window').forEach(win => {
-                win.classList.remove('active');
-            });
-            const targetWin = document.getElementById(id);
-            if (targetWin) targetWin.classList.add('active');
-        }
-
-        function closeWindow(id) {
-            const targetWin = document.getElementById(id);
-            if (targetWin) targetWin.classList.remove('active');
-        }
-
-        document.querySelectorAll('.classic-window').forEach(win => {
-            const title = win.querySelector('.window-title');
-            let isDragging = false;
-            let currentX, currentY, initialX, initialY;
-
-            title.addEventListener('mousedown', (e) => {
-                isDragging = true;
-                win.classList.add('active');
-                initialX = e.clientX - win.offsetLeft;
-                initialY = e.clientY - win.offsetTop;
-            });
-
-            window.addEventListener('mousemove', (e) => {
-                if (!isDragging) return;
-                currentX = e.clientX - initialX;
-                currentY = e.clientY - initialY;
-                win.style.left = currentX + 'px';
-                win.style.top = currentY + 'px';
-                win.style.right = 'auto';
-            });
-
-            window.addEventListener('mouseup', () => isDragging = false);
-        });
-
-        /* =====================================================================
-           7. ENGINE DO CARROSSEL DE FOTOGRAFIA
-           ===================================================================== */
-        const track = document.getElementById('photo-track');
-        let currentSlide = 0;
-
-        const photos = [
-            'media/Fotografia%20II/Fotografia_1.JPG',
-            'media/Fotografia%20II/Fotografia_2.JPG',
-            'media/Fotografia%20II/Fotografia_3.JPG',
-            'media/Fotografia%20II/Fotografia_4.JPG',
-            'media/Fotografia%20II/Fotografia_5.JPG',
-            'media/Fotografia%20II/Fotografia_6.jpeg',
-            'media/Fotografia%20II/Fotografia_7.JPG',
-            'media/Fotografia%20II/Fotografia_8.JPG',
-            'media/Fotografia%20II/Fotografia_9.JPG',
-            'media/Fotografia%20II/Fotografia_10.JPG',
-            'media/Fotografia%20II/Fotografia_11.JPG',
-            'media/Fotografia%20II/Fotografia_12.JPG'
-        ];
-
-        photos.forEach((photo, idx) => {
-            const slide = document.createElement('div');
-            slide.className = 'carousel-slide';
-            const photoUrl = `https://raw.githubusercontent.com/Creguel/Portfolio_MT/main/${photo}`;
-            slide.innerHTML = `
-                <div class="media-box">
-                    <img class="responsive-img" src="${photoUrl}" alt="Fotografia_${idx + 1}">
-                    <div class="img-caption">Série IN/OUT — Elemento_Visual_Fotografia_${idx + 1}</div>
-                </div>
-            `;
-            track.appendChild(slide);
-        });
-
-        function moveCarousel(direction) {
-            currentSlide += direction;
-            if (currentSlide < 0) currentSlide = photos.length - 1;
-            if (currentSlide >= photos.length) currentSlide = 0;
-            track.style.transform = `translateX(-${currentSlide * 100}%)`;
-        }
-
-        /* =====================================================================
-           8. RELÓGIO DO SISTEMA OPERATIVO
-           ===================================================================== */
-        function updateClock() {
-            const d = new Date();
-            document.getElementById('clock').innerText = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        }
-        setInterval(updateClock, 1000);
-        updateClock();
-
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
-    </script>
-</body>
-</html>
+            // --- EXTERNAL EVENT HANDLERS ---
+            // Click/Touch to Start "Holding"
+            document.addEventListener('mousedown', () => { isHolding = true; });
+            document.addEventListener('mouseup', () => { isH
