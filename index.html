@@ -13,42 +13,37 @@
            1. ESTILOS BASE E OVERLAYS
            ========================================================= */
         * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
-        
-        /* Fundo de fallback caso o WebGL demore a carregar */
-        body, html { 
-            width: 100%; height: 100vh; overflow: hidden; font-family: "MS Sans Serif", Arial, sans-serif; 
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); color: #fff; 
-        }
+        body, html { width: 100%; height: 100vh; overflow: hidden; font-family: "MS Sans Serif", Arial, sans-serif; background: #000; color: #fff; }
 
-        /* Canvas Background */
+        /* Fundo Shader WebGL (O primeiro fundo das nuvens) */
         #cloud-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; pointer-events: none; }
 
-        /* CRT Overlay */
+        /* CRT Overlay - Efeito Monitor Antigo */
         .crt-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
             background-size: 100% 4px, 6px 100%; z-index: 9990; pointer-events: none;
         }
 
-        /* Loading Screen */
+        /* Loading Screen Artístico */
         #loading-screen {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: #050505; color: #0f0; font-family: monospace; font-size: 1.2rem;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
-            z-index: 10000; text-align: center; padding: 20px; transition: opacity 0.5s ease; cursor: pointer; pointer-events: auto;
+            z-index: 10000; text-align: center; padding: 20px; transition: opacity 0.5s ease; cursor: pointer;
         }
         .blinking-cursor::after { content: '█'; animation: blink 1s step-end infinite; }
         @keyframes blink { 50% { opacity: 0; } }
 
         /* =========================================================
-           2. AMBIENTE DE TRABALHO & ÍCONES (NOVOS NOMES)
+           2. AMBIENTE DE TRABALHO & ÍCONES
            ========================================================= */
         .desktop {
             position: relative; z-index: 10; padding: 20px; display: flex; flex-direction: column;
             gap: 20px; height: calc(100vh - 40px); pointer-events: none;
         }
         .desktop-icon {
-            width: 80px; text-align: center; color: white; text-shadow: 1px 1px 2px black;
+            width: 85px; text-align: center; color: white; text-shadow: 1px 1px 2px black;
             cursor: pointer; transition: transform 0.2s ease, filter 0.2s ease; pointer-events: auto;
         }
         .desktop-icon:hover { transform: scale(1.1); filter: brightness(1.2) drop-shadow(0px 0px 5px rgba(255, 255, 255, 0.5)); }
@@ -57,7 +52,7 @@
         .icon-text { font-size: 11px; background: rgba(0, 0, 0, 0.5); padding: 2px 4px; border-radius: 3px; word-break: break-word; }
 
         /* =========================================================
-           3. JANELAS (WINDOWS 95 STYLE)
+           3. JANELAS CLÁSSICAS
            ========================================================= */
         .classic-window {
             position: absolute; background: #c0c0c0; border: 2px solid; border-color: #dfdfdf #000 #000 #dfdfdf;
@@ -83,7 +78,7 @@
         .window-body::-webkit-scrollbar-track { background: #dfdfdf; border-left: 1px solid #808080; }
         .window-body::-webkit-scrollbar-thumb { background: #c0c0c0; border: 1px solid #fff; border-right-color: #808080; border-bottom-color: #808080; }
 
-        /* Media Elements */
+        /* Media Elements (Ajuste para não deformar) */
         .media-box { width: 100%; display: flex; flex-direction: column; align-items: center; background: #000; border: 2px inset #fff; }
         .responsive-video { aspect-ratio: 16/9; width: 100%; height: auto; border: none; display: block; }
         .responsive-img { max-width: 100%; height: auto; object-fit: contain; max-height: 50vh; display: block; width: 100%; }
@@ -93,7 +88,7 @@
         .pdf-link { display: block; padding: 15px; background: #e4e0d8; border: 1px dashed darkblue; color: darkblue; text-decoration: none; font-weight: bold; text-align: center; margin-bottom: 5px;}
         .pdf-link:hover { background: #dfdfdf; }
 
-        /* Carrossel Fotografia */
+        /* Carrossel de Fotografia */
         .carousel-container { position: relative; width: 100%; height: 350px; overflow: hidden; border: 2px inset #fff; background: #000; }
         .carousel-track { display: flex; height: 100%; transition: transform 0.4s ease-in-out; }
         .carousel-slide { min-width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; flex-direction: column; }
@@ -103,7 +98,7 @@
         .next-btn { right: 5px; }
 
         /* =========================================================
-           4. COMPONENTES EXTRA (Mute, Taskbar, Olho 3D)
+           4. COMPONENTES EXTRAS
            ========================================================= */
         .retro-btn { background: #c0c0c0; border: 2px outset #fff; padding: 5px 10px; font-weight: bold; cursor: pointer; color: #000; }
         .retro-btn:active { border: 2px inset #fff; }
@@ -134,10 +129,10 @@
     <div class="crt-overlay"></div>
 
     <audio id="bgMusic" loop preload="auto">
-        <source src="https://raw.githubusercontent.com/Creguel/Portfolio_MT/main/audio-calmo.mp3" type="audio/mpeg">
+        <source src="audio-calmo.mp3" type="audio/mpeg">
     </audio>
     <audio id="aggressMusic" loop preload="auto">
-        <source src="https://raw.githubusercontent.com/Creguel/Portfolio_MT/main/audio-agressivo.mp3" type="audio/mpeg">
+        <source src="audio-agressivo.mp3" type="audio/mpeg">
     </audio>
 
     <canvas id="cloud-canvas"></canvas>
@@ -189,7 +184,7 @@
         </div>
         <div class="window-body">
             <p class="project-desc"><strong>Miguel Taylor Lança (Beja, 2005)</strong> é um artista multimédia com interesse em práticas digitais, interativas e audiovisuais. Atualmente conclui a Licenciatura em Artes Plásticas e Multimédia na Universidade de Évora.</p>
-            <a href="https://raw.githubusercontent.com/Creguel/Portfolio_MT/main/Portf%C3%B3lio_Miguel%20Taylor.pdf" target="_blank" style="text-decoration: none;">
+            <a href="Portfólio_Miguel Taylor.pdf" target="_blank" style="text-decoration: none;">
                 <button class="retro-btn" style="width: 100%;">ABRIR PORTFOLIO PDF</button>
             </a>
         </div>
@@ -239,13 +234,13 @@
         </div>
         <div class="window-body">
             <p class="project-desc">Campanha: Évora Capital Europeia da Cultura 2027.</p>
-            <a class="pdf-link" href="https://raw.githubusercontent.com/Creguel/Portfolio_MT/main/Design%20de%20Publicidade/Design%20de%20Publicidade_Cartaz_1.pdf" target="_blank">📄 Cartaz 1.pdf</a>
-            <a class="pdf-link" href="https://raw.githubusercontent.com/Creguel/Portfolio_MT/main/Design%20de%20Publicidade/Design%20de%20Publicidade_Cartaz_2.pdf" target="_blank">📄 Cartaz 2.pdf</a>
-            <div class="media-box"><img class="responsive-img" src="https://raw.githubusercontent.com/Creguel/Portfolio_MT/main/Design%20de%20Publicidade/Design%20de%20Publicidade_Cartaz_Final.jpg"><div class="img-caption">Cartaz Final</div></div>
-            <a class="pdf-link" href="https://raw.githubusercontent.com/Creguel/Portfolio_MT/main/Design%20de%20Publicidade/Design%20de%20Publicidade_Mupi.pdf" target="_blank">📄 Mupi.pdf</a>
-            <div class="media-box"><img class="responsive-img" src="https://raw.githubusercontent.com/Creguel/Portfolio_MT/main/Design%20de%20Publicidade/Design%20de%20Publicidade_Mupi_Final.jpg"><div class="img-caption">Mupi Final</div></div>
-            <a class="pdf-link" href="https://raw.githubusercontent.com/Creguel/Portfolio_MT/main/Design%20de%20Publicidade/Design%20de%20Publicidade_Outdoor.pdf" target="_blank">📄 Outdoor.pdf</a>
-            <div class="media-box"><img class="responsive-img" src="https://raw.githubusercontent.com/Creguel/Portfolio_MT/main/Design%20de%20Publicidade/Design%20de%20Publicidade_Outdoor_Final.jpg"><div class="img-caption">Outdoor Final</div></div>
+            <a class="pdf-link" href="Design de Publicidade/Design de Publicidade_Cartaz_1.pdf" target="_blank">📄 Cartaz 1.pdf</a>
+            <a class="pdf-link" href="Design de Publicidade/Design de Publicidade_Cartaz_2.pdf" target="_blank">📄 Cartaz 2.pdf</a>
+            <div class="media-box"><img class="responsive-img" src="Design de Publicidade/Design de Publicidade_Cartaz_Final.jpg" alt="Cartaz Final"><div class="img-caption">Cartaz Final</div></div>
+            <a class="pdf-link" href="Design de Publicidade/Design de Publicidade_Mupi.pdf" target="_blank">📄 Mupi.pdf</a>
+            <div class="media-box"><img class="responsive-img" src="Design de Publicidade/Design de Publicidade_Mupi_Final.jpg" alt="Mupi Final"><div class="img-caption">Mupi Final</div></div>
+            <a class="pdf-link" href="Design de Publicidade/Design de Publicidade_Outdoor.pdf" target="_blank">📄 Outdoor.pdf</a>
+            <div class="media-box"><img class="responsive-img" src="Design de Publicidade/Design de Publicidade_Outdoor_Final.jpg" alt="Outdoor Final"><div class="img-caption">Outdoor Final</div></div>
             <div class="media-box"><iframe class="responsive-video" src="https://www.youtube.com/embed/ACgU4y7Dj80" allowfullscreen></iframe></div>
         </div>
     </div>
@@ -271,12 +266,12 @@
         </div>
         <div class="window-body">
             <p class="project-desc">A ausência de rosto e a dissolução do corpo no espaço.</p>
-            <div class="media-box"><img class="responsive-img" src="https://raw.githubusercontent.com/Creguel/Portfolio_MT/main/Desenho/Desenho_Img_1.jpeg"><div class="img-caption">Estudo 1</div></div>
-            <div class="media-box"><img class="responsive-img" src="https://raw.githubusercontent.com/Creguel/Portfolio_MT/main/Desenho/Desenho_Img_2.jpeg"><div class="img-caption">Estudo 2</div></div>
-            <div class="media-box"><img class="responsive-img" src="https://raw.githubusercontent.com/Creguel/Portfolio_MT/main/Desenho/Desenho_Img_3.jpeg"><div class="img-caption">Estudo 3</div></div>
-            <div class="media-box"><img class="responsive-img" src="https://raw.githubusercontent.com/Creguel/Portfolio_MT/main/Desenho/Desenho_Img_4.jpeg"><div class="img-caption">Estudo 4</div></div>
-            <div class="media-box"><img class="responsive-img" src="https://raw.githubusercontent.com/Creguel/Portfolio_MT/main/Desenho/Desenho_Img_5.jpeg"><div class="img-caption">Estudo 5</div></div>
-            <div class="media-box"><img class="responsive-img" src="https://raw.githubusercontent.com/Creguel/Portfolio_MT/main/Desenho/Desenho_Img_Narrativa.jpeg"><div class="img-caption">Composição Narrativa</div></div>
+            <div class="media-box"><img class="responsive-img" src="Desenho/Desenho_Img_1.jpeg" alt="Estudo 1"><div class="img-caption">Estudo 1</div></div>
+            <div class="media-box"><img class="responsive-img" src="Desenho/Desenho_Img_2.jpeg" alt="Estudo 2"><div class="img-caption">Estudo 2</div></div>
+            <div class="media-box"><img class="responsive-img" src="Desenho/Desenho_Img_3.jpeg" alt="Estudo 3"><div class="img-caption">Estudo 3</div></div>
+            <div class="media-box"><img class="responsive-img" src="Desenho/Desenho_Img_4.jpeg" alt="Estudo 4"><div class="img-caption">Estudo 4</div></div>
+            <div class="media-box"><img class="responsive-img" src="Desenho/Desenho_Img_5.jpeg" alt="Estudo 5"><div class="img-caption">Estudo 5</div></div>
+            <div class="media-box"><img class="responsive-img" src="Desenho/Desenho_Img_Narrativa.jpeg" alt="Composição Narrativa"><div class="img-caption">Composição Narrativa</div></div>
         </div>
     </div>
 
@@ -336,8 +331,8 @@
                     audioStarted = true;
                     hideLoadingScreen();
                 }).catch(error => {
-                    console.warn("Autoplay bloqueado pelo browser:", error);
-                    audioStarted = true; // Permite o site funcionar mesmo sem áudio
+                    console.warn("Autoplay bloqueado pelo browser. A continuar sem áudio.");
+                    audioStarted = true; 
                     hideLoadingScreen();
                 });
             } else {
@@ -349,7 +344,7 @@
         function hideLoadingScreen() {
             const screen = document.getElementById('loading-screen');
             screen.style.opacity = '0';
-            setTimeout(() => { screen.style.display = 'none'; }, 800);
+            setTimeout(() => { screen.style.display = 'none'; }, 500);
         }
 
         function toggleMute() {
@@ -363,16 +358,17 @@
         }
 
         /* =====================================================================
-           2. WEBGL SHADER: NUVENS (O TEU PRIMEIRO FUNDO EXATO)
+           2. WEBGL SHADER: NUVENS (O TEU PRIMEIRO FUNDO EXATO DE CLOUD-SKY.HTML)
            ===================================================================== */
         const canvasGL = document.getElementById('cloud-canvas');
         const gl = canvasGL.getContext('webgl2', { antialias: false, powerPreference: 'high-performance' });
         
-        if(!gl) console.error("O teu dispositivo não suporta WebGL2. A mostrar fundo alternativo.");
+        if(!gl) console.error("WebGL2 não suportado. A mostrar fundo alternativo.");
 
         function resizeCanvas() {
-            canvasGL.width = window.innerWidth;
-            canvasGL.height = window.innerHeight;
+            const SCALE = window.devicePixelRatio > 1 ? 0.55 : 0.7;
+            canvasGL.width = Math.floor(window.innerWidth * SCALE);
+            canvasGL.height = Math.floor(window.innerHeight * SCALE);
             if (gl) gl.viewport(0, 0, canvasGL.width, canvasGL.height);
         }
         window.addEventListener('resize', resizeCanvas);
@@ -484,7 +480,7 @@
         const dirLight = new THREE.DirectionalLight(0xffffff, 0.8); dirLight.position.set(5, 5, 5); sceneEye.add(dirLight);
 
         let eyeModel = null, mixer = null;
-        new THREE.GLTFLoader().load('https://raw.githubusercontent.com/Creguel/Portfolio_MT/main/Eye.glb', (gltf) => {
+        new THREE.GLTFLoader().load('Eye.glb', (gltf) => {
             eyeModel = gltf.scene; sceneEye.add(eyeModel);
             mixer = new THREE.AnimationMixer(eyeModel);
             const clip = THREE.AnimationClip.findByName(gltf.animations, 'SphereAction.002');
@@ -522,7 +518,7 @@
         function animate() {
             requestAnimationFrame(animate);
             let now = performance.now();
-            let delta = (now - lastFrameTime) * 0.001; // segundos
+            let delta = (now - lastFrameTime) * 0.001; 
             lastFrameTime = now;
 
             // Aceleração da Velocidade (Hold)
@@ -538,7 +534,7 @@
 
             // Áudio: Pitch Up e Blend
             if (audioStarted) {
-                audioCalmo.playbackRate = Math.min(holdSpeed, 16.0); // Pitch up até limite seguro do browser
+                audioCalmo.playbackRate = Math.min(holdSpeed, 16.0); // Pitch up até limite do browser
                 
                 if (holdSpeed >= 18.0) { 
                     if (audioAgressivo.paused) audioAgressivo.play().catch(()=>{});
@@ -554,7 +550,7 @@
 
             // Render do Shader WebGL
             if(gl && prog) {
-                shaderTime += delta * holdSpeed; // Multiplica a passagem do tempo
+                shaderTime += delta * holdSpeed; // Multiplica a passagem do tempo da paisagem
                 gl.useProgram(prog);
                 gl.uniform2f(uResLoc, canvasGL.width, canvasGL.height);
                 gl.uniform1f(uTimeLoc, shaderTime);
@@ -562,7 +558,7 @@
                 gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
             }
 
-            // Olho Tridimensional Controlado e Limitado (Clamping)
+            // Olho Tridimensional Controlado
             if (eyeModel) {
                 if (mixer) mixer.update(clock3D.getDelta());
                 
@@ -572,7 +568,7 @@
                     eyeModel.rotation.y += (rotY - eyeModel.rotation.y) * 0.12;
                     eyeModel.rotation.x += (rotX - eyeModel.rotation.x) * 0.12;
                 } else {
-                    if (now - lastJitter > 100) { // Treme de forma frenética
+                    if (now - lastJitter > 100) { // Treme frenético
                         randomTargetX = (Math.random() - 0.5) * 1.2;
                         randomTargetY = (Math.random() - 0.5) * 1.2;
                         lastJitter = now;
@@ -590,7 +586,7 @@
         animate();
 
         /* =====================================================================
-           5. GESTÃO DE JANELAS E CARROSSEL FOTOGRAFIA
+           5. GESTÃO DE JANELAS E CARROSSEL
            ===================================================================== */
         let highestZ = 100;
         function openWindow(id) {
@@ -614,20 +610,19 @@
             });
         });
 
-        // Setup Dinâmico do Carrossel (Links Github Originais)
+        // Setup Dinâmico do Carrossel (Caminhos Locais Originais)
         const photoTrack = document.getElementById('photo-track');
         const photos = [
             "Fotografia_1.JPG", "Fotografia_2.JPG", "Fotografia_3.JPG", "Fotografia_4.JPG", 
             "Fotografia_5.JPG", "Fotografia_6.jpeg", "Fotografia_7.JPG", "Fotografia_8.JPG", 
             "Fotografia_9.JPG", "Fotografia_10.JPG", "Fotografia_11.JPG", "Fotografia_12.JPG", 
-            "Fotografia_Composi%C3%A7%C3%A3o.jpg"
+            "Fotografia_Composição.jpg"
         ];
         
         photos.forEach((photo, idx) => {
             const slide = document.createElement('div');
             slide.className = 'carousel-slide';
-            const photoUrl = `https://raw.githubusercontent.com/Creguel/Portfolio_MT/main/Fotografia%20II/${photo}`;
-            slide.innerHTML = `<div class="media-box"><img class="responsive-img" src="${photoUrl}"><div class="img-caption">IN/OUT — Fotografia ${idx+1}</div></div>`;
+            slide.innerHTML = `<div class="media-box"><img class="responsive-img" src="Fotografia II/${photo}"><div class="img-caption">IN/OUT — Imagem ${idx+1}</div></div>`;
             photoTrack.appendChild(slide);
         });
 
